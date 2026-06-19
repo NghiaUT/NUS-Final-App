@@ -1,4 +1,5 @@
 import React from 'react';
+import PhotoCard from '../../components/PhotoCard';
 
 
 const MOCK_DATA = [
@@ -8,7 +9,7 @@ const MOCK_DATA = [
       "id": "user_012",
       "name": "Hieu Nguyen",
       "avatar_initials": "HN",
-      "avatar_url": "https://example.com/avatars/hieu-nguyen.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
       "is_following": true
     },
     "content": {
@@ -20,17 +21,17 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/hieu-1.jpg",
+          "url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Chân dung nam đeo kính"
         },
         {
           "order": 2,
-          "url": "https://example.com/photos/hieu-2.jpg",
+          "url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Phong cảnh mùa thu"
         },
         {
           "order": 3,
-          "url": "https://example.com/photos/hieu-3.jpg",
+          "url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Hồ nước tĩnh lặng"
         }
       ]
@@ -50,7 +51,7 @@ const MOCK_DATA = [
       "id": "user_045",
       "name": "Anna Tran",
       "avatar_initials": "AT",
-      "avatar_url": "https://example.com/avatars/anna-tran.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
       "is_following": false
     },
     "content": {
@@ -62,12 +63,12 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/anna-leaf.jpg",
+          "url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Cô gái với chiếc lá che nửa mặt"
         },
         {
           "order": 2,
-          "url": "https://example.com/photos/nature-1.jpg",
+          "url": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Rừng cây xanh"
         }
       ]
@@ -87,7 +88,7 @@ const MOCK_DATA = [
       "id": "user_077",
       "name": "Sarah Connor",
       "avatar_initials": "SC",
-      "avatar_url": "https://example.com/avatars/sarah-connor.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80",
       "is_following": true
     },
     "content": {
@@ -99,17 +100,17 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/sarah-crown.jpg",
+          "url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Cô gái đội vòng hoa"
         },
         {
           "order": 2,
-          "url": "https://example.com/photos/friends.jpg",
+          "url": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Nhóm bạn bè vui vẻ"
         },
         {
           "order": 3,
-          "url": "https://example.com/photos/party.jpg",
+          "url": "https://images.unsplash.com/photo-1496024840928-4c417aaf2217?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Bữa tiệc ngoài trời"
         }
       ]
@@ -129,7 +130,7 @@ const MOCK_DATA = [
       "id": "user_092",
       "name": "Minh Le",
       "avatar_initials": "ML",
-      "avatar_url": "https://example.com/avatars/minh-le.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
       "is_following": false
     },
     "content": {
@@ -141,7 +142,7 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/city-girl.jpg",
+          "url": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Cô gái ở bối cảnh thành phố"
         }
       ]
@@ -161,7 +162,7 @@ const MOCK_DATA = [
       "id": "user_110",
       "name": "Hoang Vu",
       "avatar_initials": "HV",
-      "avatar_url": "https://example.com/avatars/hoang-vu.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=150&q=80",
       "is_following": true
     },
     "content": {
@@ -173,12 +174,12 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/dog-1.jpg",
+          "url": "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Chó Golden Retriever"
         },
         {
           "order": 2,
-          "url": "https://example.com/photos/dog-park.jpg",
+          "url": "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Công viên cho chó"
         }
       ]
@@ -198,7 +199,7 @@ const MOCK_DATA = [
       "id": "user_155",
       "name": "Linh Pham",
       "avatar_initials": "LP",
-      "avatar_url": "https://example.com/avatars/linh-pham.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80",
       "is_following": false
     },
     "content": {
@@ -210,17 +211,17 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/photobook.jpg",
+          "url": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Sách ảnh đặt trên bàn gỗ"
         },
         {
           "order": 2,
-          "url": "https://example.com/photos/coffee-cup.jpg",
+          "url": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Tách cà phê"
         },
         {
           "order": 3,
-          "url": "https://example.com/photos/glasses.jpg",
+          "url": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Kính râm"
         }
       ]
@@ -252,7 +253,7 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/architecture.jpg",
+          "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Kiến trúc tòa nhà hiện đại"
         }
       ]
@@ -272,7 +273,7 @@ const MOCK_DATA = [
       "id": "user_304",
       "name": "Elena Smith",
       "avatar_initials": "ES",
-      "avatar_url": "https://example.com/avatars/elena-smith.jpg",
+      "avatar_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
       "is_following": false
     },
     "content": {
@@ -284,12 +285,12 @@ const MOCK_DATA = [
       "image_stack": [
         {
           "order": 1,
-          "url": "https://example.com/photos/food-1.jpg",
+          "url": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Món tráng miệng đẹp mắt"
         },
         {
           "order": 2,
-          "url": "https://example.com/photos/food-2.jpg",
+          "url": "https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=500&q=80",
           "alt_text": "Cốc sinh tố"
         }
       ]
@@ -308,37 +309,49 @@ const Feed = () => {
   // Page for the feed layout:
   // Header is here too, it will be split later for the layout.
   return (
-    <>
-      <header>
-        <div>Fotobook</div>
-        <input type="text" name="" id="" placeholder='Search Photo/ Album' />
-        <div>
-          <img></img>
-          <p>Hieu Nguyen</p>
+    <div className=''>
+      <header className="bg-blue h-15 flex items-center justify-between pl-[5%] pr-[5%]">
+        <div className="text-3xl text-white text-right pr-4 md:w-[150px]">Fotobook</div>
+        <div className='flex-1 md:max-w-[1200px] flex items-center justify-between'>
+          <input type="text" name="" id="" placeholder='Search Photo/ Album' className="flex-1 bg-white px-6 py-3 rounded-md md:max-w-[650px] focus:outline-2 focus:outline-graywhite focus:border focus:border-black"/>
+          <div className="flex flex-row items-center gap-2 justify-between">
+            <img src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80' alt="anh avatar" className="w-12 aspect-square md:w-14 object-cover border-none cursor-pointer rounded-full"/>
+            <p className="text-white text-xl font-semibold">Hieu Nguyen</p>
+          </div>
         </div>
-        <div>Logout</div>
+        <button className="text-center cursor-pointer font-bold text-white text-xl md:w-[150px]">Logout</button>
       </header>
 
-      <div>
-        <aside>
-          <ul>
-            <li>Feeds</li>
-            <li>Discover</li>
+      <div className="flex flex-row justify-between pt-5 pl-[5%] pr-[5%] h-[calc(100vh-60px)] bg-graywhite">
+        <aside className="md:w-[150px]">
+          <ul className="mt-5 flex flex-col items-start justify-start gap-2 w-full">
+            <li className="font-semibold text-blue text-lg cursor-pointer">Feeds</li>
+            <li className="font-semibold text-lg cursor-pointer">Discover</li>
           </ul>
         </aside>
 
-        <div>
-          <div>
-            <button>PHOTO</button>
-            <button>ALBUM</button>
+        <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center">
+          <div className="mt-5 mb-5 border border-blue rounded-lg">
+            <button className="md:w-28 px-4 py-2 text-blue text-xl font-bold text-center cursor-pointer">PHOTO</button>
+            <button className="md:w-28 px-4 py-2 text-white text-xl font-bold text-center bg-blue cursor-pointer">ALBUM</button>
+          </div>
+          <div className="flex-1 w-full grid md:grid-cols-2 gap-2.5">
+            {
+              MOCK_DATA.map((data) => {
+                return (
+                  <PhotoCard data={data}/>
+                )
+              })
+            }
           </div>
         </div>
 
-        <aside>
+        <aside className="md:w-[150px] invisible">
           {/* Thẻ mẫu để chiếm chỗ đảm bảo cho main luôn chiếm chừng đấy */}
+          Hello đi nhờ
         </aside>
       </div>      
-    </>
+    </div>
   )
 }
 
