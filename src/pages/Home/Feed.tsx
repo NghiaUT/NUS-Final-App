@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 import PhotoCard from '../../components/PhotoCard';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 
 const MOCK_DATA = [
@@ -305,24 +308,49 @@ const MOCK_DATA = [
     }
   }
 ];
+const fetchData = async (pageParam) => {
+  console.log(pageParam);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(MOCK_DATA);
+    }, 1500); //-> Set time out 1500 for delaying;
+  });
+};
+
 const Feed = () => {
   // Page for the feed layout:
   // Header is here too, it will be split later for the layout.
+  // 1. Set the observer:
+  const { ref: bottomRef, inView } = useInView();
+
+  // 2. Infinite Query:
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({queryKey:['albums'], queryFn: fetchData, initialPageParam: 1, getNextPageParam: (lastPage, allPages) => {
+    return lastPage.length === 8 ? allPages.length + 1 : null;
+  }});
+
+  useEffect(() => {
+    if(inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
+
+  if (status === 'error') return <div>Error fetching data</div>;
+
   return (
     <div className=''>
       <header className="bg-blue h-15 flex items-center justify-between pl-[5%] pr-[5%]">
         <div className="text-3xl text-white text-right pr-4 md:w-[150px]">Fotobook</div>
-        <div className='flex-1 md:max-w-[1200px] flex items-center justify-between'>
-          <input type="text" name="" id="" placeholder='Search Photo/ Album' className="flex-1 bg-white px-6 py-3 rounded-md md:max-w-[650px] focus:outline-2 focus:outline-graywhite focus:border focus:border-black"/>
+        <div className='flex-1 md:max-w-[1200px] flex gap-5 items-center justify-between'>
+          <input type="text" name="" id="" placeholder='Search Photo/ Album' className="flex-1 bg-white px-4 py-2 md:px-6 md:py-3 rounded-md md:max-w-[650px] focus:outline-2 focus:outline-graywhite focus:border focus:border-black"/>
           <div className="flex flex-row items-center gap-2 justify-between">
-            <img src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80' alt="anh avatar" className="w-12 aspect-square md:w-14 object-cover border-none cursor-pointer rounded-full"/>
-            <p className="text-white text-xl font-semibold">Hieu Nguyen</p>
+            <img src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80' alt="anh avatar" className="w-8 md:w-12 aspect-square xl:w-14 object-cover border-none cursor-pointer rounded-full"/>
+            <p className="hidden xl:block text-white xl:text-xl xl:font-semibold">Hieu Nguyen</p>
           </div>
         </div>
         <button className="text-center cursor-pointer font-bold text-white text-xl md:w-[150px]">Logout</button>
       </header>
 
-      <div className="flex flex-row justify-between pt-5 pl-[5%] pr-[5%] h-[calc(100vh-60px)] bg-graywhite">
+      <div className="flex flex-row justify-between pt-5 pl-[5%] pr-[5%] bg-graywhite">
         <aside className="md:w-[150px]">
           <ul className="mt-5 flex flex-col items-start justify-start gap-2 w-full">
             <li className="font-semibold text-blue text-lg cursor-pointer">Feeds</li>
@@ -331,19 +359,25 @@ const Feed = () => {
         </aside>
 
         <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center">
+          {status === 'pending' ? <LoadingSpinner /> :<>
           <div className="mt-5 mb-5 border border-blue rounded-lg">
             <button className="md:w-28 px-4 py-2 text-blue text-xl font-bold text-center cursor-pointer">PHOTO</button>
             <button className="md:w-28 px-4 py-2 text-white text-xl font-bold text-center bg-blue cursor-pointer">ALBUM</button>
           </div>
-          <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+          <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-2.5 p-2.5">
             {
-              MOCK_DATA.map((data) => {
+              data?.pages.flatMap(page => page).map((data) => {
                 return (
                   <PhotoCard data={data}/>
                 )
               })
             }
           </div>
+          {/* Attach the ref to this invisible div at the bottom */}
+          <div ref={bottomRef} style={{ height: '20px' }}></div>
+          {isFetchingNextPage && <LoadingSpinner />}
+          {!hasNextPage && <div>You've caught up on everything! 🎉</div>}
+          </>}
         </div>
 
         <aside className="md:w-[150px] invisible">

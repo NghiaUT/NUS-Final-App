@@ -14,11 +14,11 @@ const PhotoCard = ({data} : any) => {
   const [isLiked, setIsLiked] = useState(data.interactions.is_liked);
   const [likesCount, setLikesCount] = useState(data.interactions.likes_count);
   const commonImgConfig = "w-60 mx-auto aspect-square object-cover border-4 border-white shadow-md ";
-  console.log(data);
-  console.log(type);
-  console.log(image_stack)
+  // console.log(data);
+  // console.log(type);
+  // console.log(image_stack)
   return (
-    <div className="flex box-border w-full mx-auto md:h-[300px] md:max-w-[550px] p-2.5 bg-graywhite shadow-2xs transition duration-300 ease-in-out">
+    <div className="flex box-border w-full mx-auto md:h-[300px] p-2.5 bg-graywhite shadow-xs transition duration-300 ease-in-out">
       <div className="group flex-1 m-7.5 relative cursor-pointer">
         {/* Render các ảnh */}
         {
@@ -48,7 +48,7 @@ const PhotoCard = ({data} : any) => {
             </div>
           }
         </div>
-        <div className="flex-1 flex flex-col gap-2 flex-start">
+        <div className="flex-1 flex flex-col gap-2 flex-start overflow-hidden">
           <h1 className="font-semibold text-lg">{title}</h1>
           <p className="overflow-hidden text-sm">{body}</p>
         </div>
