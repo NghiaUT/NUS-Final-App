@@ -38,7 +38,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 123,
-      "isLiked": false
+      "is_liked": true
     },
     "metadata": {
       "created_at": "2018-04-01T16:56:00Z",
@@ -75,7 +75,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 89,
-      "isLiked": true
+      "is_liked": true
     },
     "metadata": {
       "created_at": "2018-04-02T09:15:00Z",
@@ -117,7 +117,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 452,
-      "isLiked": true
+      "is_liked": true
     },
     "metadata": {
       "created_at": "2018-04-03T20:30:00Z",
@@ -149,7 +149,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 56,
-      "isLiked": false
+      "is_liked": false
     },
     "metadata": {
       "created_at": "2018-04-05T14:10:00Z",
@@ -186,7 +186,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 890,
-      "isLiked": true
+      "is_liked": true
     },
     "metadata": {
       "created_at": "2018-04-06T10:05:00Z",
@@ -228,7 +228,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 12,
-      "isLiked": false
+      "is_liked": false
     },
     "metadata": {
       "created_at": "2018-04-07T11:45:00Z",
@@ -260,7 +260,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 334,
-      "isLiked": true
+      "is_liked": true
     },
     "metadata": {
       "created_at": "2018-04-08T15:20:00Z",
@@ -297,7 +297,7 @@ const MOCK_DATA = [
     },
     "interactions": {
       "likes_count": 1056,
-      "isLiked": false
+      "is_liked": false
     },
     "metadata": {
       "created_at": "2018-04-09T08:00:00Z",
@@ -335,7 +335,7 @@ const Feed = () => {
             <button className="md:w-28 px-4 py-2 text-blue text-xl font-bold text-center cursor-pointer">PHOTO</button>
             <button className="md:w-28 px-4 py-2 text-white text-xl font-bold text-center bg-blue cursor-pointer">ALBUM</button>
           </div>
-          <div className="flex-1 w-full grid md:grid-cols-2 gap-2.5">
+          <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-2.5">
             {
               MOCK_DATA.map((data) => {
                 return (
