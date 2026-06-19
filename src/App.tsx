@@ -4,12 +4,12 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+import Feed from './pages/Home/Feed'
+
 function App() {
 
   return (
-    <>
-      <h1 className='font-sans text-3xl'>Dự án final app tại Itern NUS!</h1>
-    </>
+    <Feed />
   )
 }
 
