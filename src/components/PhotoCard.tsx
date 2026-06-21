@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 
-const PhotoCard = ({data} : any) => {
+const PhotoCard = ({data, onImgClick} : any) => {
   const {
     author: { name, avatar_initials, avatar_url, is_following },
     content: { title, body },
@@ -19,7 +19,7 @@ const PhotoCard = ({data} : any) => {
   // console.log(image_stack)
   return (
     <div className="flex flex-col sm:flex-row items-center w-full mx-auto md:h-[300px] p-2 md:p-2.5 bg-graywhite shadow-xs transition duration-300 ease-in-out">
-      <div className="group flex-1 max-h-[300px] md:h-full m-1.5 sm:m-7.5 relative cursor-pointer w-40 sm:w-60">
+      <div className="group flex-1 max-h-[300px] md:h-full m-1.5 sm:m-7.5 relative cursor-pointer w-40 sm:w-60" onClick={() => onImgClick(data)}>
         {/* Render các ảnh */}
         {
           image_stack.map((img) => {
