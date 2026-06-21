@@ -1,20 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-module.exports = {
-  content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
+      screens: {
+        'sm' : '480px',
+        'md' : '768px'
+      },
       keyframes: {
         'ios-fade': {
           '0%': { opacity: '1' },
@@ -23,6 +17,12 @@ module.exports = {
       },
       animation: {
         'ios-fade': 'ios-fade 1.2s linear infinite',
+      },
+      colors: {
+        graywhite: '#F8F8F8',
+        blue: '#3C5A9A',
+        gray: '#848585',
+        orange: '#D67C49'
       }
     },
   },
