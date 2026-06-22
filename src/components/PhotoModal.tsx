@@ -20,7 +20,7 @@ const PhotoModal = ({data, handleModalClose} : any) => {
     };
   return (
     <div className="fixed top-0 bottom-0 right-0 left-0 bg-black/50 flex justify-center items-center z-1000">
-        <div className="rounded-sm w-[90vw] max-w-[1200px] aspect-square sm:aspect-4/3 max-h-[85vh] object-contain bg-white p-2.5 flex flex-col items-center gap-2.5">
+        <div className="rounded-sm w-[90vw] max-w-[1000px] aspect-square sm:aspect-4/3 max-h-[85vh] object-contain bg-white p-2.5 flex flex-col items-center gap-2.5">
           {/* Modal chứa title, các ảnh và description ảnh*/}
           <div className="flex flex-row items-center justify-between w-full">
             <span className="font-semibold text-xl md:text-2xl line-clamp-1">{title}</span>

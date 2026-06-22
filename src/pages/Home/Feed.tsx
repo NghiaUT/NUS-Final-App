@@ -349,6 +349,8 @@ const Feed = () => {
     setIsModalOpen(false);
   };
 
+  // State and handle for clicking 
+
   if (status === 'error') return <div>Error fetching data</div>;
 
   return (
@@ -383,7 +385,7 @@ const Feed = () => {
             {
               data?.pages.flatMap(page => page).map((data) => {
                 return (
-                  <PhotoCard key={data.id} data={data} onImgClick={handleModalOpen}/>
+                  <PhotoCard key={data.id + Date.now().toString()} data={data} onImgClick={handleModalOpen}/>
                 )
               })
             }
