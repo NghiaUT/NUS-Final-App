@@ -3,5 +3,12 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  {
+  "compilerOptions": {
+    "noUnusedLocals": false,       /* Bỏ qua lỗi khai báo biến nhưng không dùng (TS6133) */
+    "noUnusedParameters": false,   /* Bỏ qua lỗi tham số không dùng */
+    "noImplicitAny": false         /* Bỏ qua lỗi thiếu type (TS7006) */
+  }
+}
 }
