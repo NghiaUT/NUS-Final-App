@@ -349,7 +349,12 @@ const Feed = () => {
     setIsModalOpen(false);
   };
 
-  // State and handle for clicking 
+  // State for page photo or album.
+  const [isPhotoPage, setIsPhotoPage] = useState(true);
+
+  const handleSwitchPage = () => {
+    setIsPhotoPage(!isPhotoPage);
+  }
 
   if (status === 'error') return <div>Error fetching data</div>;
 
@@ -376,13 +381,17 @@ const Feed = () => {
         </aside>
 
         <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
-          <div className="mt-5 mb-5 border border-blue rounded-lg">
-            <button className="md:w-28 px-3 sm:px-4 py-1.5 sm:py-2 text-blue text-sm sm:text-xl font-bold text-center cursor-pointer">PHOTO</button>
-            <button className="md:w-28 px-3 sm:px-4 py-1.5 sm:py-2 text-white text-sm sm:text-xl font-bold text-center bg-blue cursor-pointer">ALBUM</button>
+          <div className="relative mt-5 mb-5 border border-blue rounded-lg">
+            {/* Thanh trượt bên dưới */}
+            <div className={`absolute top-1 left-1 bottom-1 w-[calc(50%-4px)] bg-blue rounded-lg transition-transform duration-300 ease-out ${isPhotoPage === true ? 'translate-x-0' : 'translate-x-full'}`}></div>
+            <button className= {`relative z-10 md:w-28 px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-xl font-bold text-center cursor-pointer transition-colors duration-300 bg-transparent border-none outline-none ${isPhotoPage === true ? "text-white" : "text-blue"}`} onClick={handleSwitchPage}>PHOTO</button>
+            <button className= {`relative z-10 md:w-28 px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-xl font-bold text-center cursor-pointer transition-colors duration-300 bg-transparent border-none outline-none ${isPhotoPage === true ? "text-blue" : "text-white"}`} onClick={handleSwitchPage}>ALBUM</button>
+            {}
           </div>
           {status === 'pending' ? <LoadingSpinner /> : <>
           <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-1.5 sm:gap-2.5 p-2.5">
             {
+              // Thực hiện render từng photocard pages trong Tanstack Query.
               data?.pages.flatMap(page => page).map((data) => {
                 return (
                   <PhotoCard key={data.id + Date.now().toString()} data={data} onImgClick={handleModalOpen}/>
