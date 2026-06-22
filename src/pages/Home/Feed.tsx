@@ -368,12 +368,12 @@ const Feed = () => {
       <div className="flex flex-row justify-between pt-5 pl-3 pr-3 md:pl-[2%] md:pr-[2%] xl:pl-[5%] xl:pr-[5%] bg-graywhite">
         <aside className="hidden sm:block md:w-[150px]">
           <ul className="mt-5 flex flex-col items-start justify-start gap-2 w-full">
-            <li className="font-semibold text-blue text-lg cursor-pointer">Feeds</li>
+            <li className="font-semibold text-blue text-lg cursor-pointer underline">Feeds</li>
             <li className="font-semibold text-lg cursor-pointer">Discover</li>
           </ul>
         </aside>
 
-        <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center">
+        <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
           <div className="mt-5 mb-5 border border-blue rounded-lg">
             <button className="md:w-28 px-3 sm:px-4 py-1.5 sm:py-2 text-blue text-sm sm:text-xl font-bold text-center cursor-pointer">PHOTO</button>
             <button className="md:w-28 px-3 sm:px-4 py-1.5 sm:py-2 text-white text-sm sm:text-xl font-bold text-center bg-blue cursor-pointer">ALBUM</button>
