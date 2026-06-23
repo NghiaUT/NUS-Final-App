@@ -41,17 +41,17 @@ const PhotoCard = ({data, onImgClick} : any) => {
             let imgConfig = commonImgConfig + (img.order === 1 ?  "relative z-3 group-hover:-translate-y-2" : img.order === 2 ? "absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4" : "absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4");
 
             return (
-              <img key={img.order} src={img.url || null} alt={img.alt_text} className={imgConfig}></img>
+              <img key={img.order} src={img.url || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80"} alt={img.alt_text} className={imgConfig}></img>
             )
           }) : // Nếu là ảnh thì render kiểu khác
-           <img src={image_stack[0].url || null} alt={image_stack[0].alt_text} className="relative w-full h-full mx-auto aspect-square object-cover hover:scale-105"/>
+           <img src={image_stack[0].url || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80"} alt={image_stack[0].alt_text} className="relative w-full h-full mx-auto aspect-square object-cover hover:scale-105"/>
         }
       </div>
       {/* Phần chứa các thông tin của ảnh */}
       <div className="flex-1 flex flex-col shrink-0 w-full h-full">
         <div className="w-full flex items-center justify-between">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={handleProfileClick}>
-            <img src={avatar_url || null} alt="ảnh avatar" className="w-8 sm:w-9 md:w-10 aspect-square rounded-full object-cover border-none" />
+            <img src={avatar_url || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80"} alt="ảnh avatar" className="w-8 sm:w-9 md:w-10 aspect-square rounded-full object-cover border-none" />
             <p className="text-sm sm:text-base text-blue font-semibold line-clamp-1">{name}</p>
           </div>
           {isFollowing ? 
