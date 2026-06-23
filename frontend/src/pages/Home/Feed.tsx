@@ -76,14 +76,14 @@ const Feed = () => {
         </>}
       </div>
 
-      {/* Tab Bar dưới đáy cho giao diện mobile (Khi screen dưới 640px)*/}
-      <MobileTabar />
       {/* Render modal hiển thị chi tiết ảnh */}
       {isModalOpen && selectedItem && <PhotoModal data={selectedItem} handleModalClose={handleModalClose} />}
       {/* Thêm padding để main content không bị che lấp bởi tab bar */}
       <div className="pb-16 sm:pb-0">
         {/* Content của tab bar hiển thị ở đây. */}
       </div>
+      {/* Tab Bar dưới đáy cho giao diện mobile (Khi screen dưới 640px)*/}
+      <MobileTabar />
     </>
   )
 }

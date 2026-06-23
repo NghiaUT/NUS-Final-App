@@ -25,25 +25,26 @@ const PhotoCard = ({data, onImgClick} : any) => {
   }
 
   const handleProfileClick = () => {
-    console.log("Chuyển hướng đến chủ sở hữu khung ảnh.")
+    console.log("Chuyển hướng đến trang profile chủ sở hữu khung ảnh.");
   }
   const commonImgConfig = "w-40 sm:w-60 mx-auto aspect-square object-cover border-4 border-white shadow-md ";
   // console.log(data);
   // console.log(type);
   // console.log(image_stack)
   return (
-    <div className="flex flex-col sm:flex-row items-center w-full mx-auto md:h-[300px] p-2 md:p-2.5 bg-graywhite shadow-xs transition duration-300 ease-in-out">
-      <div className="group flex-1 max-h-[300px] md:h-full m-1.5 sm:m-7.5 relative cursor-pointer w-40 sm:w-60" onClick={() => onImgClick(data)}>
+    <div className="flex flex-col sm:flex-row items-center w-full mx-auto md:h-[300px] p-2 md:p-2.5 bg-graywhite shadow-xs transition duration-300 ease-in-out gap-2.5">
+      <div className="group flex-1 max-h-[300px] md:h-full m-1.5 sm:m-2 relative cursor-pointer w-40 sm:w-60" onClick={() => onImgClick(data)}>
         {/* Render các ảnh */}
         { data.media.type === "album" ?
-          // Nếu là labum thì chỉ render 3 ảnh đầu tiên.
+          // Nếu là album thì chỉ render 3 ảnh đầu tiên.
           image_stack.slice(0, 3).map((img) => {
-            let imgConfig = commonImgConfig + (img.order === 1 ?  "relative z-3 group-hover:-translate-y-2" : img.order === 2 ? "absolute text-center top-[2px] sm:top-[5px] -left-[2px] sm:-left-[5px] z-2 -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4" : "absolute -top-[2px] sm:left-[2px] left-[8px] z-1 rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4");
+            let imgConfig = commonImgConfig + (img.order === 1 ?  "relative z-3 group-hover:-translate-y-2" : img.order === 2 ? "absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4" : "absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4");
 
             return (
               <img key={img.order} src={img.url || null} alt={img.alt_text} className={imgConfig}></img>
             )
-          }) : <img src={image_stack[0].url || null} alt={image_stack[0].alt_text} className="w-full aspect-square object-cover hover:scale-105"/>
+          }) : // Nếu là ảnh thì render kiểu khác
+           <img src={image_stack[0].url || null} alt={image_stack[0].alt_text} className="relative w-full h-full mx-auto aspect-square object-cover hover:scale-105"/>
         }
       </div>
       {/* Phần chứa các thông tin của ảnh */}
