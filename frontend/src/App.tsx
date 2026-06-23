@@ -20,6 +20,9 @@ function App() {
         <Route path="/" element={<Feed />} />
         <Route path="/discover" element={<Discovery />} />
       </Route>
+
+      {/* Bắt các route không có trong dự án. */}
+      <Route path="*" element={<DummyPage name="Không có trong dự án" />} />
     </Routes>
   )
 }
