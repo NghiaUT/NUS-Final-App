@@ -4,7 +4,7 @@ import Feed from './pages/Home/Feed'
 import { Route, Routes } from 'react-router-dom'
 import DummyPage from './pages/DummyPage'
 import MainLayout from './layouts/MainLayout'
-import Discovery from './pages/Home/Discovery'
+import Discover from './pages/Home/Discover'
 
 function App() {
 
@@ -18,7 +18,7 @@ function App() {
       {/* Các Route sau đều yêu cầu layout có header và sidebar */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Feed />} />
-        <Route path="/discover" element={<Discovery />} />
+        <Route path="/discover" element={<Discover />} />
       </Route>
 
       {/* Bắt các route không có trong dự án. */}

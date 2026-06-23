@@ -17,8 +17,8 @@ const fetchData = async (pageParam) => {
   });
 };
 
-const Feed = () => {
-  // Page for the feed layout:
+const Discover = () => {
+  // Page for the feed layout
   // State for modal viewing photo/album
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -74,7 +74,9 @@ const Feed = () => {
           {isFetchingNextPage && <LoadingSpinner />}
           {!hasNextPage && <div>Bạn đã tìm kiếm hết mọi thứ có thể. 🎉</div>}
         </>}
-        {/* Render modal hiển thị chi tiết ảnh */}
+      </div>
+
+      {/* Render modal hiển thị chi tiết ảnh */}
       {isModalOpen && selectedItem && <PhotoModal data={selectedItem} handleModalClose={handleModalClose} />}
       {/* Thêm padding để main content không bị che lấp bởi tab bar */}
       <div className="pb-16 sm:pb-0">
@@ -82,9 +84,8 @@ const Feed = () => {
       </div>
       {/* Tab Bar dưới đáy cho giao diện mobile (Khi screen dưới 640px)*/}
       <MobileTabar />
-      </div>
     </>
   )
 }
 
-export default Feed;
+export default Discover;
