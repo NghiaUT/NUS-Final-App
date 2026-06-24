@@ -3,16 +3,16 @@ import { useInView } from 'react-intersection-observer';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import PhotoCard from './PhotoCard';
 import PhotoAlbumToggle from './PhotoAlbumToggle';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinner from '../common/LoadingSpinner';
 import PhotoModal from './PhotoModal';
 import MobileTabar from './MobileTabar';
+
 
 const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     // State for page photo or album.
     const [media, setMedia] = useState("photo");
-
     const { ref: bottomRef, inView } = useInView();
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
         queryKey: [queryKey], queryFn: fetchFn, initialPageParam: 1, getNextPageParam: (lastPage, allPages) => {

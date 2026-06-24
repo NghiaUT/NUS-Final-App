@@ -1,15 +1,15 @@
 import React from 'react'
-import Header from '../components/Header';
+import Header from '../components/common/Header';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/common/Sidebar';
+import { useAuth } from '../hooks/useAuth';
 
 const MainLayout = () => {
-    //Mock User, we will use context later.
-    const user = { avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80', name: "Hieu Nguyen", role: "user" }
-    const logout = () => alert("Logout the user, return to the feed page.");
+    const {user } = useAuth();
+    console.log(user);
     return (
         <>
-            <Header user={user} handleLogout={logout} />
+            <Header />
             <div className="flex flex-row justify-center pt-5 pl-3 pr-3 md:pl-[2%] md:pr-[2%] xl:pl-[5%] xl:pr-[5%] bg-graywhite">
                 <Sidebar />
                 <Outlet />

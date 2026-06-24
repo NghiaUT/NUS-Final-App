@@ -1,4 +1,4 @@
-import AlbumsGridLayout from "../../components/AlbumsGridLayout";
+import AlbumsGridLayout from "../../components/feed/AlbumsGridLayout";
 import { MOCK_DATA } from "../../assets/mock_data";
 
 const fetchFeedData = async (pageParam) => {

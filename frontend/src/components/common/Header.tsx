@@ -1,6 +1,11 @@
 import React from 'react'
+import { useAuth } from '../../hooks/useAuth';
 
-const Header = ({user, handleLogout} :any) => {
+const Header = () => {
+
+  const { user, logout } = useAuth(); 
+  console.log(user);
+
   return (
     <header className="bg-blue h-14 sm:h-15 flex items-center justify-between pl-3 pr-3 md:pl-[2%] md:pr-[2%] xl:pl-[5%] xl:pr-[5%]">
         <div className="text-xl sm:text-3xl text-white text-right pr-4 md:w-[150px]">Fotobook</div>
@@ -11,7 +16,7 @@ const Header = ({user, handleLogout} :any) => {
             <p className="hidden xl:flex text-white xl:text-xl xl:font-semibold">{user.name}</p>
           </div>
         </div>
-        <button className="text-xs sm:text-base md:text-xl text-center cursor-pointer font-bold text-white md:w-[150px]" onClick={handleLogout}>Logout</button>
+        <button className="text-xs sm:text-base md:text-xl text-center cursor-pointer font-bold text-white md:w-[150px]" onClick={logout}>Logout</button>
       </header>
   )
 }

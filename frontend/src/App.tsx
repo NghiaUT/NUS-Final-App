@@ -17,7 +17,7 @@ function App() {
 
       {/* Các Route sau đều yêu cầu layout có header và sidebar */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Feed />} />
+        <Route index path="/" element={<Feed />} />
         <Route path="/discover" element={<Discover />} />
       </Route>
 
