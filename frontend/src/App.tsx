@@ -5,6 +5,8 @@ import { Route, Routes } from 'react-router-dom'
 import DummyPage from './pages/DummyPage'
 import MainLayout from './layouts/MainLayout'
 import Discover from './pages/Home/Discover'
+import LoginPage from './pages/Auth/LoginPage'
+import SignupPage from './pages/Auth/SignupPage'
 
 function App() {
 
@@ -12,8 +14,8 @@ function App() {
   return (
     <Routes>
       {/* Route này không có header và sidebar */}
-      <Route path="/login" element={<DummyPage name="Login Page" />}/>
-      <Route path="/signup" element={<DummyPage name="Signup Page" />}/>
+      <Route path="/login" element={<LoginPage />}/>
+      <Route path="/signup" element={<SignupPage />}/>
 
       {/* Các Route sau đều yêu cầu layout có header và sidebar */}
       <Route element={<MainLayout />}>

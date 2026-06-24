@@ -4,7 +4,6 @@ import { useAuth } from '../../hooks/useAuth';
 const Header = () => {
 
   const { user, logout } = useAuth(); 
-  console.log(user);
 
   return (
     <header className="bg-blue h-14 sm:h-15 flex items-center justify-between pl-3 pr-3 md:pl-[2%] md:pr-[2%] xl:pl-[5%] xl:pr-[5%]">

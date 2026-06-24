@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         alert("Log the user out!");
-        setUser(null);
-        setAccessToken(null);
+        // setUser(null);
+        // setAccessToken(null);
     }
 
     if(loading) return <LoadingSpinner />
