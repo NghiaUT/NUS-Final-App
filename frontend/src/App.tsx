@@ -7,6 +7,7 @@ import MainLayout from './layouts/MainLayout'
 import Discover from './pages/Home/Discover'
 import LoginPage from './pages/Auth/LoginPage'
 import SignupPage from './pages/Auth/SignupPage'
+import ProfilePage from './pages/Profile/ProfilePage'
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
       <Route element={<MainLayout />}>
         <Route index path="/" element={<Feed />} />
         <Route path="/discover" element={<Discover />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       {/* Bắt các route không có trong dự án. */}
