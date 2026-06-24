@@ -1,9 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MediaTabbar from '../../components/auth/MediaTabbar'
 import { useNavigate } from 'react-router-dom'
 
 const LoginPage = () => {
     const navigate = useNavigate();
+
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value
+        }))
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Login with: ", formData);
+    }
+
     return (
         <div className="relative sm:top-10 md:top-12 mx-auto w-full sm:w-[400px] flex items-center flex-col flex-start">
             <h1 className="text-blue text-5xl text-center font-semibold m-10">Fotobook Login</h1>
@@ -22,15 +41,15 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        <form className="w-full space-y-6" onSubmit={() => alert("Submit thong tin")}>
+                        <form className="w-full space-y-6" onSubmit={handleSubmit}>
                             <div className="rounded-md shadow-sm -space-y-px">
                                 <div>
                                     <label className="sr-only">Email</label>
-                                    <input id="email-address" name="email" type="email" required className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Email" />
+                                    <input id="email-address" name="email" type="email" required className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Email" onChange={handleChange} value={formData.email}/>
                                 </div>
                                 <div>
                                     <label className="sr-only">Password</label>
-                                    <input id="password" name="password" type="password" required className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Password" />
+                                    <input id="password" name="password" type="password" required className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Password" onChange={handleChange} value={formData.password}/>
                                 </div>
                             </div>
 

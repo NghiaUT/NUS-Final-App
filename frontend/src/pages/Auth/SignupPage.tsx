@@ -1,45 +1,67 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MediaTabbar from '../../components/auth/MediaTabbar'
+import { useNavigate } from 'react-router-dom';
 
 const SignupPage = () => {
-    const handleSubmit = () => {
-        alert("Submit thong tin")
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        confirmed_password: ''
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Submit thong tin user: ", formData);
     }
     return (
         <div className="relative sm:top-10 md:top-12 mx-auto w-full sm:w-[400px] flex items-center flex-col flex-start">
             <h1 className="text-blue text-5xl text-center font-semibold m-10">Fotobook Signup</h1>
             <MediaTabbar></MediaTabbar>
-            <div className="flex w-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="flex w-full flex-col items-center justify-center py-12">
                 {/* Container Card */}
                 <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
 
                     <form className="space-y-4 w-full" onSubmit={handleSubmit}>
 
-                        {/* First Name */}
+                        {/* Full Name */}
                         <div>
-                            <label htmlFor="firstName" className="block text-sm font-bold text-gray-800 mb-1">
+                            <label className="block text-sm font-bold text-gray-800 mb-1">
                                 First Name
                             </label>
                             <input
                                 id="firstName"
-                                name="firstName"
+                                name="fullName"
                                 type="text"
                                 placeholder="First Name"
+                                value={formData.fullName}
+                                onChange={handleChange}
                                 required
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             />
                         </div>
 
-                        {/* Last Name */}
+                        {/* Email */}
                         <div>
-                            <label htmlFor="lastName" className="block text-sm font-bold text-gray-800 mb-1">
-                                Last Name
+                            <label className="block text-sm font-bold text-gray-800 mb-1">
+                                Email
                             </label>
                             <input
-                                id="lastName"
-                                name="lastName"
+                                id="email"
+                                name="email"
                                 type="text"
-                                placeholder="Last Name"
+                                placeholder="Email"
+                                value={formData.email}
+                                onChange={handleChange}
                                 required
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             />
@@ -47,14 +69,15 @@ const SignupPage = () => {
 
                         {/* New Password */}
                         <div>
-                            <label htmlFor="newPassword" className="block text-sm font-bold text-gray-800 mb-1">
-                                New Password
+                            <label className="block text-sm font-bold text-gray-800 mb-1">
+                                Password
                             </label>
                             <input
-                                id="newPassword"
-                                name="newPassword"
+                                name="password"
                                 type="password"
                                 placeholder="Password"
+                                value={formData.password}
+                                onChange={handleChange}
                                 required
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             />
@@ -62,14 +85,15 @@ const SignupPage = () => {
 
                         {/* Password Confirmation */}
                         <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-bold text-gray-800 mb-1">
+                            <label className="block text-sm font-bold text-gray-800 mb-1">
                                 Password Confirmation
                             </label>
                             <input
-                                id="confirmPassword"
-                                name="confirmPassword"
+                                name="confirmed_password"
                                 type="password"
                                 placeholder="Password"
+                                value={formData.confirmed_password}
+                                onChange={handleChange}
                                 required
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             />
@@ -86,6 +110,11 @@ const SignupPage = () => {
                         </div>
 
                     </form>
+                </div>
+                <div className="text-center pt-8">
+                    <a onClick={() => navigate("/login")} className="text-sm font-medium text-[#3b5998] hover:text-[#2d4373] cursor-pointer">
+                        Has an account
+                    </a>
                 </div>
             </div>
         </div>
