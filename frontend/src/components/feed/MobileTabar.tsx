@@ -21,7 +21,7 @@ const MobileTabar = () => {
         </button>
         <button
           className="flex-1 flex flex-col items-center justify-center gap-1 text-gray font-semibold cursor-pointer"
-          onClick={() => navigate('/discovery')}
+          onClick={() => navigate('/discover')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" className="flex-1 h-8 w-8">
             <path

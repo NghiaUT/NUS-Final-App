@@ -8,7 +8,7 @@ import type { Image } from '../../types/media.types';
     }
 }
 */
-const MediaCard = ({ data, type }: { data: any; type: string }) => {
+const MediaCard = ({ data, type, editable }: { data: any; type: string, editable: boolean }) => {
   const commonImgConfig =
     'w-32 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md shrink-0 ';
 
@@ -44,6 +44,27 @@ const MediaCard = ({ data, type }: { data: any; type: string }) => {
             alt={data.content.title}
             className="w-40 sm:w-50 h-40 sm:h-50 object-cover rounded-lg"
           />
+        )}
+
+        {editable && type === 'album' && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="w-28 h-28 rounded-full bg-white/30 backdrop-blur-md flex flex-col items-center justify-center text-white shadow-lg">
+              <span className="text-3xl font-semibold">{data.media.image_stack.length}</span>
+              <span className="text-xs tracking-wider uppercase">Photos</span>
+            </div>
+          </div>
+        )}
+
+        {editable && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("Edit clicked");
+            }}
+            className="absolute bottom-6 right-6 sm:bottom-4 sm:right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-4 py-1.5 rounded-full backdrop-blur-sm cursor-pointer"
+          >
+            EDIT
+          </button>
         )}
       </div>
       <p className="text-xs sm:text-base line-clamp-1 overflow-hidden text-ellipsis text-center">

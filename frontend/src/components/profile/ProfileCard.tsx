@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 /*
 {
@@ -12,7 +12,14 @@ import React from 'react';
     ]
   },
 */
-const ProfileCard = ({ profile }) => {
+const ProfileCard = ({ profile, handleFollow }) => {
+  const [isFollowing, setIsFollowing] = useState(profile.isFollowing ?? true);
+
+  const handleFollowClick = () => {
+    setIsFollowing(prev => !prev);
+    handleFollow(profile.id, isFollowing);
+  };
+
   return (
     // Card Container: Đổ bóng nhẹ, bo góc, flex cột và căn giữa nội dung
     <div className="bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px] mx-auto">
@@ -48,14 +55,14 @@ const ProfileCard = ({ profile }) => {
           </p>
         </div>
       </div>
-      {profile.isFollowing === true ? (
+      {isFollowing === true ? (
         <div className="inline-block p-[2px] rounded-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
-          <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer">
+          <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer" onClick={handleFollowClick}>
             following
           </button>
         </div>
       ) : (
-        <button className="px-6 py-1 text-sm font-semibold text-white bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 rounded-full transition-colors cursor-pointer">
+        <button className="px-6 py-1 text-sm font-semibold text-white bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 rounded-full transition-colors cursor-pointer" onClick={handleFollowClick}>
           follow
         </button>
       )}

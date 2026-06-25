@@ -16,8 +16,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = () => {
       console.log('1. Init Auth');
-      let mock_login_data = {
+      const mock_login_data = {
         user: {
+          id: 1,
           name: 'Nghia Tran',
           email: 'nghia@123.com',
           role: 'user',

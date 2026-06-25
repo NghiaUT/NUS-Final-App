@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const ProfileHeader = ({ user, activeTab, setActiveTab, stats }) => {
+const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, handleFollow, isFollowing }) => {
+  const navigate = useNavigate();
+  const [isFollow, setIsFollow] = useState(isFollowing);
+  const handleFollowClick = () => {
+    setIsFollow(prev => !prev);
+    handleFollow(user.id);
+  }
   return (
     <div className="w-full flex flex-col md:flex-row items-center md:items-start mt-8 gap-8 md:gap-12 mb-16 p-5">
       <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 lg:w-45 lg:h-45 rounded-full overflow-hidden border-2 border-white shadow-lg">
@@ -8,10 +15,18 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats }) => {
       </div>
 
       <div className="flex flex-col items-center md:items-start flex-1 w-full">
-        <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#f26522] border border-[#f26522] rounded-full hover:bg-orange-50 transition-colors cursor-pointer">
-          follow
-        </button>
-
+        {isMyProfile ?
+          <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#405b95] border-2 border-[#405b95] rounded-full hover:bg-blue-50 transition-colors cursor-pointer bg-white" onClick={() => console.log("Điều hướng sang trang chỉnh sửa người dùng.")}>
+            Edit Profile
+          </button> : (
+            isFollow ?
+              <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#f26522] border border-[#f26522] rounded-full hover:bg-orange-50 transition-colors cursor-pointer" onClick={handleFollowClick}>
+                follow
+              </button> :
+              <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold rounded-full transition-colors cursor-pointer text-white bg-[#f26522] border border-[#f26522] hover:bg-[#d9581b] hover:border-[#d9581b]" onClick={handleFollowClick}>
+                unfollow
+              </button>
+          )}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
           {user.name}
         </h1>
