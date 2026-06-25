@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 /*
 {
@@ -15,8 +15,7 @@ import React from 'react'
 const ProfileCard = ({ profile }) => {
   return (
     // Card Container: Đổ bóng nhẹ, bo góc, flex cột và căn giữa nội dung
-    <div className="bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-60">
-
+    <div className="bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px]">
       {/* Avatar & Name Group */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-24 h-24 rounded-full overflow-hidden mb-3">
@@ -49,20 +48,19 @@ const ProfileCard = ({ profile }) => {
           </p>
         </div>
       </div>
-      {
-        profile.isFollowing === true ?
-          <div className="inline-block p-[2px] rounded-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
-            <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer">
-              following
-            </button>
-          </div>
-          :
-          <button className="px-6 py-1 text-sm font-semibold text-white bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 rounded-full transition-colors cursor-pointer">
-            follow
+      {profile.isFollowing === true ? (
+        <div className="inline-block p-[2px] rounded-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
+          <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer">
+            following
           </button>
-      }
+        </div>
+      ) : (
+        <button className="px-6 py-1 text-sm font-semibold text-white bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 rounded-full transition-colors cursor-pointer">
+          follow
+        </button>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default ProfileCard
+export default ProfileCard;
