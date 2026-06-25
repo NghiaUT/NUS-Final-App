@@ -1,10 +1,8 @@
-import React, { act, useState } from 'react'
+import React, { useState } from 'react'
 import ProfileHeader from '../../components/profile/ProfileHeader'
-import PhotoGrid from '../../components/profile/PhotoGrid';
-import AlbbumGrid from '../../components/profile/AlbbumGrid';
-import FollowingGrid from '../../components/profile/FollowingGrid';
-import FollowerGrid from '../../components/profile/FollowerGrid';
-import { MOCK_DATA } from '../../assets/mock_data';
+import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../assets/mock_data';
+import MediaGrid from '../../components/profile/MediaGrid';
+import ProfileGrid from '../../components/profile/ProfileGrid';
 
 const ProfilePage = () => {
     const stats = [
@@ -18,14 +16,17 @@ const ProfilePage = () => {
   const user = {name: "Hansford Nguyen", avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"};
 
   const [activeTab, setActiveTab] = useState('photos');
+  const tabContents = {
+    "photos": <MediaGrid data={data} type={"photo"}/>,
+    "albums": <MediaGrid data={data} type={"album"}/>,
+    "followings": <ProfileGrid data={MOCK_FOLLOWING}/>,
+    "followers": <ProfileGrid data={MOCK_FOLLOWER}/>
+  }
   return (
     <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
         <ProfileHeader user={user} activeTab={activeTab} setActiveTab={setActiveTab} stats={stats}/>
 
-        {activeTab === "photos" && <PhotoGrid data={data}/>}
-        {activeTab === "albums" && <AlbbumGrid data={data}/>}
-        {activeTab === "followings" && <FollowingGrid />}
-        {activeTab === "followers" && <FollowerGrid />}
+        {(tabContents[activeTab])}
     </div>
   )
 }

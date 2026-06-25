@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PhotoCard = ({data, onImgClick} : any) => {
   const {
@@ -14,6 +15,7 @@ const PhotoCard = ({data, onImgClick} : any) => {
   const [isFollowing, setIsFollowing] = useState(data.author.is_following);
   const [isLiked, setIsLiked] = useState(data.interactions.is_liked);
   const [likesCount, setLikesCount] = useState(data.interactions.likes_count);
+  const navigate = useNavigate();
 
   const handleFollowClick = () => {
     setIsFollowing(!isFollowing);
@@ -25,7 +27,7 @@ const PhotoCard = ({data, onImgClick} : any) => {
   }
 
   const handleProfileClick = () => {
-    console.log("Chuyển hướng đến trang profile chủ sở hữu khung ảnh.");
+    navigate(`/profile`)
   }
   const commonImgConfig = "w-40 sm:w-60 mx-auto aspect-square object-cover border-4 border-white shadow-md ";
   // console.log(data);

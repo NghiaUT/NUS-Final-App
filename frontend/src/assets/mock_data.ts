@@ -345,3 +345,169 @@ export const MOCK_DATA = [
     "metadata": { "created_at": "2024-01-01T11:00:00Z", "formatted_date": "11:00 am 01/01/2024" }
   }
 ];
+
+export const MOCK_FOLLOWING = [
+  {
+    "id": 1,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1518398046578-8cca57782e17?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1543685293-68d2c2c01991?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Hieu Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 22, "label": "PHOTOS" },
+      { "id": "albums", "value": 105, "label": "ALBUMS" }
+    ]
+  }
+];
+
+export const MOCK_FOLLOWER = [
+  {
+    "id": 101,
+    "name": "Alex Tran",
+    "avatar_url": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": false,
+    "stats": [
+      { "id": "photos", "value": 45, "label": "PHOTOS" },
+      { "id": "albums", "value": 12, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Sarah Le",
+    "avatar_url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 128, "label": "PHOTOS" },
+      { "id": "albums", "value": 34, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Minh Pham",
+    "avatar_url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": false,
+    "stats": [
+      { "id": "photos", "value": 12, "label": "PHOTOS" },
+      { "id": "albums", "value": 2, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Elena Vo",
+    "avatar_url": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 310, "label": "PHOTOS" },
+      { "id": "albums", "value": 89, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 105,
+    "name": "Kevin Vu",
+    "avatar_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": false,
+    "stats": [
+      { "id": "photos", "value": 56, "label": "PHOTOS" },
+      { "id": "albums", "value": 5, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 106,
+    "name": "Linh Nguyen",
+    "avatar_url": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 89, "label": "PHOTOS" },
+      { "id": "albums", "value": 15, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 107,
+    "name": "David Hoang",
+    "avatar_url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": false,
+    "stats": [
+      { "id": "photos", "value": 204, "label": "PHOTOS" },
+      { "id": "albums", "value": 42, "label": "ALBUMS" }
+    ]
+  },
+  {
+    "id": 108,
+    "name": "Anna Bui",
+    "avatar_url": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=300&q=80",
+    "isFollowing": true,
+    "stats": [
+      { "id": "photos", "value": 41, "label": "PHOTOS" },
+      { "id": "albums", "value": 8, "label": "ALBUMS" }
+    ]
+  }
+];
