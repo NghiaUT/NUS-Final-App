@@ -49,12 +49,12 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
         <>
           <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-1.5 sm:gap-2.5 p-2.5">
             {// Thực hiện render từng photocard pages trong Tanstack Query theo kiểu media của page hiện tại.
-            data?.pages
-              .flatMap((page) => page)
-              .filter((data) => data.media.type === media)
-              .map((data) => {
-                return <PhotoCard data={data} onImgClick={handleModalOpen} />;
-              })}
+              data?.pages
+                .flatMap((page) => page)
+                .filter((data) => data.media.type === media)
+                .map((data) => {
+                  return <PhotoCard data={data} onImgClick={handleModalOpen} />;
+                })}
           </div>
           {/* Attach the ref to this invisible div at the bottom */}
           <div ref={bottomRef} style={{ padding: '20px', height: '50px' }}></div>
@@ -67,7 +67,6 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
         <PhotoModal data={selectedItem} handleModalClose={handleModalClose} />
       )}
       {/* Thêm padding để main content không bị che lấp bởi tab bar */}
-      <div className="pb-16 sm:pb-0">{/* Content của tab bar hiển thị ở đây. */}</div>
       {/* Tab Bar dưới đáy cho giao diện mobile (Khi screen dưới 640px)*/}
       <MobileTabar />
     </div>

@@ -9,23 +9,23 @@ import type { Image } from '../../types/media.types';
 }
 */
 const MediaCard = ({ data, type }: { data: any; type: string }) => {
-  let commonImgConfig =
-    'w-40 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md ';
+  const commonImgConfig =
+    'w-32 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md shrink-0 ';
 
   return (
-    <div className="flex flex-col items-center w-60 gap-2.5">
+    <div className="flex flex-col items-center w-60 gap-2.5 mx-auto">
       <div
         className={
-          'w-60 h-60 relative group cursor-pointer tranform-all duration-300 ease-in-out ' +
+          'w-60 h-60 relative group cursor-pointer flex justify-center items-center tranform-all duration-300 ease-in-out ' +
           (type === 'photo' ? 'hover:scale-105 ' : '')
         }
       >
         {type === 'album' ? (
           data.media.image_stack.slice(0, 3).map((img: Image) => {
-            let imgConfig =
+            const imgConfig =
               commonImgConfig +
               (img.order === 1
-                ? 'relative z-3 group-hover:-translate-y-2'
+                ? 'relative z-3 group-hover:-translate-y-2 w-fit'
                 : img.order === 2
                   ? 'absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4'
                   : 'absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4');
@@ -42,11 +42,11 @@ const MediaCard = ({ data, type }: { data: any; type: string }) => {
           <img
             src={data.media.image_stack[0].url}
             alt={data.content.title}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-40 sm:w-50 h-40 sm:h-50 object-cover rounded-lg"
           />
         )}
       </div>
-      <p className="text-xs sm:text-base line-clamp-1 overflow-hidden text-ellipsis">
+      <p className="text-xs sm:text-base line-clamp-1 overflow-hidden text-ellipsis text-center">
         {data.content.title}
       </p>
     </div>

@@ -15,7 +15,7 @@ import React from 'react';
 const ProfileCard = ({ profile }) => {
   return (
     // Card Container: Đổ bóng nhẹ, bo góc, flex cột và căn giữa nội dung
-    <div className="bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px]">
+    <div className="bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px] mx-auto">
       {/* Avatar & Name Group */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-24 h-24 rounded-full overflow-hidden mb-3">

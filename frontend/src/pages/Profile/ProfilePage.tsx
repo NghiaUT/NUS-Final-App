@@ -3,6 +3,7 @@ import ProfileHeader from '../../components/profile/ProfileHeader';
 import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../assets/mock_data';
 import MediaGrid from '../../components/profile/MediaGrid';
 import ProfileGrid from '../../components/profile/ProfileGrid';
+import MobileTabar from '../../components/feed/MobileTabar';
 
 const ProfilePage = () => {
   const stats = [
@@ -27,10 +28,10 @@ const ProfilePage = () => {
     followers: <ProfileGrid data={MOCK_FOLLOWER} />,
   };
   return (
-    <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
+    <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
       <ProfileHeader user={user} activeTab={activeTab} setActiveTab={setActiveTab} stats={stats} />
-
       {tabContents[activeTab]}
+      <MobileTabar />
     </div>
   );
 };

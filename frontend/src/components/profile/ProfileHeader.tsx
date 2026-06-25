@@ -2,8 +2,8 @@ import React from 'react';
 
 const ProfileHeader = ({ user, activeTab, setActiveTab, stats }) => {
   return (
-    <div className="w-full flex flex-col md:flex-row items-center md:items-start mt-8 gap-8 md:gap-12 lg:gap-16 mb-16 p-5">
-      <div className="shrink-0 w-32 h-32 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-full overflow-hidden border-2 border-white shadow-lg">
+    <div className="w-full flex flex-col md:flex-row items-center md:items-start mt-8 gap-8 md:gap-12 mb-16 p-5">
+      <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 lg:w-45 lg:h-45 rounded-full overflow-hidden border-2 border-white shadow-lg">
         <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
       </div>
 
@@ -21,19 +21,17 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats }) => {
             <button
               key={stat.id}
               onClick={() => setActiveTab(stat.id)}
-              className="px-4 md:px-6 lg:px-8 first:pl-0 last:pr-0 flex items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
+              className="px-4 md:px-6 lg:px-8 first:pl-0 last:pr-0 flex flex-col  md:flex-row items-center md:items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
             >
               <span
-                className={`text-lg md:text-2xl lg:text-3xl font-bold transition-colors ${
-                  activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500'
-                }`}
+                className={`text-lg sm:text-2xl lg:text-3xl font-bold transition-colors ${activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500'
+                  }`}
               >
                 {stat.value}
               </span>
               <span
-                className={`text-xs md:text-sm lg:text-base uppercase tracking-wider transition-colors ${
-                  activeTab === stat.id ? 'text-[#3b5998] font-semibold' : 'text-gray-400'
-                }`}
+                className={`text-xs sm:text-sm lg:text-base uppercase tracking-wider transition-colors ${activeTab === stat.id ? 'text-[#3b5998] font-semibold' : 'text-gray-400'
+                  }`}
               >
                 {stat.label}
               </span>
