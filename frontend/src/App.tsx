@@ -2,12 +2,13 @@ import './App.css';
 
 import Feed from './pages/Home/Feed';
 import { Route, Routes } from 'react-router-dom';
-import DummyPage from './pages/DummyPage';
+// import DummyPage from './pages/DummyPage';
 import MainLayout from './layouts/MainLayout';
 import Discover from './pages/Home/Discover';
 import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ProfilePage from './pages/Profile/ProfilePage';
+import NotFound from './pages/NotFound';
 
 function App() {
   // Thiết lập route cho dự án.
@@ -25,7 +26,7 @@ function App() {
       </Route>
 
       {/* Bắt các route không có trong dự án. */}
-      <Route path="*" element={<DummyPage name="Không có trong dự án" />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
