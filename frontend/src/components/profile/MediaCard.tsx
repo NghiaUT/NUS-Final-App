@@ -1,4 +1,5 @@
 import React from 'react';
+import { twMerge } from 'tailwind-merge';
 import type { Image } from '../../types/media.types';
 /* data = {
     title: "",
@@ -10,15 +11,15 @@ import type { Image } from '../../types/media.types';
 */
 const MediaCard = ({ data, type, editable }: { data: any; type: string, editable: boolean }) => {
   const commonImgConfig =
-    'w-32 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md shrink-0 ';
+    'w-32 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md shrink-0';
 
   return (
     <div className="flex flex-col items-center w-60 gap-2.5 mx-auto">
       <div
-        className={
-          'w-60 h-60 relative group cursor-pointer flex justify-center items-center tranform-all duration-300 ease-in-out ' +
-          (type === 'photo' ? 'hover:scale-105 ' : '')
-        }
+        className={twMerge(
+          'w-60 h-60 relative group cursor-pointer flex justify-center items-center transition-all duration-300 ease-in-out',
+          type === 'photo' && 'hover:scale-105'
+        )}
       >
         {data.media.status === 'private' && (
           <div
@@ -35,22 +36,24 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
             </svg>
           </div>
         )}
+
         {type === 'album' ? (
-          data.media.image_stack.slice(0, 3).map((img: Image) => {
-            const imgConfig =
-              commonImgConfig +
-              (img.order === 1
-                ? 'relative z-3 group-hover:-translate-y-2 w-fit'
-                : img.order === 2
-                  ? 'absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4'
-                  : 'absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4');
+          data.media.image_stack.slice(0, 3).map((img: any) => {
+            // Thay vì dùng toán tử 3 ngôi lồng nhau, ta có thể tách điều kiện rõ ràng với twMerge
+            const imgConfig = twMerge(
+              commonImgConfig,
+              img.order === 1 && 'relative z-3 group-hover:-translate-y-2 w-fit',
+              img.order === 2 && 'absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4',
+              img.order > 2 && 'absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4'
+            );
+
             return (
               <img
                 key={img.order}
                 src={img.url || undefined}
                 alt={img.alt_text || 'None'}
                 className={imgConfig}
-              ></img>
+              />
             );
           })
         ) : (

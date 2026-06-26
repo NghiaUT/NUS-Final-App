@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { twMerge } from 'tailwind-merge';
 
 const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, handleFollow, isFollowing }) => {
   const navigate = useNavigate();
@@ -39,14 +40,14 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, hand
               className="px-4 md:px-6 lg:px-8 first:pl-0 last:pr-0 flex flex-col  xl:flex-row items-center md:items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
             >
               <span
-                className={`text-lg sm:text-xl lg:text-2xl font-bold transition-colors ${activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500'
-                  }`}
+                className={twMerge('text-lg sm:text-xl lg:text-2xl font-bold transition-colors', activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500')
+                }
               >
                 {stat.value}
               </span>
               <span
-                className={`text-xs sm:text-sm lg:text-base uppercase tracking-wider transition-colors ${activeTab === stat.id ? 'text-[#3b5998] font-semibold' : 'text-gray-400'
-                  }`}
+                className={twMerge('text-xs sm:text-sm lg:text-base uppercase tracking-wider transition-colors', activeTab === stat.id ? 'text-[#3b5998] font-semibold' : 'text-gray-400'
+                )}
               >
                 {stat.label}
               </span>
