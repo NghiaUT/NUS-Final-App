@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { photoSchema } from '../../utils/validators';
+import React, { useRef, useState } from 'react'
+import { albumSchema, photoSchema } from '../../utils/validators';
 import { z } from 'zod';
 
-const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
+const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
     const [formData, setFormData] = useState({
         title: initialData?.title || '',
         sharingMode: initialData?.sharingMode || 'public',
@@ -10,18 +10,6 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
         photo: initialData?.photo || null,
     });
     const [errors, setErrors] = useState([]);
-    const [previewUrl, setPreviewUrl] = useState(
-        typeof initialData?.photo === 'string' ? initialData.photo.avatar_url : null
-    );
-
-    // Cleanup blob for review image
-    useEffect(() => {
-        return () => {
-            if (previewUrl && previewUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(previewUrl);
-            }
-        };
-    }, [previewUrl]);
 
     const fileInputRef = useRef(null); // -> dùng để upload ảnh lên bằng ref
 
@@ -33,21 +21,10 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setFormData(prev => ({ ...prev, photo: file }));
-
-        const objectUrl = URL.createObjectURL(file);
-        setPreviewUrl(objectUrl);
     }
 
     const handleBoxClick = () => {
         fileInputRef.current.click();
-    }
-
-    const handleRemove = (e) => {
-        e.stopPropagation();
-        if (previewUrl && previewUrl.startsWith('blob:')) {
-            URL.revokeObjectURL(previewUrl);
-        }
-        setPreviewUrl(null);
     }
 
     const handleSubmit = (e) => {
@@ -65,8 +42,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
             return;
         }
 
-        setErrors([]);
-        onSubmit(formData);
+        onSubmit();
     }
 
     const handleDeleteClick = () => {
@@ -141,28 +117,14 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                             <div>
                                 <div
                                     onClick={handleBoxClick}
-                                    className="relative w-40 h-40 lg:w-60 lg:h-60 border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors overflow-hidden rounded group"
+                                    className="w-40 h-40 lg:w-60 lg:h-60 border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
                                 >
-                                    {/* UI Hiển thị Preview hoặc Icon + để thêm ảnh */}
-                                    {previewUrl ? (
-                                        <>
-                                            <img
-                                                src={previewUrl}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover"
-                                            />
-                                            {/* Lớp phủ mờ khi hover để báo cho người dùng biết có thể click đổi ảnh */}
-                                            <div className="absolute inset-0 bg-transparent bg-opacity-0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                                                <span className="text-white opacity-0 group-hover:opacity-100 font-medium drop-shadow-md">Đổi ảnh</span>
-                                            </div>
-                                            {/* Nút xóa ảnh */}
-                                            <button className="absolute top-1 right-1 w-6 h-6 rounded-full bg-transparent text-red-500 flex items-center justify-center text-xs hover:scale-120 transiton-all duration-300 cursor-pointer" onClick={handleRemove}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-                                            </button>
-                                        </>
+                                    {formData.photo ? (
+                                        <span className="text-xs text-gray-500 px-2 text-center break-all">
+                                            {formData.photo.name}
+                                        </span>
                                     ) : (
-                                        <span className="text-4xl text-gray-300 font-bold">+</span>
-                                    )}
+                                        <span className="text-4xl text-gray-300 font-bold">+</span>)}
                                 </div>
                                 {/* Input file ẩn đi */}
                                 <input
@@ -197,4 +159,4 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
     )
 }
 
-export default PhotoForm
+export default AlbumForm
