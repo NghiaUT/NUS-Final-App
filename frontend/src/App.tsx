@@ -9,6 +9,10 @@ import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import NotFound from './pages/NotFound';
+<<<<<<< Updated upstream
+=======
+import MediaAdd from './pages/AddEdit/MediaAdd';
+>>>>>>> Stashed changes
 
 function App() {
   // Thiết lập route cho dự án.
@@ -23,6 +27,7 @@ function App() {
         <Route index path="/" element={<Feed />} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/add" element={<MediaAdd />} />
       </Route>
 
       {/* Bắt các route không có trong dự án. */}
