@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
       'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
   });
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // useEffect run only once when the app is mounted.
   useEffect(() => {

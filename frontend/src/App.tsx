@@ -9,10 +9,10 @@ import LoginPage from './pages/Auth/LoginPage';
 import SignupPage from './pages/Auth/SignupPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import NotFound from './pages/NotFound';
-<<<<<<< Updated upstream
-=======
-import MediaAdd from './pages/AddEdit/MediaAdd';
->>>>>>> Stashed changes
+import NewPhoto from './pages/AddEdit/NewPhoto';
+import NewAlbum from './pages/AddEdit/NewAlbum';
+import EditPhoto from './pages/AddEdit/EditPhoto';
+import EditAlbum from './pages/AddEdit/EditAlbum';
 
 function App() {
   // Thiết lập route cho dự án.
@@ -27,7 +27,10 @@ function App() {
         <Route index path="/" element={<Feed />} />
         <Route path="/discover" element={<Discover />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/add" element={<MediaAdd />} />
+        <Route path="/add/photo" element={<NewPhoto />} />
+        <Route path="/add/album" element={<NewAlbum />} />
+        <Route path="/edit/photo/:photoId" element={<EditPhoto />} />
+        <Route path="/edit/album/:photoId" element={<EditAlbum />} />
       </Route>
 
       {/* Bắt các route không có trong dự án. */}
