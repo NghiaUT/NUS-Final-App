@@ -1,12 +1,14 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="bg-blue h-14 sm:h-15 flex items-center justify-between pl-3 pr-3 md:pl-[2%] md:pr-[2%] xl:pl-[5%] xl:pr-[5%]">
-      <div className="text-xl sm:text-3xl text-white text-right pr-4 md:w-[150px]">Fotobook</div>
+      <div className="text-xl sm:text-3xl text-white text-right pr-4 md:w-[150px] cursor-pointer" onClick={() => navigate("/")}>Fotobook</div>
       <div className="flex-1 md:max-w-[1200px] flex gap-5 items-center justify-between">
         <input
           type="text"

@@ -9,12 +9,12 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, hand
     handleFollow(user.id);
   }
   return (
-    <div className="w-full flex flex-col md:flex-row items-center md:items-start mt-8 gap-8 md:gap-12 mb-16 p-5">
-      <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 lg:w-45 lg:h-45 rounded-full overflow-hidden border-2 border-white shadow-lg">
+    <div className="w-full min-w-0 flex flex-col xl:flex-row items-center xl:items-start mt-8 gap-6 md:gap-8 lg:gap-12 mb-16 p-3 md:p-5">
+      <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 xl:w-42 xl:h-42 rounded-full overflow-hidden border-2 border-white shadow-lg">
         <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
       </div>
 
-      <div className="flex flex-col items-center md:items-start flex-1 w-full">
+      <div className="flex flex-col items-center xl:items-start flex-1 w-full min-w-0">
         {isMyProfile ?
           <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#405b95] border-2 border-[#405b95] rounded-full hover:bg-blue-50 transition-colors cursor-pointer bg-white" onClick={() => console.log("Điều hướng sang trang chỉnh sửa người dùng.")}>
             Edit Profile
@@ -27,19 +27,19 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, hand
                 unfollow
               </button>
           )}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 truncate w-full text-center md:text-left">
           {user.name}
         </h1>
 
-        <div className="flex items-center text-sm divide-x divide-gray-300 w-full justify-center md:justify-start">
+        <div className="flex items-center text-sm divide-x divide-gray-300 w-full justify-center md:justify-start flex-warp gap-y-2">
           {stats.map((stat) => (
             <button
               key={stat.id}
               onClick={() => setActiveTab(stat.id)}
-              className="px-4 md:px-6 lg:px-8 first:pl-0 last:pr-0 flex flex-col  md:flex-row items-center md:items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
+              className="px-4 md:px-6 lg:px-8 first:pl-0 last:pr-0 flex flex-col  xl:flex-row items-center md:items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
             >
               <span
-                className={`text-lg sm:text-2xl lg:text-3xl font-bold transition-colors ${activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500'
+                className={`text-lg sm:text-xl lg:text-2xl font-bold transition-colors ${activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500'
                   }`}
               >
                 {stat.value}

@@ -5,8 +5,8 @@ const MobileTabar = () => {
   const navigate = useNavigate();
   return (
     <>
-      <div className="pb-16 sm:pb-0">{/* Content của tab bar hiển thị ở đây. */}</div>
-      <div className="fixed bottom-0 right-0 left-0 sm:hidden bg-white border-t border-gray flex justify-around h-16 z-50">
+      <div className="pb-16 md:pb-0">{/* Content của tab bar hiển thị ở đây. */}</div>
+      <div className="fixed bottom-0 right-0 left-0 md:hidden bg-white border-t border-gray flex justify-around h-16 z-50">
         <button
           className="flex-1 flex flex-col items-center justify-center gap-1 cursor-pointer"
           onClick={() => navigate('/')}

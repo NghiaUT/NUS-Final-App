@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
@@ -11,6 +12,7 @@ export const AuthProvider = ({ children }) => {
       'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // useEffect run only once when the app is mounted.
   useEffect(() => {
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     alert('Log the user out!');
     // setUser(null);
     // setAccessToken(null);
+    // navigate("/");
   };
 
   if (loading) return <LoadingSpinner />;

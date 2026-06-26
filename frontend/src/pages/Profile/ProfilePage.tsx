@@ -25,7 +25,7 @@ const ProfilePage = () => {
 
   const [activeTab, setActiveTab] = useState('photos');
   const { user: currentUser } = useAuth();
-  const isMyProfile = false; // Logic kiểm tra cho sau này.
+  const isMyProfile = true; // Logic kiểm tra cho sau này.
 
   useEffect(() => { }, []) // Hàm useEffect fetch API sau này.
 
@@ -50,7 +50,7 @@ const ProfilePage = () => {
     followers: <ProfileGrid data={MOCK_FOLLOWER} handleFollow={handleFollow} />,
   };
   return (
-    <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
+    <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0">
       <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, handleFollow, isFollowing }} />
       {tabContents[activeTab]}
       <MobileTabar />

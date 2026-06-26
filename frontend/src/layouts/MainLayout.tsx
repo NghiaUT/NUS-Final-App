@@ -13,7 +13,7 @@ const MainLayout = () => {
       <div className="flex flex-row justify-center pt-5 pl-3 pr-3 md:pl-[2%] md:pr-[2%] xl:pl-[5%] xl:pr-[5%] bg-graywhite">
         <Sidebar />
         <Outlet />
-        <aside className="hidden sm:block md:w-[150px] invisible">
+        <aside className="hidden md:block md:w-[150px] shrink-0 p-2.5 invisible">
           {/* Thẻ mẫu để chiếm chỗ đảm bảo cho main luôn chiếm chừng đấy */}
           Hello đi nhờ
         </aside>

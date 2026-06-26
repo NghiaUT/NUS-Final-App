@@ -32,6 +32,7 @@ export const MOCK_DATA = [
           alt_text: 'Hồ nước tĩnh lặng',
         },
       ],
+      status: 'public',
     },
     interactions: { likes_count: 123, is_liked: true },
     metadata: {
@@ -67,6 +68,7 @@ export const MOCK_DATA = [
           alt_text: 'Rừng cây xanh',
         },
       ],
+      status: 'private',
     },
     interactions: { likes_count: 89, is_liked: true },
     metadata: {
@@ -137,6 +139,7 @@ export const MOCK_DATA = [
           alt_text: 'Cô gái ở bối cảnh thành phố',
         },
       ],
+      status: 'private',
     },
     interactions: { likes_count: 56, is_liked: false },
     metadata: {
