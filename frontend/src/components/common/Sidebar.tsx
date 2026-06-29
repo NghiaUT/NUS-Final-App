@@ -10,7 +10,7 @@ const Sidebar = () => {
         {user &&
           <li>
             <NavLink
-              to="/"
+              to="/feed"
               end
               className={({ isActive }) =>
                 `font-semibold text-lg cursor-pointer ${isActive ? 'text-blue underline' : ''
@@ -23,7 +23,7 @@ const Sidebar = () => {
         }
         <li>
           <NavLink
-            to="/discover"
+            to="/"
             className={({ isActive }) =>
               `font-semibold text-lg cursor-pointer ${isActive ? 'text-blue underline' : ''
               }`

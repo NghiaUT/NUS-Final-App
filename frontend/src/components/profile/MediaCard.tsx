@@ -78,6 +78,7 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
             onClick={(e) => {
               e.stopPropagation();
               console.log("Edit clicked");
+              // navigate('/photo/:id') or navigate('/album/:id');
             }}
             className="absolute bottom-6 right-6 sm:bottom-4 sm:right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-4 py-1.5 rounded-full backdrop-blur-sm cursor-pointer"
           >

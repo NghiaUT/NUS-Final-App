@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import PhotoForm from '../../components/add_edit/PhotoForm';
 import { useParams } from 'react-router-dom';
 
-const NewPhoto = () => {
+const EditPhoto = () => {
     const { photoId } = useParams();
     const [photoData, setPhotoData] = useState(null);
     useEffect(() => { }, [photoId]);
@@ -26,4 +26,4 @@ const NewPhoto = () => {
     )
 }
 
-export default NewPhoto;
+export default EditPhoto;

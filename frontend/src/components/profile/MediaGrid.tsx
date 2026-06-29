@@ -10,7 +10,7 @@ const MediaGrid = ({ data, type, isMyProfile }) => {
       {
         isMyProfile &&
         <div className="w-[95%] flex justify-end mb-6">
-          <button className="px-5 py-2 bg-[#2ba65b] text-white text-sm font-semibold rounded-full hover:bg-[#238a4b] transition-colors cursor-pointer" onClick={() => console.log("Điều hướng sang trang chỉnh sửa ảnh")}>
+          <button className="px-5 py-2 bg-[#2ba65b] text-white text-sm font-semibold rounded-full hover:bg-[#238a4b] transition-colors cursor-pointer" onClick={() => type === "photo" ? navigate('/photo') : navigate('/album')}>
             Add {type === "photo" ? "Photo" : "Album"}
           </button>
         </div>
