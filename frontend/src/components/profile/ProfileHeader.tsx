@@ -17,7 +17,7 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, hand
 
       <div className="flex flex-col items-center xl:items-start flex-1 w-full min-w-0">
         {isMyProfile ?
-          <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#405b95] border-2 border-[#405b95] rounded-full hover:bg-blue-50 transition-colors cursor-pointer bg-white" onClick={() => console.log("Điều hướng sang trang chỉnh sửa người dùng.")}>
+          <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#405b95] border-2 border-[#405b95] rounded-full hover:bg-blue-50 transition-colors cursor-pointer bg-white" onClick={() => navigate('/edit-profile')}>
             Edit Profile
           </button> : (
             isFollow ?

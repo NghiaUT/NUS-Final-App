@@ -6,6 +6,7 @@ import NewAlbum from "../pages/AddEdit/NewAlbum";
 import EditPhoto from "../pages/AddEdit/EditPhoto";
 import EditAlbum from "../pages/AddEdit/EditAlbum";
 import ProfilePage from "../pages/Profile/ProfilePage";
+import EditProfile from "../pages/Profile/EditProfile";
 
 export const privateRoutes: RouteObject[] = [
     {
@@ -13,6 +14,7 @@ export const privateRoutes: RouteObject[] = [
         element: <MainLayout />,
         children: [
             { path: 'profile', element: <ProfilePage /> },
+            { path: 'edit-profile', element: <EditProfile /> },
             { path: 'feed', element: <Feed /> },
             { path: 'photo', element: <NewPhoto /> },
             { path: 'album', element: <NewAlbum /> },
