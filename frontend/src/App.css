@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Adding global config for theme. */
 @theme {
-    --color-graywhite: #F8F8F8;
-    --color-blue: #3C5A9A;
-    --color-gray: #848585;
-    --color-orange: #D67C49;
+  --color-graywhite: #f8f8f8;
+  --color-blue: #3c5a9a;
+  --color-gray: #848585;
+  --color-orange: #d67c49;
 }

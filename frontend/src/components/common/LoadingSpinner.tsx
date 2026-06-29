@@ -8,6 +8,6 @@ const LoadingSpinner = () => {
       <div className="h-3 w-3 bg-blue rounded-full animate-bounce"></div>
     </div>
   );
-}
+};
 
 export default LoadingSpinner;
