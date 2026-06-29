@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
           id: 1,
           name: 'Nghia Tran',
           email: 'nghia@123.com',
-          role: 'user',
+          role: 'admin',
           avatar_url:
             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
         },

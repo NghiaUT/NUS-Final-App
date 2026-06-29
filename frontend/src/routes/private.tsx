@@ -7,6 +7,10 @@ import EditPhoto from "../pages/AddEdit/EditPhoto";
 import EditAlbum from "../pages/AddEdit/EditAlbum";
 import ProfilePage from "../pages/Profile/ProfilePage";
 import EditProfile from "../pages/Profile/EditProfile";
+import ManagePhotos from "../pages/Admin/ManagePhotos/ManagePhotos";
+import ManageAlbums from "../pages/Admin/ManageAlbums/ManageAlbums";
+import ManageUsers from "../pages/Admin/ManageUsers/ManageUsers";
+import AdminLayout from "../layouts/AdminLayout";
 
 export const privateRoutes: RouteObject[] = [
     {
@@ -21,5 +25,14 @@ export const privateRoutes: RouteObject[] = [
             { path: 'photo/:photoId', element: <EditPhoto /> },
             { path: 'album/:albumId', element: <EditAlbum /> },
         ],
+    },
+    {
+        path: '/admin',
+        element: <AdminLayout />,
+        children: [
+            { path: 'manage-photos', element: <ManagePhotos /> },
+            { path: 'manage-albums', element: <ManageAlbums /> },
+            { path: 'manage-users', element: <ManageUsers /> },
+        ]
     },
 ];
