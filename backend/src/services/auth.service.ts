@@ -3,6 +3,7 @@ import prisma from '../config/prisma/prisma.init.js';
 import { ApiError } from '../utils/apiError.js';
 import { sendWelcomeEmail } from './email.service.js';
 import { generateToken } from '../utils/jwt.utils.js';
+import { generateDefaultAvatar } from '../utils/avatar.util.js';
 
 const SALT = 10;
 
@@ -25,6 +26,10 @@ export class AuthService {
     const newUser = await prisma.user.create({
       data: {
         ...userData,
+        avatar_url: generateDefaultAvatar(
+          userData.first_name || 'User',
+          userData.last_name || `${userData.id}`
+        ),
         password: hashedPassword,
       },
     });
@@ -59,9 +64,17 @@ export class AuthService {
       name: `${user.first_name || 'User'} ${user.last_name || ''}`.trim(),
       role: 'user',
       email: user.email,
-      avatar_url: user.avatar_url ?? 'undefined',
+      avatar_url:
+        user.avatar_url ??
+        generateDefaultAvatar(
+          user.first_name || 'User',
+          user.last_name || `${user.id}`
+        ),
     });
 
-    return { user: { id: user.id, email: user.email }, tokens };
+    return {
+      user: { id: user.id, email: user.email, avatar_url: user.avatar_url },
+      tokens,
+    };
   }
 }
