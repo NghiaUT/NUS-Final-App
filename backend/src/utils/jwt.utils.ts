@@ -2,10 +2,11 @@ import jwt from 'jsonwebtoken';
 import { constant } from '../config/constant/constant.js';
 
 type UserPayload = {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: string;
+  avatar_url: string;
 };
 
 export const generateToken = (payload: UserPayload) => {

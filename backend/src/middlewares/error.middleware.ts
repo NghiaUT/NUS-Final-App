@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { ApiError } from '../utils/apiError.js';
+import { constant } from '../config/constant/constant.js';
 
 export const errorHandler = (
   err: Error,
@@ -20,6 +21,6 @@ export const errorHandler = (
     status: 'error',
     statusCode,
     message,
-    ...{ stack: err.stack },
+    ...(constant.NODE_ENV === 'development' && { stack: err.stack }),
   });
 };
