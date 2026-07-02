@@ -6,10 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "prisma generate",
-    "dev": "tsx watch src/app.ts"
+    "dev": "tsx watch src/app.ts",
+    "prisma": "npx prisma db push && npx prisma generate"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "Nodejs",
+    "express",
+    "nodemailer",
+    "jwt"
+  ],
+  "author": "Nghia Tran",
   "license": "ISC",
   "type": "module",
   "dependencies": {
