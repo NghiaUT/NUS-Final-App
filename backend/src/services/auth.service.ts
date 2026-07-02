@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import prisma from '../config/prisma/prisma.init.js';
-import { ApiError } from '../utils/apiError.js';
+import { ApiError, NotFoundError } from '../utils/apiError.js';
 import {
   sendResetPasswordEmail,
   sendWelcomeAndVerifyEmail,
@@ -63,7 +63,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ApiError(400, 'Wrong email or password!');
+      throw new NotFoundError('Wrong email or password!');
     }
 
     if (!user.isVerified) {

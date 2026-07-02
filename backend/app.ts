@@ -2,8 +2,9 @@ import 'dotenv/config';
 import express, { type Request, type Response } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
-import rootRouter from './routes/index.js';
-import { errorHandler } from './middlewares/error.middleware.js';
+import rootRouter from './src/routes/index.js';
+import { errorHandler } from './src/middlewares/error.middleware.js';
+import cookieParser from 'cookie-parser';
 
 const port = 3000;
 const app = express();
@@ -16,6 +17,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 
 app.get('/', (req: Request, res: Response) => {

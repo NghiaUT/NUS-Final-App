@@ -9,6 +9,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log('Error found in app: \n', '='.repeat(50), '\n', err);
   let statusCode = 500;
   let message = 'Internal Server Error';
 
