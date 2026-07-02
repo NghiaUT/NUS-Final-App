@@ -1,6 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { AuthService } from '../services/auth.service.js';
 import { ApiError } from '../utils/apiError.js';
+import { sendSuccessRes } from '../utils/sendRespone.util.js';
 
 export const authController = {
   singup: async (req: Request, res: Response, next: NextFunction) => {
@@ -13,12 +14,7 @@ export const authController = {
       const { confirmedPassword, ...userData } = data;
       const result = await AuthService.signup(userData);
 
-      res.status(201).json({
-        status: 'success',
-        data: {
-          user: result.user,
-        },
-      });
+      sendSuccessRes(res, 'Successfully signup', result, 201);
     } catch (error) {
       next(error); // Chuyển lỗi xuống error.middleware.ts
     }
@@ -37,13 +33,74 @@ export const authController = {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
-      res.status(200).json({
-        status: 'success',
-        data: {
-          user: result.user,
+      sendSuccessRes(
+        res,
+        'Successfully login',
+        {
+          ...result,
           accessToken: result.tokens.accessToken,
+          tokens: undefined,
         },
-      });
+        200
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  verifyUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.query;
+      if (!token || typeof token !== 'string') {
+        throw new ApiError(400, 'Invalid or missing token!');
+      }
+      const result = await AuthService.verifyUser(token);
+      // result chứa directlink để người dùng chuyển sang trang login.
+      res.redirect(302, result.directlink);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  forgotPassword: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      await AuthService.forgotPassword(email);
+      sendSuccessRes(res, 'Send directlink suscessfully', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  resetPassword: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.query;
+      if (!token || typeof token !== 'string') {
+        throw new ApiError(400, 'Invalid or missing token!');
+      }
+
+      const { newPassword } = req.body;
+      const result = await AuthService.resetPassword(token, newPassword);
+
+      res.redirect(302, result.directLink);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getRefreshToken: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+      const { userId } = req.body;
+      if (!refreshToken || typeof refreshToken !== 'string') {
+        throw new ApiError(400, 'Missing or invalid Refresh Token');
+      }
+      if (!userId || isNaN(Number(userId))) {
+        throw new ApiError(400, 'Missing or invalid User ID');
+      }
+
+      const result = AuthService.checkRefreshToken(refreshToken, userId);
+      sendSuccessRes(res, 'Get Token Susscessfully', result, 200);
     } catch (error) {
       next(error);
     }

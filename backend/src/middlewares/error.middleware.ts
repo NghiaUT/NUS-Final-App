@@ -1,6 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { ApiError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
+import { sendErrorRes } from '../utils/sendRespone.util.js';
 
 export const errorHandler = (
   err: Error,
@@ -17,10 +18,7 @@ export const errorHandler = (
   }
 
   //   Formatting
-  res.status(statusCode).json({
-    status: 'error',
-    statusCode,
-    message,
-    ...(constant.NODE_ENV === 'development' && { stack: err.stack }),
-  });
+  const stack =
+    constant.NODE_ENV === 'development' ? { stack: err.stack } : null;
+  sendErrorRes(res, message, statusCode, stack);
 };

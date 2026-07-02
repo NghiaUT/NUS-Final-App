@@ -1,14 +1,20 @@
 import bcrypt from 'bcrypt';
 import prisma from '../config/prisma/prisma.init.js';
 import { ApiError } from '../utils/apiError.js';
-import { sendWelcomeEmail } from './email.service.js';
-import { generateToken } from '../utils/jwt.utils.js';
+import {
+  sendResetPasswordEmail,
+  sendWelcomeAndVerifyEmail,
+} from './email.service.js';
+import { generateToken, verifyAndCheckExpiration } from '../utils/jwt.util.js';
 import { generateDefaultAvatar } from '../utils/avatar.util.js';
+import { generateHashedToken, hashToken } from '../utils/token.util.js';
+import { constant } from '../config/constant/constant.js';
 
 const SALT = 10;
 
 export class AuthService {
   static async signup(userData: any) {
+    // 1. Validate the user
     const existingUser = await prisma.user.findUnique({
       where: {
         email: userData.email,
@@ -19,24 +25,32 @@ export class AuthService {
       throw new ApiError(400, 'Email already exists!');
     }
 
-    // Hashing the password.
+    // 2. Hashing the password.
     const hashedPassword = await bcrypt.hash(userData.password, SALT);
 
-    // Store the user to DB and send Email.
+    // 3. Store the user to DB, create Token for verify and send Email.
+    const verifyToken = generateHashedToken();
+
     const newUser = await prisma.user.create({
       data: {
         ...userData,
-        avatar_url: generateDefaultAvatar(
-          userData.first_name || 'User',
-          userData.last_name || `${userData.id}`
+        avatarUrl: generateDefaultAvatar(
+          userData.firstName || 'User',
+          userData.lastName || `${userData.id}`
         ),
         password: hashedPassword,
+        role: 'USER', // Nếu có role trong payload thì ghi đè lại -> ADMIN sẽ đăng ký kiểu khác
+        verificationToken: verifyToken.hashedToken,
+        verificationExpire: new Date(Date.now() + 15 * 60 * 1000), // 15 phút.
+        isVerified: false,
       },
     });
 
-    // sendWelcomeEmail(newUser.email, newUser.first_name ?? 'User').catch(
-    //   console.error
-    // );
+    sendWelcomeAndVerifyEmail(
+      newUser.email,
+      newUser.firstName ?? 'User',
+      verifyToken.token
+    ).catch(console.error);
 
     return { user: { id: newUser.id, email: newUser.email } };
   }
@@ -52,6 +66,14 @@ export class AuthService {
       throw new ApiError(400, 'Wrong email or password!');
     }
 
+    if (!user.isVerified) {
+      throw new ApiError(400, 'Account is not verified or deactive!');
+    }
+
+    if (!user.isActive) {
+      throw new ApiError(400, 'Account is not verified or deactive!');
+    }
+
     const isAuth = await bcrypt.compare(userData.password, user.password);
 
     if (!isAuth) {
@@ -61,20 +83,172 @@ export class AuthService {
     // Return tokens when login
     const tokens = generateToken({
       id: user.id,
-      name: `${user.first_name || 'User'} ${user.last_name || ''}`.trim(),
-      role: 'user',
+      name: `${user.firstName || 'User'} ${user.lastName || ''}`.trim(),
+      role: user.role,
       email: user.email,
-      avatar_url:
-        user.avatar_url ??
+      avatarUrl:
+        user.avatarUrl ??
         generateDefaultAvatar(
-          user.first_name || 'User',
-          user.last_name || `${user.id}`
+          user.firstName || 'User',
+          user.lastName || `${user.id}`
         ),
     });
 
+    // Update last login:
+    // Mẹo tối ưu: 1. Nên lưu tạm vào redis trước khi ghi xuống vào DB
+    // 2. Chỉ lưu last login nếu 2 lần cách nhau trên 30p (Đang thực hiện)
+    if (
+      !user.lastLogin ||
+      Math.abs(user.lastLogin.getTime() - Date.now()) / (1000 * 60) >=
+        30 * 60 * 1000
+    ) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          lastLogin: new Date(Date.now()),
+        },
+      });
+    }
+
     return {
-      user: { id: user.id, email: user.email, avatar_url: user.avatar_url },
+      user: { id: user.id, email: user.email, avatarUrl: user.avatarUrl },
       tokens,
     };
+  }
+
+  static async verifyUser(token: string) {
+    // Nhận token và thực hiện verify người dùng, set isVerified thành true.
+    // 1. Hashed ngược lại token và kiểm tra:
+    const hashedToken = hashToken(token);
+
+    // 2. Tìm kiếm user có hashedToken tương ứng và chưa hết hạn.
+    const user = await prisma.user.findFirst({
+      where: {
+        verificationToken: hashedToken,
+        verificationExpire: { gte: new Date(Date.now()) },
+      },
+    });
+
+    if (!user) {
+      throw new ApiError(400, 'Token is invalid or has expired');
+    }
+
+    // 3. Cập nhật tình trạng user vào DB.
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        isVerified: true,
+        verificationToken: null,
+        verificationExpire: null,
+      },
+    });
+
+    return {
+      user: { id: user.id, email: user.email },
+      directlink: `${constant.CLIENT_URL}/login`,
+    };
+  }
+
+  static async forgotPassword(email: string) {
+    // 1. Tìm kiếm người dùng trong DB:
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      throw new ApiError(400, 'Wrong email or password!');
+    }
+
+    // 2. Tạo chuỗi token ngẫu nhiên và gửi về phía người dùng email.
+    const token = generateHashedToken();
+
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        resetPasswordToken: token.hashedToken,
+        resetPasswordExpire: new Date(Date.now() + 15 * 60 * 1000), // 15 phút để validate
+      },
+    });
+
+    sendResetPasswordEmail(email, token.token).catch(async (error) => {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          resetPasswordToken: null,
+          resetPasswordExpire: null,
+        },
+      });
+
+      console.error(error);
+    }); // Rollback nếu có lỗi xảy ra. -> Update sử dụng prisma transaction cho sau này.
+  }
+
+  static async resetPassword(token: string, newPassword: string) {
+    // 1. Hash ngược lại token nhận được và kiểm tra trong DB.
+    const hashedToken = hashToken(token);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        resetPasswordToken: hashedToken,
+        resetPasswordExpire: { gte: new Date(Date.now()) },
+      },
+    });
+
+    if (!user) {
+      throw new ApiError(400, 'Token is invalid or has expired');
+    }
+
+    // 2. Hash password và lưu vào DB.
+    const hashedPassword = await bcrypt.hash(newPassword, SALT);
+
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        resetPasswordToken: null,
+        resetPasswordExpire: null,
+        password: hashedPassword,
+      },
+    });
+
+    // 3. Trả về link điều hướng người dùng sang trang login.
+    return {
+      directLink: `${constant.CLIENT_URL}/login`,
+    };
+  }
+
+  static async checkRefreshToken(token: string, userId: number) {
+    // 1. Kiểm tra refreshToken có còn hạn không, tách ra và check cả userId.
+    const { valid, reason, payload } = verifyAndCheckExpiration(
+      token,
+      'refresh'
+    );
+
+    if (!valid) {
+      throw new ApiError(
+        400,
+        'Something is wrong with RefereshToken:' + reason
+      );
+    }
+
+    if (payload && payload.id != userId) {
+      throw new ApiError(400, 'Wrong user');
+    }
+
+    // 2. Tạo accessToken mới và trả về.
+    const { accessToken, refreshToken } = generateToken(payload);
+
+    return { accessToken, refreshToken };
   }
 }

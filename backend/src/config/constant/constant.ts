@@ -9,4 +9,6 @@ export const constant = {
   SMTP_PORT: process.env.SMTP_PORT ?? 587,
   SMTP_USER: process.env.SMTP_USER ?? 'Username',
   SMTP_PASS: process.env.SMTP_PASS ?? 'Password',
+  CLIENT_URL: process.env.CLIENT_URL ?? 'http://localhost:5173',
+  SERVER_URL: process.env.SERVER_URL ?? 'http://localhost:3000',
 };
