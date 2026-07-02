@@ -107,7 +107,7 @@ export class AuthService {
           id: user.id,
         },
         data: {
-          lastLogin: new Date(Date.now()),
+          lastLogin: new Date(),
         },
       });
     }
@@ -127,7 +127,6 @@ export class AuthService {
     const user = await prisma.user.findFirst({
       where: {
         verificationToken: hashedToken,
-        verificationExpire: { gte: new Date(Date.now()) },
       },
     });
 
@@ -135,7 +134,22 @@ export class AuthService {
       throw new ApiError(400, 'Token is invalid or has expired');
     }
 
-    // 3. Cập nhật tình trạng user vào DB.
+    // 3. Xóa token thừa và ném lỗi:
+    if (user.verificationExpire && user.verificationExpire < new Date()) {
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          verificationExpire: null,
+          verificationToken: null,
+        },
+      });
+
+      throw new ApiError(400, 'Token has expired. Please request a new one.');
+    }
+
+    // 4. Cập nhật tình trạng user vào DB.
     await prisma.user.update({
       where: {
         id: user.id,
@@ -194,13 +208,12 @@ export class AuthService {
   }
 
   static async resetPassword(token: string, newPassword: string) {
-    // 1. Hash ngược lại token nhận được và kiểm tra trong DB.
+    // 1. Hash ngược lại token nhận được và kiểm tra trong DB. Nếu như token tồn tại mà hết hạn thì xóa token.
     const hashedToken = hashToken(token);
 
     const user = await prisma.user.findFirst({
       where: {
         resetPasswordToken: hashedToken,
-        resetPasswordExpire: { gte: new Date(Date.now()) },
       },
     });
 
@@ -208,6 +221,17 @@ export class AuthService {
       throw new ApiError(400, 'Token is invalid or has expired');
     }
 
+    if (user.resetPasswordExpire && user.resetPasswordExpire < new Date()) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          resetPasswordExpire: null,
+          resetPasswordToken: null,
+        },
+      });
+
+      throw new ApiError(400, 'Token has expired. Please request a new one.');
+    }
     // 2. Hash password và lưu vào DB.
     const hashedPassword = await bcrypt.hash(newPassword, SALT);
 
