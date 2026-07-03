@@ -259,7 +259,7 @@ export class AuthService {
     };
   }
 
-  static async checkRefreshToken(token: string, userId: number) {
+  static async checkRefreshToken(token: string) {
     // 1. Kiểm tra refreshToken có còn hạn không, tách ra và check cả userId.
     const { valid, reason, payload } = verifyAndCheckExpiration(
       token,
@@ -273,8 +273,9 @@ export class AuthService {
       );
     }
 
-    if (payload && payload.id != userId) {
-      throw new ApiError(400, 'Wrong user');
+    const userId = payload?.id;
+    if (!userId || isNaN(Number(userId))) {
+      throw new ApiError(400, 'Missing or invalid User ID');
     }
 
     // 2. Tạo accessToken mới và trả về.

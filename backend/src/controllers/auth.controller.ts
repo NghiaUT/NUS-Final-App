@@ -91,16 +91,26 @@ export const authController = {
   getRefreshToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies.refreshToken;
-      const { userId } = req.body;
       if (!refreshToken || typeof refreshToken !== 'string') {
         throw new ApiError(400, 'Missing or invalid Refresh Token');
       }
-      if (!userId || isNaN(Number(userId))) {
-        throw new ApiError(400, 'Missing or invalid User ID');
-      }
 
-      const result = AuthService.checkRefreshToken(refreshToken, userId);
-      sendSuccessRes(res, 'Get Token Susscessfully', result, 200);
+      const result = await AuthService.checkRefreshToken(refreshToken);
+
+      // Gắn lại refreshToken mới vào.
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      sendSuccessRes(
+        res,
+        'Get Token Susscessfully',
+        { accessToken: result.accessToken },
+        200
+      );
     } catch (error) {
       next(error);
     }
