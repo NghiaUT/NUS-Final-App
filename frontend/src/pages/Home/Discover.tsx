@@ -1,5 +1,5 @@
 import AlbumsGridLayout from '../../components/feed/AlbumsGridLayout';
-import { MOCK_DATA } from '../../assets/mock_data';
+import { MOCK_DATA } from '../../mocks/mock_data';
 
 const fetchDiscoverData = async (pageParam) => {
   return new Promise((resolve) => {

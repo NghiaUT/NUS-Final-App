@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProfileHeader from '../../components/profile/ProfileHeader';
-import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../assets/mock_data';
+import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../mocks/mock_data';
 import MediaGrid from '../../components/profile/MediaGrid';
 import ProfileGrid from '../../components/profile/ProfileGrid';
 import MobileTabar from '../../components/feed/MobileTabar';
