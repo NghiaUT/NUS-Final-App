@@ -1,13 +1,12 @@
 export type User = {
   id: number;
-  firstName: string;
-  lastName: string;
+  name: string;
   avatarUrl: string;
   email: string;
   role?: Role;
 };
 
-type Role = 'user' | 'admin';
+type Role = 'USER' | 'ADMIN';
 
 export interface AuthContextValueType {
   isInitialized: boolean;

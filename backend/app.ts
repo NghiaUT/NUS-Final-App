@@ -5,6 +5,7 @@ import cors from 'cors';
 import rootRouter from './src/routes/index.js';
 import { errorHandler } from './src/middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
+import { constant } from './src/config/constant/constant.js';
 
 const port = 3000;
 const app = express();
@@ -12,7 +13,7 @@ const app = express();
 // Allow frontend domain:
 app.use(
   cors({
-    origin: 'localhost:5173',
+    origin: `${constant.CLIENT_URL}`,
     credentials: true,
   })
 );

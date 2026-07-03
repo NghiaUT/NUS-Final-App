@@ -115,4 +115,14 @@ export const authController = {
       next(error);
     }
   },
+
+  getMe: async (req: any, res: Response, next: NextFunction) => {
+    try {
+      console.log('req.user: ', req.user);
+      const result = await AuthService.me(Number(req.user.id));
+      sendSuccessRes(res, 'Validate successfull', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

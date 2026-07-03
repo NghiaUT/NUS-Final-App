@@ -1,6 +1,11 @@
 import bcrypt from 'bcrypt';
 import prisma from '../config/prisma/prisma.init.js';
-import { ApiError, NotFoundError } from '../utils/apiError.js';
+import {
+  ApiError,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../utils/apiError.js';
 import {
   sendResetPasswordEmail,
   sendWelcomeAndVerifyEmail,
@@ -282,5 +287,25 @@ export class AuthService {
     const { accessToken, refreshToken } = generateToken(payload);
 
     return { accessToken, refreshToken };
+  }
+
+  static async me(id: number) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestError('Cannot find User!');
+    }
+    const returnUser = {
+      id: user.id,
+      name: user.firstName + user.lastName,
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+      email: user.email,
+    };
+    return returnUser;
   }
 }

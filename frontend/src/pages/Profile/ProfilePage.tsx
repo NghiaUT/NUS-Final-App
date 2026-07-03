@@ -25,21 +25,12 @@ const ProfilePage = () => {
 
   const [activeTab, setActiveTab] = useState('photos');
   const { user: currentUser } = useAuth();
+
   const isMyProfile = true; // Logic kiểm tra cho sau này.
 
   useEffect(() => { }, []) // Hàm useEffect fetch API sau này.
 
   const handleFollow = (id, isFollowing) => {
-    if (currentUser.id === id) {
-      console.log("Không thể follow chính mình");
-      return;
-    }
-    if (!isFollowing) {
-      console.log(currentUser.id, `Follow người dùng `, id);
-    }
-    else {
-      console.log(currentUser.id, `Hủy Follow người dùng `, id);
-    }
     // gọi API để gửi lên hệ thống follow hay là unfollow
   }
 

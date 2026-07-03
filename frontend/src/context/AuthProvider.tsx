@@ -28,7 +28,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAuthHeader(null);
       setUser(null);
     } finally {
-      setIsInitialized(false);
+      // Dù xác thực lỗi hay ổn đều phải set về lại.
+      setIsInitialized(true);
     }
   };
 
@@ -40,14 +41,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('accessToken', token);
     setAuthHeader(token);
     setUser(userData);
+    window.location.href = "/";
   };
 
   const logout = () => {
-    alert('Log the user out!');
     localStorage.removeItem('accessToken');
     setUser(null);
     setAuthHeader(null);
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   return (
