@@ -6,6 +6,8 @@ import rootRouter from './src/routes/index.js';
 import { errorHandler } from './src/middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 import { constant } from './src/config/constant/constant.js';
+import './src/config/redis/redis.config.js';
+import './src/config/queue/email.queue.js';
 
 const port = 3000;
 const app = express();
