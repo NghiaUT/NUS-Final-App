@@ -30,14 +30,14 @@ export const verifyAndCheckExpiration = (token: string, type: string) => {
     // Hàm verify sẽ tự động ném lỗi nếu token hết hạn hoặc sai chữ ký
     const payload: any = jwt.verify(
       token,
-      type === 'refresh'
+      type === 'refreshToken'
         ? constant.REFRESH_TOKEN_SCRET
         : constant.ACCESS_TOKEN_SECRET
     );
     return { valid: true, reason: '', payload };
   } catch (error: any) {
     if (error instanceof jwt.TokenExpiredError) {
-      // Bạn vẫn có thể lấy payload cũ bằng jwt.decode nếu cần
+      // Vẫn có thể lấy payload cũ bằng jwt.decode nếu cần
       const expiredPayload: any = jwt.decode(token);
       return { valid: false, reason: 'Expired', payload: expiredPayload };
     }

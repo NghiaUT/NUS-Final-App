@@ -1,6 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { AuthService } from '../services/auth.service.js';
-import { ApiError } from '../utils/apiError.js';
+import { ApiError, BadRequestError } from '../utils/apiError.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 
 export const authController = {
@@ -9,7 +9,9 @@ export const authController = {
       // Gọi thẳng xuống Service
       const data = req.body;
       if (data.password !== data.confirmedPassword) {
-        throw new ApiError(400, 'Confirmed Password different from Password!');
+        throw new BadRequestError(
+          'Confirmed Password different from Password!'
+        );
       }
       const { confirmedPassword, ...userData } = data;
       const result = await AuthService.signup(userData);
@@ -52,7 +54,7 @@ export const authController = {
     try {
       const { token } = req.query;
       if (!token || typeof token !== 'string') {
-        throw new ApiError(400, 'Invalid or missing token!');
+        throw new BadRequestError('Invalid or missing token!');
       }
       const result = await AuthService.verifyUser(token);
       // result chứa directlink để người dùng chuyển sang trang login.
@@ -76,7 +78,7 @@ export const authController = {
     try {
       const { token } = req.query;
       if (!token || typeof token !== 'string') {
-        throw new ApiError(400, 'Invalid or missing token!');
+        throw new BadRequestError('Invalid or missing token!');
       }
 
       const { newPassword } = req.body;
@@ -92,7 +94,7 @@ export const authController = {
     try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken || typeof refreshToken !== 'string') {
-        throw new ApiError(400, 'Missing or invalid Refresh Token');
+        throw new BadRequestError('Missing or invalid Refresh Token');
       }
 
       const result = await AuthService.checkRefreshToken(refreshToken);
