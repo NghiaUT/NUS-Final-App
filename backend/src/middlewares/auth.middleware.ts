@@ -1,6 +1,10 @@
 // Tách lấy token ra và gắn vào req:
 import { type Request, type Response, type NextFunction } from 'express';
-import { BadRequestError, UnauthorizedError } from '../utils/apiError.js';
+import {
+  BadRequestError,
+  ForbiddenError,
+  UnauthorizedError,
+} from '../utils/apiError.js';
 import { verifyAndCheckExpiration } from '../utils/jwt.util.js';
 
 // Định nghĩa thêm type cho Request Express.
@@ -45,4 +49,31 @@ export const verifyToken = (
   } catch (error) {
     next(error);
   }
+};
+
+export const checkPermission = (roles: string[] = []) => {
+  // Usage: checkRole(["USER", "ADMIN"])
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log('Hello');
+      if (!req.user) {
+        throw new UnauthorizedError('User not found!');
+      }
+
+      const { role } = req.user;
+
+      if (!role) {
+        throw new ForbiddenError('Can not determine the user role!');
+      }
+
+      if (!roles.includes(role)) {
+        throw new ForbiddenError('You do not have right access to this');
+      }
+
+      console.log('========> Role cua user', role);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };
