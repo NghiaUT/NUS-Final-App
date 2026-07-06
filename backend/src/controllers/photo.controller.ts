@@ -5,6 +5,7 @@ import { sendSuccessRes } from '../utils/sendRespone.util.js';
 export const photoController = {
   newPhoto: (req: Request, res: Response, next: NextFunction) => {
     console.log('[Controller] This Controller handle data and pass to service');
+    console.log(req.file);
     PhotoService.newPhoto();
     sendSuccessRes(res, 'Thanh cong', null, 200);
   },
