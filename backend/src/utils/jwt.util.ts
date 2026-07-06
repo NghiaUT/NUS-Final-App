@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { constant } from '../config/constant/constant.js';
 
 type UserPayload = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -11,7 +11,7 @@ type UserPayload = {
 
 export const generateToken = (payload: UserPayload) => {
   const accessToken = jwt.sign({ ...payload }, constant.ACCESS_TOKEN_SECRET, {
-    expiresIn: '15m', // Short life
+    expiresIn: '1d', // Short life
   });
 
   const refreshToken = jwt.sign(

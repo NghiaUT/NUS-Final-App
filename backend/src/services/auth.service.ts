@@ -276,7 +276,7 @@ export class AuthService {
     }
 
     const userId = payload?.id;
-    if (!userId || isNaN(Number(userId))) {
+    if (!userId) {
       throw new BadRequestError('Missing or invalid User ID');
     }
 
@@ -294,7 +294,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  static async me(id: number) {
+  static async me(id: string) {
     const user = await prisma.user.findUnique({
       where: {
         id: id,

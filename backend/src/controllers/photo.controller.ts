@@ -1,25 +1,72 @@
 import type { NextFunction, Request, Response } from 'express';
 import { PhotoService } from '../services/photo.service.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
+import { BadRequestError } from '../utils/apiError.js';
+
+export type UploadPhoto = {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  path: string;
+  destination: string;
+  filename: string;
+  size: number;
+};
+
+export type FormData = {
+  title?: string;
+  description?: string;
+  sharingMode?: SharingMode;
+  photo?: UploadPhoto;
+};
+
+type SharingMode = 'PUBLIC' | 'PRIVATE';
 
 export const photoController = {
-  newPhoto: (req: Request, res: Response, next: NextFunction) => {
+  newPhoto: async (req: Request, res: Response, next: NextFunction) => {
     console.log('[Controller] This Controller handle data and pass to service');
-    console.log(req.file);
-    PhotoService.newPhoto();
-    sendSuccessRes(res, 'Thanh cong', null, 200);
+    try {
+      if (!req.file) {
+        throw new BadRequestError('No image found!');
+      }
+
+      const data = { ...req.body, photo: req.file } satisfies FormData;
+      const result = await PhotoService.newPhoto(data, req.user?.id);
+      sendSuccessRes(res, 'Adding new Photo succesfully', result, 201);
+    } catch (error) {
+      next(error);
+    }
   },
 
-  editPhoto: (req: Request, res: Response, next: NextFunction) => {
+  editPhoto: async (req: Request, res: Response, next: NextFunction) => {
     console.log('[Controller] This Controller handle data and pass to service');
-    PhotoService.editPhoto();
-    sendSuccessRes(res, 'Thanh cong', null, 200);
+    try {
+      const { id: photoId } = req.params;
+      const data = { ...req.body, photo: req.file } satisfies FormData;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      const result = await PhotoService.editPhoto(data, req.user?.id, photoId);
+      sendSuccessRes(res, 'Edit photo successfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
   },
 
-  deletePhoto: (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.file);
+  deletePhoto: async (req: Request, res: Response, next: NextFunction) => {
     console.log('[Controller] This Controller handle data and pass to service');
-    PhotoService.deletePhoto();
-    sendSuccessRes(res, 'Thanh cong', null, 200);
+    try {
+      const { id: photoId } = req.params;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      const result = await PhotoService.deletePhoto(req.user?.id, photoId);
+      sendSuccessRes(res, 'Delete Photo Sucessfully', result, 200);
+    } catch (error) {}
   },
 };

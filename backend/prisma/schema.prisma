@@ -7,9 +7,19 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum SharingMode {
+  PUBLIC
+  PRIVATE
+}
+
 model User {
-  id                  Int       @id @default(autoincrement())
-  email               String    @unique
+  id                  String      @id @default(uuid())
+  email               String      @unique
   firstName           String
   lastName            String
   avatarUrl           String?
@@ -17,15 +27,86 @@ model User {
   role                UserRole
   verificationToken   String?
   verificationExpire  DateTime?
-  isVerified          Boolean   @default(false)
+  isVerified          Boolean     @default(false)
   resetPasswordToken  String?
   resetPasswordExpire DateTime?
-  isActive            Boolean   @default(true)
+  isActive            Boolean     @default(true)
   lastLogin           DateTime?
-  createdAt           DateTime  @default(now())
+  createdAt           DateTime    @default(now())
+  follower            Follow[]    @relation("follower")
+  following           Follow[]    @relation("following")
+  photos              Photo[]
+  albums              Album[]
+  photoLikes          PhotoLike[]
+  albumLikes          AlbumLike[]
 }
 
-enum UserRole {
-  ADMIN
-  USER
+model Follow {
+  followerId  String
+  followingId String
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId]) //Composite key.
+}
+
+model Photo {
+  id          String      @id @default(uuid())
+  title       String?
+  description String?
+  alt_text    String?
+  sharingMode SharingMode @default(PUBLIC)
+
+  imageUrl  String
+  mimeType  String
+  createdAt DateTime @default(now())
+
+  userId String
+  author User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Photo có thể thuộc một album
+  albumId String?
+  album   Album?  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  photoLikes PhotoLike[]
+}
+
+model Album {
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  sharingMode SharingMode @default(PUBLIC)
+  createdAt   DateTime    @default(now())
+
+  userId String
+  author User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  photos Photo[]
+
+  albumLikes AlbumLike[]
+}
+
+model PhotoLike {
+  userId  String
+  photoId String
+
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo Photo @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@id([userId, photoId])
+}
+
+model AlbumLike {
+  userId  String
+  albumId String
+
+  createAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  album Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@id([userId, albumId])
 }
