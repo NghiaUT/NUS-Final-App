@@ -55,7 +55,6 @@ export const checkPermission = (roles: string[] = []) => {
   // Usage: checkRole(["USER", "ADMIN"])
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log('Hello');
       if (!req.user) {
         throw new UnauthorizedError('User not found!');
       }

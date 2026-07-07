@@ -67,7 +67,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                 formattedErrors.push(value.errors[0]);
             });
             setErrors(formattedErrors);
-            if (!isEditMode) return;
+            if (!isEditMode && formData.photo) return;
         }
 
         // Không kiểm tra schema ảnh khi đang trong edit và không có ảnh mới được đưa lên.

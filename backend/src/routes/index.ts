@@ -9,6 +9,6 @@ const rootRouter = express.Router();
 
 rootRouter.use('/auth', authRouter);
 rootRouter.use('/health', healthRouter);
-rootRouter.use('/photo', photoRouter);
+rootRouter.use('/photos', photoRouter);
 rootRouter.use('/album', albumRouter);
 export default rootRouter;
