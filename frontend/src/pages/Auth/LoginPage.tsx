@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import MediaTabbar from '../../components/auth/MediaTabbar';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { authService } from '../../api/authService';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -18,9 +21,14 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login with: ', formData);
+    try {
+      const { data } = await authService.login(formData);
+      login(data.data.accessToken, data.data.user);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -52,6 +60,7 @@ const LoginPage = () => {
                     name="email"
                     type="email"
                     required
+                    autoFocus
                     className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                     placeholder="Email"
                     onChange={handleChange}

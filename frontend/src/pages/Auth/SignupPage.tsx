@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import MediaTabbar from '../../components/auth/MediaTabbar';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../../api/authService';
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
-    confirmed_password: '',
+    confirmedPassword: '',
   });
 
   const handleChange = (e) => {
@@ -19,27 +21,43 @@ const SignupPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submit thong tin user: ', formData);
+    await authService.signup(formData);
   };
+
   return (
     <div className="relative sm:top-10 md:top-12 mx-auto w-full sm:w-[400px] flex items-center flex-col flex-start">
-      <h1 className="text-blue text-5xl text-center font-semibold m-10">Fotobook Signup</h1>
+      <h1 className="text-blue text-5xl text-center font-semibold m-5">Fotobook Signup</h1>
       <MediaTabbar></MediaTabbar>
-      <div className="flex w-full flex-col items-center justify-center py-12">
+      <div className="flex w-full flex-col items-center justify-center py-8">
         {/* Container Card */}
         <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
           <form className="space-y-4 w-full" onSubmit={handleSubmit}>
-            {/* Full Name */}
+            {/* First Name */}
             <div>
               <label className="block text-sm font-bold text-gray-800 mb-1">First Name</label>
               <input
                 id="firstName"
-                name="fullName"
+                name="firstName"
                 type="text"
                 placeholder="First Name"
-                value={formData.fullName}
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            {/* Last Name */}
+            <div>
+              <label className="block text-sm font-bold text-gray-800 mb-1">First Name</label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                placeholder="Last Name"
+                value={formData.lastName}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -81,10 +99,10 @@ const SignupPage = () => {
                 Password Confirmation
               </label>
               <input
-                name="confirmed_password"
+                name="confirmedPassword"
                 type="password"
                 placeholder="Password"
-                value={formData.confirmed_password}
+                value={formData.confirmedPassword}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"

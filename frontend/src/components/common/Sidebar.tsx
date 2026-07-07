@@ -8,7 +8,7 @@ const Sidebar = () => {
     <aside className="hidden md:block md:w-[150px] p-2.5">
       <ul className="mt-5 flex flex-col items-start justify-start gap-2 w-full">
         {
-          user.role === "admin" ?
+          user && user.role === "ADMIN" ?
             <>
               <li>
                 <NavLink

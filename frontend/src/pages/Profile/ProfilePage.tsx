@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProfileHeader from '../../components/profile/ProfileHeader';
-import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../assets/mock_data';
+import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../mocks/mock_data';
 import MediaGrid from '../../components/profile/MediaGrid';
 import ProfileGrid from '../../components/profile/ProfileGrid';
 import MobileTabar from '../../components/feed/MobileTabar';
@@ -25,21 +25,12 @@ const ProfilePage = () => {
 
   const [activeTab, setActiveTab] = useState('photos');
   const { user: currentUser } = useAuth();
+
   const isMyProfile = true; // Logic kiểm tra cho sau này.
 
   useEffect(() => { }, []) // Hàm useEffect fetch API sau này.
 
   const handleFollow = (id, isFollowing) => {
-    if (currentUser.id === id) {
-      console.log("Không thể follow chính mình");
-      return;
-    }
-    if (!isFollowing) {
-      console.log(currentUser.id, `Follow người dùng `, id);
-    }
-    else {
-      console.log(currentUser.id, `Hủy Follow người dùng `, id);
-    }
     // gọi API để gửi lên hệ thống follow hay là unfollow
   }
 

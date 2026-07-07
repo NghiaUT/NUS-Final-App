@@ -227,7 +227,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
                                     accept="image/*"
-                                    multiple
+                                    // multiple
                                     className="hidden"
                                 />
                             </div>

@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  Int       @id @default(autoincrement())
+  email               String    @unique
+  firstName           String
+  lastName            String
+  avatarUrl           String?
+  password            String
+  role                UserRole
+  verificationToken   String?
+  verificationExpire  DateTime?
+  isVerified          Boolean   @default(false)
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+  isActive            Boolean   @default(true)
+  lastLogin           DateTime?
+  createdAt           DateTime  @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}

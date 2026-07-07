@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
-import AlbumForm from '../../components/add_edit/AlbumForm';
+import AlbumForm from '../../components/add-edit/AlbumForm';
 import { useParams } from 'react-router-dom';
 
 const EditAlbum = () => {
