@@ -5,7 +5,7 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
 
 // Schema validate cho 1 file ảnh
-const singleImageSchema = z
+export const singleImageSchema = z
   .any()
   .refine((file) => !!file, 'Vui lòng tải lên một hình ảnh')
   .superRefine((file, ctx) => {
@@ -36,7 +36,7 @@ export const albumSchema = z.object({
     .min(1, 'Description không được để trống')
     .max(300, 'Description tối đa 300 ký tự'),
 
-  sharingMode: z.enum(['public', 'private'], {
+  sharingMode: z.enum(['PUBLIC', 'PRIVATE'], {
     error: () => ({ message: 'Vui lòng chọn chế độ chia sẻ hợp lệ' }),
   }),
 
@@ -49,14 +49,15 @@ export const albumSchema = z.object({
 export const photoSchema = z.object({
   title: z.string().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự.'),
 
-  description: z.string().max(300, 'Tối đa 300 ký tự').optional(),
+  description: z.string().min(1, 'Description không được để trống').max(300, 'Tối đa 300 ký tự'),
 
-  sharingMode: z.enum(['public', 'private'], {
-    error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }),
-  }),
-
-  // Dùng lại đúng schema file cho ảnh duy nhất đã định nghĩa ở trên
-  photo: singleImageSchema,
+  sharingMode: z.preprocess(
+    (val) => {
+      if (typeof val === 'string') return val.toLowerCase();
+      return val;
+    },
+    z.enum(['public', 'private'], { error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }) }),
+  ),
 });
 
 export const avatarSchema = z

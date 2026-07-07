@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { photoSchema } from '../../utils/validators';
+import { photoSchema, singleImageSchema } from '../../utils/validators';
 import { z } from 'zod';
 
 const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
     const [formData, setFormData] = useState({
         title: initialData?.title || '',
-        sharingMode: initialData?.sharingMode || 'public',
+        sharingMode: initialData?.sharingMode || 'PUBLIC',
         description: initialData?.description || '',
         photo: initialData?.photo || null,
+        imageUrl: initialData?.imageUrl || null,
     });
     const [errors, setErrors] = useState([]);
     const [previewUrl, setPreviewUrl] = useState(
-        typeof initialData?.photo === 'string' ? initialData.photo.avatar_url : null
+        initialData?.imageUrl ? initialData.imageUrl : null
     );
 
     // Cleanup blob for review image
@@ -48,25 +49,51 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
             URL.revokeObjectURL(previewUrl);
         }
         setPreviewUrl(null);
+        setFormData((prev) => ({ ...prev, photo: null }));
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const result = photoSchema.safeParse(formData);
-
-        if (!result.success) {
-            const fieldErrors = z.treeifyError(result.error);
+        const formResult = photoSchema.safeParse(formData);
+        if (!formResult.success) {
+            const fieldErrors = z.treeifyError(formResult.error);
             // Chuyển đổi array lỗi đầu tiên thành string cho dễ hiển thị
             const formattedErrors = [];
             Object.entries(fieldErrors.properties).forEach(([key, value]) => {
                 formattedErrors.push(value.errors[0]);
             });
             setErrors(formattedErrors);
-            return;
+            if (!isEditMode) return;
+        }
+
+        // Không kiểm tra schema ảnh khi đang trong edit và không có ảnh mới được đưa lên.
+        if (!isEditMode || formData.photo || !previewUrl) {
+            const imgResult = singleImageSchema.safeParse(formData.photo);
+            console.log(imgResult);
+            if (!imgResult.success) {
+                const fieldErrors = z.treeifyError(imgResult.error);
+                const formattedErrors = fieldErrors.errors;
+                setErrors((prev) => [...prev, ...formattedErrors]);
+                return;
+            }
         }
 
         setErrors([]);
-        onSubmit(formData);
+
+        const submitData = new FormData();
+        console.log(formData);
+        submitData.append('title', formData.title);
+        submitData.append('description', formData.description);
+        submitData.append('sharingMode', formData.sharingMode);
+        if (formData.photo instanceof File) {
+            submitData.append('photo', formData.photo);
+        }
+
+        onSubmit(submitData);
     }
 
     const handleDeleteClick = () => {
@@ -91,7 +118,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                             </ul>
                         </div>
                     )}
-                    <form>
+                    <form encType='multipart/form-data'>
                         {/* Chia layout 2 cột */}
                         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6'>
                             {/* Cột trái */}
@@ -119,8 +146,8 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                                         onChange={handleChange}
                                         className="w-48 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-green-500"
                                     >
-                                        <option value="public">Public</option>
-                                        <option value="private">Private</option>
+                                        <option value="PUBLIC">Public</option>
+                                        <option value="PRIVATE">Private</option>
                                     </select>
                                 </div>
                             </div>

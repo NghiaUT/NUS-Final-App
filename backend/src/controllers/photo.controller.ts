@@ -24,6 +24,22 @@ export type FormData = {
 type SharingMode = 'PUBLIC' | 'PRIVATE';
 
 export const photoController = {
+  getPhoto: async (req: Request, res: Response, next: NextFunction) => {
+    console.log('[Controller] This Controller handle data and pass to service');
+    try {
+      const { id: photoId } = req.params;
+      const userId = req.user?.id;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+      const result = await PhotoService.getPhoto(userId, photoId);
+      sendSuccessRes(res, 'Get Photo succesfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   newPhoto: async (req: Request, res: Response, next: NextFunction) => {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
@@ -61,12 +77,16 @@ export const photoController = {
     try {
       const { id: photoId } = req.params;
 
+      console.log(photoId instanceof Number);
+
       if (!photoId || Array.isArray(photoId)) {
         throw new BadRequestError('Invalid Request!');
       }
 
       const result = await PhotoService.deletePhoto(req.user?.id, photoId);
       sendSuccessRes(res, 'Delete Photo Sucessfully', result, 200);
-    } catch (error) {}
+    } catch (error) {
+      next(error);
+    }
   },
 };

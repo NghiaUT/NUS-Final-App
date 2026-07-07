@@ -3,6 +3,7 @@ import prisma from '../config/prisma/prisma.init.js';
 import type { FormData } from '../controllers/photo.controller.js';
 import fs from 'fs/promises';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
+import { constant } from '../config/constant/constant.js';
 
 const removeFile = async (filename: string) => {
   try {
@@ -16,16 +17,60 @@ const removeFile = async (filename: string) => {
 };
 
 export class PhotoService {
+  static async getPhoto(userId: string, photoId: string) {
+    // Get photo này nhằm lấy dữ liệu phục vụ cho quá trình edit - sẽ khác với API lấy tất cả photo và album public.
+    console.log(`[Service] This service get the photo of id: ${photoId}`);
+
+    const photo = await prisma.photo.findUnique({
+      where: {
+        id: photoId,
+      },
+    });
+
+    if (!photo) {
+      throw new BadRequestError('Cannot find the approriate photo!');
+    }
+
+    if (photo.userId !== userId) {
+      throw new ForbiddenError(
+        'You do not have permission to access this photo!'
+      );
+    }
+
+    // Nếu photo thuộc về một album khác thì không nên lấy.
+    if (photo.albumId) {
+      throw new BadRequestError('This photo has belong to an album!');
+    }
+
+    const returnPhoto = {
+      id: photo.id,
+      mimeType: photo.mimeType,
+      imageUrl: `${constant.SERVER_URL}${photo.imageUrl}`,
+      altText: photo.alt_text,
+      createdAt: photo.createdAt,
+      description: photo.description,
+      sharingMode: photo.sharingMode,
+      title: photo.title,
+    };
+    return returnPhoto;
+  }
+
   static async newPhoto(data: FormData, userId: string) {
     console.log('[Service] This service create new Photo.!');
 
-    if (!data.description || !data.sharingMode || !data.title || !data.photo) {
-      throw new BadRequestError('Invalid Form Data!');
-    }
-
     // 1. Tạo photo mới với những thông tin trên
-    const imageUrl = `/uploads/${data.photo.filename}`;
     try {
+      if (
+        !data.description ||
+        !data.sharingMode ||
+        !data.title ||
+        !data.photo
+      ) {
+        throw new BadRequestError('Invalid Form Data!');
+      }
+
+      const imageUrl = `/uploads/${data.photo.filename}`;
+
       const newPhoto = await prisma.photo.create({
         data: {
           imageUrl: imageUrl,
@@ -39,8 +84,10 @@ export class PhotoService {
 
       return newPhoto;
     } catch (error) {
-      console.error('[Service] Lỗi Prisma! Bắt đầu rollback xóa file rác...');
-      await removeFile(data.photo.filename);
+      console.error(
+        '[Service] Lỗi khi thực hiện! Bắt đầu rollback xóa file rác...'
+      );
+      if (data.photo) await removeFile(data.photo.filename);
       throw error;
     }
   }

@@ -11,6 +11,7 @@ photoRouter.post(
   upload.single('photo'),
   photoController.newPhoto
 );
+photoRouter.get('/:id', verifyToken, photoController.getPhoto);
 photoRouter.put(
   '/:id',
   verifyToken,
