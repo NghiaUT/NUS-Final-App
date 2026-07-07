@@ -24,6 +24,21 @@ export type FormData = {
 type SharingMode = 'PUBLIC' | 'PRIVATE';
 
 export const photoController = {
+  getAllPhoto: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await PhotoService.getAllPhoto(page, limit);
+      sendSuccessRes(res, 'Get Photo succesfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   getPhoto: async (req: Request, res: Response, next: NextFunction) => {
     console.log('[Controller] This Controller handle data and pass to service');
     try {

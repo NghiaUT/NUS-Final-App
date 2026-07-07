@@ -5,6 +5,7 @@ import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const photoRouter = express.Router();
 
+photoRouter.get('/', photoController.getAllPhoto);
 photoRouter.post(
   '/',
   verifyToken,

@@ -17,6 +17,69 @@ const removeFile = async (filename: string) => {
 };
 
 export class PhotoService {
+  static async getAllPhoto(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    // Những photos này sẽ đi kèm với thông tin liên quan như tác giả, thông tin ảnh và số lượt like...
+    const photos = await prisma.photo.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        sharingMode: 'PUBLIC',
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        _count: {
+          select: {
+            photoLikes: true,
+          },
+        },
+      },
+    });
+
+    const returnPhotos = photos.map((photo) => {
+      return {
+        id: photo.id,
+        author: {
+          authorId: photo.author.id,
+          name: `${photo.author.firstName} ${photo.author.lastName}`,
+          avatarUrl: photo.author.avatarUrl,
+        },
+        content: {
+          title: photo.title,
+          body: photo.description,
+        },
+        media: {
+          type: 'photo',
+          image_stack: [
+            {
+              url: `${constant.SERVER_URL}${photo.imageUrl}`,
+              altText: photo.description,
+            },
+          ],
+        },
+        metadata: {
+          createdDate: photo.createdAt,
+        },
+        interactions: {
+          likesCount: photo._count.photoLikes,
+        },
+      };
+    });
+
+    return returnPhotos;
+  }
+
   static async getPhoto(userId: string, photoId: string) {
     // Get photo này nhằm lấy dữ liệu phục vụ cho quá trình edit - sẽ khác với API lấy tất cả photo và album public.
     console.log(`[Service] This service get the photo of id: ${photoId}`);

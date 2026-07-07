@@ -1,34 +1,39 @@
 import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PhotoModal from './PhotoModal';
 
-const PhotoCard = ({ data, onImgClick }: any) => {
+const PhotoCard = ({ data }: any) => {
   const {
-    author: { name, avatar_initials, avatar_url, is_following },
+    id,
+    author: { authorId, name, avatarUrl, isFollowing },
     content: { title, body },
     media: { type, image_stack },
-    interactions: { likes_count, is_liked },
-    metadata: { formatted_date },
+    interactions: { likesCount, isLiked },
+    metadata: { createdDate },
   } = data;
 
   // State để theo dõi các giá trị này và thực hiện chỉnh sửa.
-  const [isFollowing, setIsFollowing] = useState(data.author.is_following);
-  const [isLiked, setIsLiked] = useState(data.interactions.is_liked);
-  const [likesCount, setLikesCount] = useState(data.interactions.likes_count);
+  const [isStateFollowing, setIsStateFollowing] = useState(isFollowing ?? false);
+  const [isStateLiked, setIsStateLiked] = useState(isLiked ?? false);
+  const [likeCount, setLikeCount] = useState(likesCount);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const handleFollowClick = () => {
-    setIsFollowing(!isFollowing);
+    setIsStateFollowing(!isStateFollowing);
   };
 
   const handleLikedClick = () => {
-    setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
-    setIsLiked(!isLiked);
+    setLikeCount((prev) => (isStateLiked ? prev - 1 : prev + 1));
+    setIsStateLiked(!isStateLiked);
   };
 
   const handleProfileClick = () => {
-    navigate(`/profile`);
+    navigate(`/profile/${authorId}`);
   };
+
   const commonImgConfig =
     'w-40 sm:w-60 mx-auto aspect-square object-cover border-4 border-white shadow-md ';
   // console.log(data);
@@ -38,10 +43,10 @@ const PhotoCard = ({ data, onImgClick }: any) => {
     <div className="flex flex-col sm:flex-row items-center w-full mx-auto md:h-[300px] p-2 md:p-2.5 bg-graywhite shadow-xs transition duration-300 ease-in-out gap-2.5">
       <div
         className="group flex-1 max-h-[300px] md:h-full m-1.5 sm:m-2 relative cursor-pointer w-40 sm:w-60"
-        onClick={() => onImgClick(data)}
+        onClick={() => setIsModalOpen(true)}
       >
         {/* Render các ảnh */}
-        {data.media.type === 'album' ? (
+        {type === 'album' ? (
           // Nếu là album thì chỉ render 3 ảnh đầu tiên.
           image_stack.slice(0, 3).map((img) => {
             let imgConfig =
@@ -81,7 +86,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={handleProfileClick}>
             <img
               src={
-                avatar_url ||
+                avatarUrl ||
                 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80'
               }
               alt="ảnh avatar"
@@ -89,7 +94,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
             />
             <p className="text-sm sm:text-base text-blue font-semibold line-clamp-1">{name}</p>
           </div>
-          {isFollowing ? (
+          {isStateFollowing ? (
             <div
               className="px-1.5 py-1.5 sm:px-2 sm:py-2 rounded-full font-semibold text-white text-xs bg-orange cursor-pointer select-none"
               onClick={handleFollowClick}
@@ -114,7 +119,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
             className="flex justify-start items-center cursor-pointer"
             onClick={handleLikedClick}
           >
-            {isLiked ? (
+            {isStateLiked ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 640 640"
@@ -137,11 +142,16 @@ const PhotoCard = ({ data, onImgClick }: any) => {
                 />
               </svg>
             )}
-            <p className="text-xs sm:text-base text-blue ml-1">{likesCount}</p>
+            <p className="text-xs sm:text-base text-blue ml-1">{likeCount}</p>
           </div>
-          <p className="text-xs opacity-80">{formatted_date}</p>
+          <p className="text-xs opacity-80">{createdDate}</p>
         </div>
       </div>
+
+      {/* Render modal hiển thị chi tiết ảnh */}
+      {isModalOpen && (
+        <PhotoModal data={data} handleModalClose={() => setIsModalOpen(false)} />
+      )}
     </div>
   );
 };
