@@ -1,9 +1,6 @@
 import { constant } from '../config/constant/constant.js';
 import prisma from '../config/prisma/prisma.init.js';
-import {
-  albumController,
-  type FormData,
-} from '../controllers/album.controller.js';
+import { type FormData } from '../controllers/album.controller.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { removeFile } from '../utils/removeFile.util.js';
 
@@ -122,36 +119,38 @@ export class AlbumService {
     // 1. Tạo mới album với những thông tin trên.
     // Trong quá trình tạo mới nếu xảy ra lỗi thì rollback và xóa file.
     try {
-      if (
-        !data.description ||
-        !data.sharingMode ||
-        !data.title ||
-        !data.photo
-      ) {
-        throw new BadRequestError('Invalid Form Data!');
-      }
-
       // Create the album first then create the following photos.
+      const newAlbum = await prisma.$transaction(async (tx) => {
+        if (
+          !data.description ||
+          !data.sharingMode ||
+          !data.title ||
+          !data.photo
+        ) {
+          throw new BadRequestError('Invalid Form Data!');
+        }
+        const newAlbum = await tx.album.create({
+          data: {
+            title: data.title,
+            description: data.description,
+            sharingMode: data.sharingMode,
+            userId: userId,
+          },
+        });
 
-      const newAlbum = await prisma.album.create({
-        data: {
-          title: data.title,
-          description: data.description,
-          sharingMode: data.sharingMode,
+        const photoData = data.photo.map((photo) => ({
+          imageUrl: `/uploads/${photo.filename}`,
+          mimeType: photo.mimetype,
+          sharingMode: newAlbum.sharingMode,
+          albumId: newAlbum.id,
           userId: userId,
-        },
-      });
+        }));
 
-      const photoData = data.photo.map((photo) => ({
-        imageUrl: `/uploads/${photo.filename}`,
-        mimeType: photo.mimetype,
-        sharingMode: newAlbum.sharingMode,
-        albumId: newAlbum.id,
-        userId: userId,
-      }));
+        await tx.photo.createMany({
+          data: photoData,
+        });
 
-      await prisma.photo.createMany({
-        data: photoData,
+        return newAlbum;
       });
 
       return newAlbum;
@@ -161,10 +160,10 @@ export class AlbumService {
         '[Service] Lỗi khi thực hiện! Bắt đầu rollback xóa file rác...'
       );
 
-      if (data.photo) {
-        const promises = data.photo.map((photo) => removeFile(photo.filename));
-
-        await Promise.all(promises);
+      if (Array.isArray(data.photo) && data.photo.length !== 0) {
+        await Promise.all(
+          data.photo.map((photo) => removeFile(photo.filename))
+        );
       }
       throw error;
     }
@@ -174,6 +173,7 @@ export class AlbumService {
     console.log('[Service] This service edit a current Album.!');
 
     let oldImgFilesName: string[] | null = null;
+    const hasNewPhotos = Array.isArray(data.photo) && data.photo.length !== 0;
     try {
       const album = await prisma.album.findUnique({
         where: {
@@ -194,60 +194,62 @@ export class AlbumService {
         );
       }
 
-      if (Array.isArray(data.photo) && data.photo.length !== 0) {
+      if (hasNewPhotos) {
         oldImgFilesName = album.photos.map(
           (photo) => photo.imageUrl.split('/')[2] as string
         );
-
-        // Xóa ảnh cũ.
-        await prisma.photo.deleteMany({
-          where: {
-            albumId: albumId,
-          },
-        });
-        // Thêm ảnh mới vào
-        const newPhotos = data.photo.map((photo) => ({
-          imageUrl: `/uploads/${photo.filename}`,
-          mimeType: photo.mimetype,
-          sharingMode: album.sharingMode,
-          albumId: album.id,
-          userId: userId,
-        }));
-
-        await prisma.photo.createMany({
-          data: newPhotos,
-        });
       }
 
-      const newAlbum = await prisma.album.update({
-        where: {
-          id: albumId,
-        },
-        data: {
-          title: data.title || album.title,
-          sharingMode: data.sharingMode || album.sharingMode,
-          description: data.description || album.description,
-        },
-        include: {
-          photos: true,
-        },
+      const newAlbum = await prisma.$transaction(async (tx) => {
+        if (Array.isArray(data.photo) && data.photo.length !== 0) {
+          // Xóa ảnh cũ.
+          await tx.photo.deleteMany({
+            where: {
+              albumId: albumId,
+            },
+          });
+          // Thêm ảnh mới vào
+          const newPhotos = data.photo.map((photo) => ({
+            imageUrl: `/uploads/${photo.filename}`,
+            mimeType: photo.mimetype,
+            sharingMode: album.sharingMode,
+            albumId: album.id,
+            userId: userId,
+          }));
+
+          await tx.photo.createMany({
+            data: newPhotos,
+          });
+        }
+
+        return await tx.album.update({
+          where: {
+            id: albumId,
+          },
+          data: {
+            title: data.title || album.title,
+            sharingMode: data.sharingMode || album.sharingMode,
+            description: data.description || album.description,
+          },
+          include: {
+            photos: true,
+          },
+        });
       });
 
       if (oldImgFilesName) {
-        const promises = oldImgFilesName.map((filename) =>
-          removeFile(filename)
+        await Promise.all(
+          oldImgFilesName.map((filename) => removeFile(filename))
         );
-
-        await Promise.all(promises);
       }
 
       return newAlbum;
     } catch (error) {
       console.error('[Service] Lỗi Prisma! Bắt đầu rollback xóa file rác...');
       if (Array.isArray(data.photo) && data.photo.length !== 0) {
-        const promises = data.photo.map((photo) => removeFile(photo.filename));
-
-        await Promise.all(promises);
+        await Promise.all(
+          data.photo.map((photo) => removeFile(photo.filename))
+        );
       }
       throw error;
     }
@@ -270,24 +272,28 @@ export class AlbumService {
     });
 
     if (!deleteAlbum) {
-      throw new BadRequestError('Cannot find approriate photo!');
+      throw new BadRequestError('Cannot find approriate album!');
     }
 
     if (deleteAlbum.userId !== userId) {
-      throw new ForbiddenError('You do not have permission for this photo.!');
+      throw new ForbiddenError('You do not have permission for this album.!');
     }
 
     // Xóa các ảnh đi kèm trước:
-    await prisma.photo.deleteMany({
-      where: {
-        albumId: albumId,
-      },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.photo.deleteMany({
+        where: {
+          albumId: albumId,
+        },
+      });
 
-    const result = await prisma.album.delete({
-      where: {
-        id: albumId,
-      },
+      const result = await tx.album.delete({
+        where: {
+          id: albumId,
+        },
+      });
+
+      return result;
     });
 
     await Promise.all(
