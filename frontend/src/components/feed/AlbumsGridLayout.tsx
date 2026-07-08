@@ -58,7 +58,7 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
             {// Thực hiện render từng photocard pages trong Tanstack Query theo kiểu media của page hiện tại.
               filteredData
                 .map((data) => {
-                  return <PhotoCard data={data} />;
+                  return <PhotoCard data={data} key={data.id} />;
                 })}
           </div>
           {/* Attach the ref to this invisible div at the bottom */}

@@ -12,12 +12,12 @@ export class AlbumService {
 
     const cachedAlbums = await redisClient.get(cachedKey);
 
-    if (cachedAlbums) {
-      console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    // if (cachedAlbums) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
 
-      // Parse lại thành json.
-      return JSON.parse(cachedAlbums);
-    }
+    //   // Parse lại thành json.
+    //   return JSON.parse(cachedAlbums);
+    // }
 
     console.log(
       `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
@@ -88,7 +88,7 @@ export class AlbumService {
         metadata: {
           createdDate: album.createdAt,
         },
-        interaction: {
+        interactions: {
           likesCount: album._count.albumLikes,
         },
       };

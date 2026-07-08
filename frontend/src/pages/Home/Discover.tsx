@@ -1,16 +1,14 @@
+import { albumService } from '../../api/albumService';
 import { photoService } from '../../api/photoService';
 import AlbumsGridLayout from '../../components/feed/AlbumsGridLayout';
-import { MOCK_DATA } from '../../mocks/mock_data';
+// import { MOCK_DATA } from '../../mocks/mock_data';
 
 const fetchDiscoverData = async ({ pageParam = 1 }) => {
-  // return new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     resolve(MOCK_DATA);
-  //   }, 1500); //-> Set time out 1500 for delaying;
-  // });
   try {
-    const result = await photoService.getAllPhoto(pageParam);
-    return result.data.data;
+    // const result = await photoService.getAllPhoto(pageParam);
+    const [photos, albums] = await Promise.all([photoService.getAllPhoto(pageParam), albumService.getAllAlbum(pageParam)]);
+    // console.log(photos.data.data, albums.data.data);
+    return [...albums.data.data, ...photos.data.data];
   } catch (error) {
     console.error(error);
   }

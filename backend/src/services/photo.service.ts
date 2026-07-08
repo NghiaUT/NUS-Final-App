@@ -11,11 +11,11 @@ export class PhotoService {
 
     const cachedPhotos = await redisClient.get(cachedKey);
 
-    if (cachedPhotos) {
-      console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    // if (cachedPhotos) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
 
-      return JSON.parse(cachedPhotos);
-    }
+    //   return JSON.parse(cachedPhotos);
+    // }
 
     console.log(
       `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
