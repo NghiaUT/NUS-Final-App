@@ -69,10 +69,10 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
               <div className="flex-grow h-px bg-gray-300"></div>
               <span className="px-4 text-sm font-medium text-gray-500 flex items-center gap-2">
                 <div className="flex flex-col items-center justify-center py-10 space-y-3">
-                  <p className="text-gray-500 text-sm">Tận cùng của nỗi nhơơơơớ, bạn đã lướt hết ảnh rồi?</p>
+                  <p className="text-gray-500 text-xs md:text-sm xl:text-base">Tận cùng của nỗi nhơơơơớ, bạn đã lướt hết ảnh rồi?</p>
                   <button
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors cursor-pointer"
+                    className="px-4 py-2  text-xs md:text-sm xl:text-base font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors cursor-pointer"
                   >
                     Cuộn lên đầu trang
                   </button>

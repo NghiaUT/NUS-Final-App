@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const PhotoModal = ({ data, handleModalClose }: any) => {
+const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const image_stack = data.media.image_stack;
@@ -21,6 +21,8 @@ const PhotoModal = ({ data, handleModalClose }: any) => {
   };
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    handleLike();
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
