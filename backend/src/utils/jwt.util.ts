@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { constant } from '../config/constant/constant.js';
 
 type UserPayload = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -11,7 +11,7 @@ type UserPayload = {
 
 export const generateToken = (payload: UserPayload) => {
   const accessToken = jwt.sign({ ...payload }, constant.ACCESS_TOKEN_SECRET, {
-    expiresIn: '15m', // Short life
+    expiresIn: '1d', // Short life
   });
 
   const refreshToken = jwt.sign(
@@ -30,14 +30,14 @@ export const verifyAndCheckExpiration = (token: string, type: string) => {
     // Hàm verify sẽ tự động ném lỗi nếu token hết hạn hoặc sai chữ ký
     const payload: any = jwt.verify(
       token,
-      type === 'refresh'
+      type === 'refreshToken'
         ? constant.REFRESH_TOKEN_SCRET
         : constant.ACCESS_TOKEN_SECRET
     );
     return { valid: true, reason: '', payload };
   } catch (error: any) {
     if (error instanceof jwt.TokenExpiredError) {
-      // Bạn vẫn có thể lấy payload cũ bằng jwt.decode nếu cần
+      // Vẫn có thể lấy payload cũ bằng jwt.decode nếu cần
       const expiredPayload: any = jwt.decode(token);
       return { valid: false, reason: 'Expired', payload: expiredPayload };
     }

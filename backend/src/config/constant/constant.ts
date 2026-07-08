@@ -11,4 +11,6 @@ export const constant = {
   SMTP_PASS: process.env.SMTP_PASS ?? 'Password',
   CLIENT_URL: process.env.CLIENT_URL ?? 'http://localhost:5173',
   SERVER_URL: process.env.SERVER_URL ?? 'http://localhost:3000',
+  REDIS_CLIENT_HOST: process.env.REDIS_CLIENT_HOST ?? '127.0.0.1',
+  REDIS_CLIENT_PORT: process.env.REDIS_CLIENT_PORT ?? 6379,
 };

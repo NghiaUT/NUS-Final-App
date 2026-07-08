@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MediaTabbar from '../../components/auth/MediaTabbar';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../api/authService';
+import { toast } from 'react-toastify';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -23,7 +24,14 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await authService.signup(formData);
+    try {
+      await authService.signup(formData);
+
+      toast.success("Đăng ký thành công, vui lòng kiểm tra hộp thư và xác nhận!");
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+      toast.error(errorMessage);
+    }
   };
 
   return (

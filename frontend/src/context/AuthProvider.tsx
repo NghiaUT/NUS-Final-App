@@ -16,7 +16,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const initAuth = async () => {
     const token = localStorage.getItem('accessToken');
 
-    if (!token) return;
+    if (!token) {
+      setIsInitialized(true);
+      return;
+    }
 
     try {
       setAuthHeader(token);

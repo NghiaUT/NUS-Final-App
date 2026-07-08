@@ -3,6 +3,7 @@ import MediaTabbar from '../../components/auth/MediaTabbar';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../api/authService';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -25,9 +26,11 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const { data } = await authService.login(formData);
+      toast.success("Đăng nhập thành công!");
       login(data.data.accessToken, data.data.user);
     } catch (error) {
-      console.error(error);
+      const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+      toast.error(errorMessage);
     }
   };
 

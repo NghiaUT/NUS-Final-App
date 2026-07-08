@@ -6,4 +6,16 @@
   --color-blue: #3c5a9a;
   --color-gray: #848585;
   --color-orange: #d67c49;
+  --animate-float-up: floatUp 0.8s ease-out forwards;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, calc(-50% - 100px)) scale(1.5);
+    opacity: 0;
+  }
 }

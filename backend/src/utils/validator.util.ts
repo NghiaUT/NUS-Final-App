@@ -1,11 +1,16 @@
 import { z } from 'zod';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+];
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
 
 // Schema validate cho 1 file ảnh
-export const singleImageSchema = z
+const singleImageSchema = z
   .any()
   .refine((file) => !!file, 'Vui lòng tải lên một hình ảnh')
   .superRefine((file, ctx) => {
@@ -28,7 +33,11 @@ export const singleImageSchema = z
   });
 
 export const albumSchema = z.object({
-  title: z.string().trim().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự'),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Title không được để trống')
+    .max(140, 'Title tối đa 140 ký tự'),
 
   description: z
     .string()
@@ -36,7 +45,7 @@ export const albumSchema = z.object({
     .min(1, 'Description không được để trống')
     .max(300, 'Description tối đa 300 ký tự'),
 
-  sharingMode: z.enum(['PUBLIC', 'PRIVATE'], {
+  sharingMode: z.enum(['public', 'private'], {
     error: () => ({ message: 'Vui lòng chọn chế độ chia sẻ hợp lệ' }),
   }),
 
@@ -47,17 +56,19 @@ export const albumSchema = z.object({
 });
 
 export const photoSchema = z.object({
-  title: z.string().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự.'),
+  title: z
+    .string()
+    .min(1, 'Title không được để trống')
+    .max(140, 'Title tối đa 140 ký tự.'),
 
-  description: z.string().min(1, 'Description không được để trống').max(300, 'Tối đa 300 ký tự'),
+  description: z.string().max(300, 'Tối đa 300 ký tự').optional(),
 
-  sharingMode: z.preprocess(
-    (val) => {
-      if (typeof val === 'string') return val.toLowerCase();
-      return val;
-    },
-    z.enum(['public', 'private'], { error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }) }),
-  ),
+  sharingMode: z.enum(['public', 'private'], {
+    error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }),
+  }),
+
+  // Dùng lại đúng schema file cho ảnh duy nhất đã định nghĩa ở trên
+  photo: singleImageSchema,
 });
 
 export const avatarSchema = z
@@ -88,7 +99,11 @@ export const basicInfoSchema = z.object({
 
   lastName: z.string().trim().min(1, 'Last Name không được để trống'),
 
-  email: z.string().trim().min(1, 'Email không được để trống').email('Email không hợp lệ'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Email không được để trống')
+    .email('Email không hợp lệ'),
 
   avatar: avatarSchema,
 });

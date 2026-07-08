@@ -1,8 +1,20 @@
 // Tách lấy token ra và gắn vào req:
-import jwt from 'jsonwebtoken';
 import { type Request, type Response, type NextFunction } from 'express';
-import { constant } from '../config/constant/constant.js';
-import { BadRequestError, UnauthorizedError } from '../utils/apiError.js';
+import {
+  BadRequestError,
+  ForbiddenError,
+  UnauthorizedError,
+} from '../utils/apiError.js';
+import { verifyAndCheckExpiration } from '../utils/jwt.util.js';
+
+// Định nghĩa thêm type cho Request Express.
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 export const verifyToken = (
   req: Request,
@@ -21,14 +33,46 @@ export const verifyToken = (
     if (!token) {
       throw new UnauthorizedError('Missing Access Token');
     }
-    const decoded = jwt.verify(token, constant.ACCESS_TOKEN_SECRET);
-    if (!decoded) {
-      throw new UnauthorizedError('Missing Information');
+    const result = verifyAndCheckExpiration(token, 'accessToken');
+
+    if (!result.valid) {
+      if (result.reason === 'Expired') {
+        throw new UnauthorizedError('JWT Access Token has been expired!');
+      } else {
+        throw new BadRequestError('JWT has wrong format!');
+      }
     }
-    req.user = decoded;
+
+    req.user = result.payload;
 
     next();
   } catch (error) {
     next(error);
   }
+};
+
+export const checkPermission = (roles: string[] = []) => {
+  // Usage: checkRole(["USER", "ADMIN"])
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError('User not found!');
+      }
+
+      const { role } = req.user;
+
+      if (!role) {
+        throw new ForbiddenError('Can not determine the user role!');
+      }
+
+      if (!roles.includes(role)) {
+        throw new ForbiddenError('You do not have right access to this');
+      }
+
+      console.log('========> Role cua user', role);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };

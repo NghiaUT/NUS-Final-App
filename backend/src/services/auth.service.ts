@@ -27,7 +27,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ApiError(400, 'Email already exists!');
+      throw new BadRequestError('Email already exists!');
     }
 
     // 2. Hashing the password.
@@ -68,21 +68,17 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundError('Wrong email or password!');
+      throw new UnauthorizedError('Wrong email or password!');
     }
 
-    if (!user.isVerified) {
-      throw new ApiError(400, 'Account is not verified or deactive!');
-    }
-
-    if (!user.isActive) {
-      throw new ApiError(400, 'Account is not verified or deactive!');
+    if (!user.isVerified || !user.isActive) {
+      throw new UnauthorizedError('Account is not verified or inactive!');
     }
 
     const isAuth = await bcrypt.compare(userData.password, user.password);
 
     if (!isAuth) {
-      throw new ApiError(400, 'Wrong email or password!');
+      throw new UnauthorizedError('Wrong email or password!');
     }
 
     // Return tokens when login
@@ -143,7 +139,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ApiError(400, 'Token is invalid or has expired');
+      throw new BadRequestError('Token is invalid or has expired');
     }
 
     // 3. Xóa token thừa và ném lỗi:
@@ -158,7 +154,7 @@ export class AuthService {
         },
       });
 
-      throw new ApiError(400, 'Token has expired. Please request a new one.');
+      throw new BadRequestError('Token has expired. Please request a new one.');
     }
 
     // 4. Cập nhật tình trạng user vào DB.
@@ -188,7 +184,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ApiError(400, 'Wrong email or password!');
+      throw new NotFoundError('User with this email does not exist!');
     }
 
     // 2. Tạo chuỗi token ngẫu nhiên và gửi về phía người dùng email.
@@ -230,7 +226,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ApiError(400, 'Token is invalid or has expired');
+      throw new BadRequestError('Token is invalid or has expired');
     }
 
     if (user.resetPasswordExpire && user.resetPasswordExpire < new Date()) {
@@ -242,7 +238,7 @@ export class AuthService {
         },
       });
 
-      throw new ApiError(400, 'Token has expired. Please request a new one.');
+      throw new BadRequestError('Token has expired. Please request a new one.');
     }
     // 2. Hash password và lưu vào DB.
     const hashedPassword = await bcrypt.hash(newPassword, SALT);
@@ -268,28 +264,37 @@ export class AuthService {
     // 1. Kiểm tra refreshToken có còn hạn không, tách ra và check cả userId.
     const { valid, reason, payload } = verifyAndCheckExpiration(
       token,
-      'refresh'
+      'refreshToken'
     );
 
     if (!valid) {
-      throw new ApiError(
-        400,
-        'Something is wrong with RefereshToken:' + reason
-      );
+      if (reason === 'Expired') {
+        throw new BadRequestError('JWT token has expired');
+      } else {
+        throw new BadRequestError('Missing or invalid JWT form!');
+      }
     }
 
     const userId = payload?.id;
-    if (!userId || isNaN(Number(userId))) {
-      throw new ApiError(400, 'Missing or invalid User ID');
+    if (!userId) {
+      throw new BadRequestError('Missing or invalid User ID');
     }
 
+    const newPayload = {
+      id: payload.id,
+      name: payload.name,
+      role: payload.role,
+      email: payload.email,
+      avatarUrl: payload.avatarUrl,
+    };
+
     // 2. Tạo accessToken mới và trả về.
-    const { accessToken, refreshToken } = generateToken(payload);
+    const { accessToken, refreshToken } = generateToken(newPayload);
 
     return { accessToken, refreshToken };
   }
 
-  static async me(id: number) {
+  static async me(id: string) {
     const user = await prisma.user.findUnique({
       where: {
         id: id,
@@ -297,8 +302,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestError('Cannot find User!');
+      throw new NotFoundError('Cannot find User!');
     }
+
     const returnUser = {
       id: user.id,
       name: user.firstName + user.lastName,
