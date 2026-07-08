@@ -3,7 +3,7 @@ import { PhotoService } from '../services/photo.service.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { BadRequestError } from '../utils/apiError.js';
 
-export type UploadPhoto = {
+type UploadPhoto = {
   fieldname: string;
   originalname: string;
   encoding: string;
@@ -91,8 +91,6 @@ export const photoController = {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const { id: photoId } = req.params;
-
-      console.log(photoId instanceof Number);
 
       if (!photoId || Array.isArray(photoId)) {
         throw new BadRequestError('Invalid Request!');

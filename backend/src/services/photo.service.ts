@@ -1,20 +1,8 @@
-import path from 'node:path';
 import prisma from '../config/prisma/prisma.init.js';
 import type { FormData } from '../controllers/photo.controller.js';
-import fs from 'fs/promises';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
-
-const removeFile = async (filename: string) => {
-  try {
-    const filePath = path.resolve(process.cwd(), 'uploads', filename);
-
-    await fs.unlink(filePath);
-    console.log(`[Service] Đã dọn dẹp thành công file rác: ${filePath}`);
-  } catch (fsError) {
-    console.error('[Service] CẢNH BÁO: Rollback xóa file thất bại!', fsError);
-  }
-};
+import { removeFile } from '../utils/removeFile.util.js';
 
 export class PhotoService {
   static async getAllPhoto(page: number, limit: number) {
@@ -29,6 +17,7 @@ export class PhotoService {
       },
       where: {
         sharingMode: 'PUBLIC',
+        album: null, // Các photos đứng riêng lẻ.
       },
       include: {
         author: {
@@ -191,9 +180,9 @@ export class PhotoService {
           id: photoId,
         },
         data: {
-          title: data.title ?? photo.title,
-          sharingMode: data.sharingMode ?? photo.sharingMode,
-          description: data.description ?? photo.description,
+          title: data.title || photo.title,
+          sharingMode: data.sharingMode || photo.sharingMode,
+          description: data.description || photo.description,
           imageUrl: imageUrl,
           mimeType: mimeType,
           userId: userId,
