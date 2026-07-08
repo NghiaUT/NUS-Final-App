@@ -1,5 +1,6 @@
 import { constant } from '../config/constant/constant.js';
 import prisma from '../config/prisma/prisma.init.js';
+import { redisClient } from '../config/redis/redis.config.js';
 import { type FormData } from '../controllers/album.controller.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { removeFile } from '../utils/removeFile.util.js';
@@ -7,6 +8,22 @@ import { removeFile } from '../utils/removeFile.util.js';
 export class AlbumService {
   static async getAllAlbum(page: number, limit: number) {
     console.log('[Service] This service get all album.!');
+    const cachedKey = `albums:public:page:${page}:limit:${limit}`;
+
+    const cachedAlbums = await redisClient.get(cachedKey);
+
+    if (cachedAlbums) {
+      console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+      // Parse lại thành json.
+      return JSON.parse(cachedAlbums);
+    }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
+    // Gọi DB như thông thường
     const skip = (page - 1) * limit;
 
     const albums = await prisma.album.findMany({
@@ -76,6 +93,9 @@ export class AlbumService {
         },
       };
     });
+
+    // Lưu dữ liệu trên vào Redis để dùng cache cho lần sau (TTL: 10 phút)
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnAlbums));
 
     return returnAlbums;
   }

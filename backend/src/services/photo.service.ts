@@ -3,9 +3,24 @@ import type { FormData } from '../controllers/photo.controller.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
 import { removeFile } from '../utils/removeFile.util.js';
+import { redisClient } from '../config/redis/redis.config.js';
 
 export class PhotoService {
   static async getAllPhoto(page: number, limit: number) {
+    const cachedKey = `photos:public:page:${page}:limit:${limit}`;
+
+    const cachedPhotos = await redisClient.get(cachedKey);
+
+    if (cachedPhotos) {
+      console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+      return JSON.parse(cachedPhotos);
+    }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
     const skip = (page - 1) * limit;
 
     // Những photos này sẽ đi kèm với thông tin liên quan như tác giả, thông tin ảnh và số lượt like...
@@ -65,6 +80,8 @@ export class PhotoService {
         },
       };
     });
+
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
 
     return returnPhotos;
   }
