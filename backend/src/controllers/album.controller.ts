@@ -19,6 +19,7 @@ export type FormData = {
   description?: string;
   sharingMode?: SharingMode;
   photo?: UploadPhoto[];
+  deletedPhotosId?: string[];
 };
 
 type SharingMode = 'PUBLIC' | 'PRIVATE';

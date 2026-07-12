@@ -129,7 +129,14 @@ export class AlbumService {
       );
     }
 
-    return album;
+    const returnAlbum = {
+      ...album,
+      photos: album.photos.map((photo) => ({
+        ...photo,
+        imageUrl: `${constant.SERVER_URL}${photo.imageUrl}`,
+      })),
+    };
+    return returnAlbum;
   }
 
   static async newAlbum(data: FormData, userId: string) {
@@ -193,7 +200,22 @@ export class AlbumService {
     console.log('[Service] This service edit a current Album.!');
 
     let oldImgFilesName: string[] | null = null;
-    const hasNewPhotos = Array.isArray(data.photo) && data.photo.length !== 0;
+    // const hasNewPhotos = Array.isArray(data.photo) && data.photo.length !== 0;
+    const deletedPhotosId = data.deletedPhotosId;
+    let parsedDeletedIds: string[] = [];
+
+    if (deletedPhotosId) {
+      if (typeof deletedPhotosId === 'string') {
+        try {
+          parsedDeletedIds = JSON.parse(deletedPhotosId);
+        } catch (error) {
+          console.error('Lỗi parse deletedPhotosId:', error);
+          parsedDeletedIds = [];
+        }
+      } else if (Array.isArray(deletedPhotosId)) {
+        parsedDeletedIds = deletedPhotosId;
+      }
+    }
     try {
       const album = await prisma.album.findUnique({
         where: {
@@ -214,20 +236,24 @@ export class AlbumService {
         );
       }
 
-      if (hasNewPhotos) {
-        oldImgFilesName = album.photos.map(
-          (photo) => photo.imageUrl.split('/')[2] as string
-        );
-      }
+      oldImgFilesName = album.photos
+        .filter((photo) => deletedPhotosId?.includes(photo.id))
+        .map((photo) => photo.imageUrl?.split('/')[2] as string);
 
       const newAlbum = await prisma.$transaction(async (tx) => {
-        if (Array.isArray(data.photo) && data.photo.length !== 0) {
-          // Xóa ảnh cũ.
+        // Xóa ảnh cũ.
+        if (deletedPhotosId && deletedPhotosId.length > 0) {
           await tx.photo.deleteMany({
             where: {
-              albumId: albumId,
+              id: {
+                in: parsedDeletedIds,
+              },
             },
           });
+        }
+
+        // Thêm ảnh mới nếu có
+        if (Array.isArray(data.photo) && data.photo.length !== 0) {
           // Thêm ảnh mới vào
           const newPhotos = data.photo.map((photo) => ({
             imageUrl: `/uploads/${photo.filename}`,
