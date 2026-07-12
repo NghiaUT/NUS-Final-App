@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { photoSchema, singleImageSchema } from '../../utils/validators';
+import { formInfoSchema, singleImageSchema } from '../../utils/validators';
 import { z } from 'zod';
 
 const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
@@ -58,7 +58,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const formResult = photoSchema.safeParse(formData);
+        const formResult = formInfoSchema.safeParse(formData);
         if (!formResult.success) {
             const fieldErrors = z.treeifyError(formResult.error);
             // Chuyển đổi array lỗi đầu tiên thành string cho dễ hiển thị
@@ -67,7 +67,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                 formattedErrors.push(value.errors[0]);
             });
             setErrors(formattedErrors);
-            if (!isEditMode && formData.photo) return;
+            return;
         }
 
         // Không kiểm tra schema ảnh khi đang trong edit và không có ảnh mới được đưa lên.

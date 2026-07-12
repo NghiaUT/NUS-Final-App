@@ -44,7 +44,7 @@ const EditPhoto = () => {
         }
     }
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async () => {
         try {
             await photoService.deletePhoto(photoId);
             console.log("Thành công")
