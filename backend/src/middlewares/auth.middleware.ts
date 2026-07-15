@@ -51,6 +51,43 @@ export const verifyToken = (
   }
 };
 
+export const optionalVerifyToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization as string;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      req.user = null; // Gán null để controller biết đây là guest
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    if (!token) {
+      req.user = null; // Gán null để controller biết đây là guest
+      return next();
+    }
+    const result = verifyAndCheckExpiration(token, 'accessToken');
+
+    if (!result.valid) {
+      if (result.reason === 'Expired') {
+        throw new UnauthorizedError('JWT Access Token has been expired!');
+      } else {
+        throw new BadRequestError('JWT has wrong format!');
+      }
+    }
+
+    req.user = result.payload;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const checkPermission = (roles: string[] = []) => {
   // Usage: checkRole(["USER", "ADMIN"])
   return async (req: Request, res: Response, next: NextFunction) => {
