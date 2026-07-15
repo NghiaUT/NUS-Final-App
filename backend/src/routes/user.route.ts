@@ -5,6 +5,7 @@ import {
   optionalVerifyToken,
   verifyToken,
 } from '../middlewares/auth.middleware.js';
+import upload from '../config/multer/multer.config.js';
 
 const userRouter = express.Router();
 
@@ -35,7 +36,8 @@ userRouter.put(
   '/:id/profile',
   verifyToken,
   checkPermission(['USER', 'ADMIN']),
-  userController.getFollowerUser
+  upload.single('avatar'),
+  userController.updateUserProfile
 );
 
 export default userRouter;

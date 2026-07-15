@@ -15,7 +15,7 @@ import { generateDefaultAvatar } from '../utils/avatar.util.js';
 import { generateHashedToken, hashToken } from '../utils/token.util.js';
 import { constant } from '../config/constant/constant.js';
 
-const SALT = 10;
+export const SALT = 10;
 
 export class AuthService {
   static async signup(userData: any) {

@@ -1,5 +1,10 @@
 import { constant } from '../config/constant/constant.js';
 import prisma from '../config/prisma/prisma.init.js';
+import bcrypt from 'bcrypt';
+import { BadRequestError, UnauthorizedError } from '../utils/apiError.js';
+import { SALT } from './auth.service.js';
+import { removeFile } from '../utils/removeFile.util.js';
+import type { UploadPhoto, UserDataProfile } from '../types/form.types.js';
 
 export class UserService {
   static async getProfileInformation(
@@ -235,5 +240,84 @@ export class UserService {
     }));
 
     return returnAlbums;
+  }
+
+  static async updateUserProfile(
+    userId: string,
+    data: UserDataProfile,
+    avatarFile: UploadPhoto | null = null
+  ) {
+    try {
+      // Check Password là chính.
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+          email: data.email,
+        },
+      });
+
+      if (!user) {
+        throw new BadRequestError('Wrong email or Invalid User!');
+      }
+
+      let updatedData = {
+        firstName: data.firstName || user.firstName,
+        lastName: data.lastName || user.lastName,
+      } as {
+        firstName: string;
+        lastName: string;
+        password?: string;
+        avatarUrl?: string;
+      };
+
+      if (data.newPassword) {
+        if (!data.currentPassword || !data.passwordConfirmation)
+          throw new BadRequestError('Missing Information');
+        const isAuth = await bcrypt.compare(
+          data.currentPassword,
+          user.password
+        );
+
+        if (!isAuth) {
+          throw new UnauthorizedError('Wrong password!');
+        }
+
+        if (data.newPassword === data.passwordConfirmation) {
+          const newHashedPassword = await bcrypt.hash(data.newPassword, SALT);
+          updatedData.password = newHashedPassword;
+        } else {
+          throw new BadRequestError('ConfirmationPassword did not match!');
+        }
+      }
+
+      const userData = await prisma.$transaction(async (tx) => {
+        // Không lưu avatar xuống photos database.
+        if (avatarFile) {
+          await removeFile(user.avatarUrl ?? '');
+
+          const newAvatarUrl = `${constant.SERVER_URL}/uploads/${avatarFile?.filename}`;
+        }
+
+        return await tx.user.update({
+          where: {
+            id: userId,
+          },
+          data: updatedData,
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            email: true,
+          },
+        });
+      });
+
+      return userData;
+    } catch (error) {
+      console.log('Có lỗi prisma rollback xóa file đã tải lên.');
+      if (avatarFile) await removeFile(avatarFile?.filename);
+      throw error;
+    }
   }
 }

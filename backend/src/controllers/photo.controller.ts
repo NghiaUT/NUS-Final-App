@@ -3,26 +3,6 @@ import { PhotoService } from '../services/photo.service.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { BadRequestError } from '../utils/apiError.js';
 
-type UploadPhoto = {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  path: string;
-  destination: string;
-  filename: string;
-  size: number;
-};
-
-export type FormData = {
-  title?: string;
-  description?: string;
-  sharingMode?: SharingMode;
-  photo?: UploadPhoto;
-};
-
-type SharingMode = 'PUBLIC' | 'PRIVATE';
-
 export const photoController = {
   getAllPhoto: async (req: Request, res: Response, next: NextFunction) => {
     try {

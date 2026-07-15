@@ -1,7 +1,16 @@
 import type { NextFunction, Request, Response } from 'express';
 import { UserService } from '../services/user.service.js';
-import { BadRequestError } from '../utils/apiError.js';
+import { BadRequestError, UnauthorizedError } from '../utils/apiError.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
+
+export type UserDataProfile = {
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  currentPassword?: string;
+  newPassword?: string;
+  passwordConfirmation?: string;
+};
 
 export const userController = {
   getProfileInformation: async (
@@ -39,7 +48,7 @@ export const userController = {
       const limit = parseInt((query.limit as string) || '10');
       const result = await UserService.getFollowingUser(
         targetUserId,
-        query,
+        page,
         limit
       );
       sendSuccessRes(res, 'Get Following User Successfull', result, 200);
@@ -116,6 +125,28 @@ export const userController = {
         limit
       );
       sendSuccessRes(res, 'Get User Albums Successfull', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  updateUserProfile: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { id: userId } = req.params;
+      if (!userId || Array.isArray(userId)) {
+        throw new BadRequestError('Invalid Request');
+      }
+      if (userId !== req.user.id && req.user.role !== 'ADMIN') {
+        throw new UnauthorizedError('You do not have right to do this.');
+      }
+      const data = req.body as UserDataProfile;
+      const avatar = req.file;
+      const result = await UserService.updateUserProfile(userId, data, avatar);
+      sendSuccessRes(res, 'Updated User profile successfully', result, 201);
     } catch (error) {
       next(error);
     }

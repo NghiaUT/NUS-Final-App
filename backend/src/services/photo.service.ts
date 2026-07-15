@@ -1,5 +1,5 @@
 import prisma from '../config/prisma/prisma.init.js';
-import type { FormData } from '../controllers/photo.controller.js';
+import type { FormData } from '../types/form.types.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
 import { removeFile } from '../utils/removeFile.util.js';
