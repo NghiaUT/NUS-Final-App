@@ -11,7 +11,7 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
   const [media, setMedia] = useState('photo');
   const { ref: bottomRef, inView } = useInView();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-    queryKey: [queryKey],
+    queryKey: [queryKey, media],
     queryFn: fetchFn,
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
@@ -25,7 +25,7 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
     }
   }, [inView, fetchNextPage, hasNextPage, media]);
 
-  const filteredData = !data?.pages ? [] : data.pages.flatMap((page) => page).filter((item) => item.media?.type === media);
+  const filteredData = !data?.pages ? [] : data.pages.flatMap((page) => page || []);
 
   const isEmpty = filteredData.length === 0;
 

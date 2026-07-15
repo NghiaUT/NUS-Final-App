@@ -23,6 +23,7 @@ const Header = () => {
               src={user?.avatarUrl}
               alt="anh avatar"
               className="w-7 sm:w-8 md:w-10 aspect-square xl:w-13 object-cover border-none cursor-pointer rounded-full"
+              onClick={() => navigate(`/profile/${user.id}`)}
             />
             <p className="hidden xl:flex text-white xl:text-xl xl:font-semibold">{user?.name ?? "User"}</p>
           </div>

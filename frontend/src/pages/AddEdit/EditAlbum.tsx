@@ -40,7 +40,7 @@ const EditAlbum = () => {
             await albumService.editAlbum(albumId, formData);
             console.log("Thành công")
             toast.success("Cập nhật thành công!");
-            setTimeout(() => navigate('/profile'), 2000);
+            setTimeout(() => navigate('/'), 2000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
@@ -56,7 +56,7 @@ const EditAlbum = () => {
             await albumService.deleteAlbum(albumId);
             console.log("Thành công")
             toast.success(`Xóa thành công album ${albumId} ! \n Chuyển hướng sau 2s`);
-            setTimeout(() => navigate('/profile'), 2000);
+            setTimeout(() => navigate('/'), 2000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
@@ -71,7 +71,7 @@ const EditAlbum = () => {
                 <h3 style={{ color: 'red' }}>Không thể tải dữ liệu ảnh</h3>
                 <p>Album có thể đã bị xóa hoặc không tồn tại.</p>
                 <button
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate('/')}
                     style={{ marginTop: '16px', padding: '8px 16px', cursor: 'pointer' }}
                 >
                     Quay lại trang cá nhân

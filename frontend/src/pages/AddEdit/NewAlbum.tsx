@@ -12,7 +12,7 @@ const NewAlbum = () => {
         try {
             await albumService.addAlbum(formData);
             toast.success("Tạo mới album thành công!");
-            setTimeout(() => navigate('/profile'), 2000);
+            setTimeout(() => navigate('/'), 2000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
