@@ -36,22 +36,58 @@ export class UserService {
             albums: isOwner ? true : { where: { sharingMode: 'PUBLIC' } },
           },
         },
+        ...(currentUserId && {
+          following: {
+            where: {
+              followerId: currentUserId,
+            },
+            select: {
+              followerId: true,
+            },
+          },
+        }),
       },
     });
 
     const returnUserProfile = {
-      ...user,
-      follower_count: user?._count.follower,
-      following_count: user?._count.following,
-      photos_count: user?._count.photos,
-      albums_count: user?._count.albums,
+      user: {
+        id: user?.id,
+        name: user?.firstName + ' ' + user?.lastName,
+        avatarUrl: user?.avatarUrl,
+        email: user?.email,
+      },
+      isFollowing: user?.following ? user.following.length > 0 : false,
+      stats: [
+        {
+          id: 'photos',
+          value: user?._count.photos || 0,
+          label: 'PHOTOS',
+        },
+        {
+          id: 'albums',
+          value: user?._count.albums || 0,
+          label: 'ALBUMS',
+        },
+        {
+          id: 'followings',
+          value: user?._count.following || 0,
+          label: 'FOLLOWINGS',
+        },
+        {
+          id: 'followers',
+          value: user?._count.follower || 0,
+          label: 'FOLLOWERS',
+        },
+      ],
       _count: undefined,
     };
+
     return returnUserProfile;
   }
 
   static async getFollowerUser(
     targetUserId: string,
+    currentUserId: string,
     page: number,
     limit: number
   ) {
@@ -74,7 +110,7 @@ export class UserService {
 
         following: {
           where: {
-            followerId: targetUserId,
+            followerId: currentUserId,
           },
           select: {
             followerId: true,
@@ -90,24 +126,30 @@ export class UserService {
       },
     });
 
-    const returnFollowers = users.map((user) => {
-      let isFollowing = true;
-      if (user.following.length === 0) {
-        isFollowing = false;
-      }
-      return {
-        ...user,
-        following: undefined,
-        photos_count: user._count.photos,
-        albums_count: user._count.albums,
-        isFollowing: isFollowing,
-      };
-    });
+    const returnFollowers = users.map((user) => ({
+      id: user.id,
+      name: user.firstName + ' ' + user.lastName,
+      avatarUrl: user.avatarUrl,
+      isFollowing: user.following.length > 0,
+      stats: [
+        {
+          id: 'photos',
+          value: user._count.photos,
+          label: 'PHOTOS',
+        },
+        {
+          id: 'albums',
+          value: user._count.albums,
+          label: 'ALBUMS',
+        },
+      ],
+    }));
     return returnFollowers;
   }
 
   static async getFollowingUser(
     targetUserId: string,
+    currentUserId: string,
     page: number,
     limit: number
   ) {
@@ -128,6 +170,14 @@ export class UserService {
         lastName: true,
         firstName: true,
         avatarUrl: true,
+        following: {
+          where: {
+            followerId: currentUserId,
+          },
+          select: {
+            followerId: true,
+          },
+        },
         _count: {
           select: {
             photos: { where: { sharingMode: 'PUBLIC', album: null } },
@@ -138,11 +188,22 @@ export class UserService {
     });
 
     const returnFollowings = users.map((user) => ({
-      ...user,
-      _count: undefined,
-      photos_count: user._count.photos,
-      albums_count: user._count.albums,
-      isFollowing: true,
+      id: user.id,
+      name: user.firstName + ' ' + user.lastName,
+      avatarUrl: user.avatarUrl,
+      isFollowing: user.following.length > 0,
+      stats: [
+        {
+          id: 'photos',
+          value: user._count.photos,
+          label: 'PHOTOS',
+        },
+        {
+          id: 'albums',
+          value: user._count.albums,
+          label: 'ALBUMS',
+        },
+      ],
     }));
 
     return returnFollowings;
@@ -176,13 +237,32 @@ export class UserService {
         description: true,
         title: true,
         createdAt: true,
+        sharingMode: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    return photos;
+    const returnPhotos = photos.map((photo) => {
+      return {
+        id: photo.id,
+        title: photo.title,
+        description: photo.description,
+        media: {
+          type: 'photo',
+          status: photo.sharingMode,
+          image_stack: [
+            {
+              order: 1,
+              url: photo.imageUrl,
+              alt_text: photo.alt_text,
+            },
+          ],
+        },
+      };
+    });
+    return returnPhotos;
   }
 
   static async getUserAlbum(
@@ -216,7 +296,6 @@ export class UserService {
             alt_text: true,
             mimeType: true,
           },
-          take: 3,
           orderBy: {
             createdAt: 'desc',
           },
@@ -230,13 +309,16 @@ export class UserService {
     const returnAlbums = albums.map((album) => ({
       id: album.id,
       title: album.title,
-      sharingMode: album.sharingMode,
-      description: album.description,
-
-      image_stack: album.photos?.map((photo, idx) => ({
-        ...photo,
-        order: idx + 1,
-      })),
+      status: album.sharingMode,
+      media: {
+        type: 'album',
+        status: album.sharingMode,
+        image_stack: album.photos?.map((photo, idx) => ({
+          url: photo.imageUrl,
+          alt_text: photo.alt_text,
+          order: idx + 1,
+        })),
+      },
     }));
 
     return returnAlbums;
