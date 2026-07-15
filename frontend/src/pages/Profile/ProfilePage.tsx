@@ -5,6 +5,7 @@ import MediaGrid from '../../components/profile/MediaGrid';
 import ProfileGrid from '../../components/profile/ProfileGrid';
 import MobileTabar from '../../components/feed/MobileTabar';
 import { useAuth } from '../../hooks/useAuth';
+import { useParams } from 'react-router-dom';
 
 const ProfilePage = () => {
   const stats = [
@@ -24,9 +25,11 @@ const ProfilePage = () => {
   const isFollowing = false;
 
   const [activeTab, setActiveTab] = useState('photos');
+  const { id: targetUserId } = useParams();
   const { user: currentUser } = useAuth();
 
-  const isMyProfile = true; // Logic kiểm tra cho sau này.
+  let isMyProfile = false; // Logic kiểm tra cho sau này.
+  if (currentUser && targetUserId && currentUser.id === targetUserId) isMyProfile = true;
 
   useEffect(() => { }, []) // Hàm useEffect fetch API sau này.
 
