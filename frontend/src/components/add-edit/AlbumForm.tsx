@@ -101,6 +101,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
 
     const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrors([]);
 
         if (currPhotos.length > 25) {
             setErrors(prev => [...prev, "Không được vượt quá 25 ảnh"]);
@@ -125,7 +126,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
         const albumResult = albumImageSchema.safeParse(currPhotos.filter((photo) => photo.file).map((photo) => (photo.file))); //Kiểm tra trên các ảnh mới.
         if (!albumResult.success) {
             const fieldErrors = z.treeifyError(albumResult.error);
-            const formattedErrors = fieldErrors.errors;
+            const formattedErrors = fieldErrors?.items ? fieldErrors?.items[0]?.errors : 'Lỗi khi tải ảnh';
             setErrors((prev) => [...prev, ...formattedErrors]);
             return;
         }

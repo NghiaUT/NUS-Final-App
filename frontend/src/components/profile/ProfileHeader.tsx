@@ -28,7 +28,7 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, hand
                 unfollow
               </button>
           )}
-        <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 truncate w-full text-center md:text-left">
+        <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 w-full text-center md:text-left">
           {user.name}
         </h1>
 
