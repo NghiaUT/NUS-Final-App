@@ -12,7 +12,7 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, hand
   return (
     <div className="w-full min-w-0 flex flex-col xl:flex-row items-center xl:items-start mt-8 gap-6 md:gap-8 lg:gap-12 mb-16 p-3 md:p-5">
       <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 xl:w-42 xl:h-42 rounded-full overflow-hidden border-2 border-white shadow-lg">
-        <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover" />
+        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
       </div>
 
       <div className="flex flex-col items-center xl:items-start flex-1 w-full min-w-0">
