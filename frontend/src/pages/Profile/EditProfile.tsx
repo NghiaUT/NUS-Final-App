@@ -3,6 +3,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import { avatarSchema, basicInfoSchema, passwordSchema } from '../../utils/validators';
 import z from 'zod';
+import { userService } from '../../api/userService';
+import { Outlet } from 'react-router-dom';
 
 const EditProfile = () => {
     const { user: currentUser } = useAuth();
@@ -10,7 +12,7 @@ const EditProfile = () => {
     // ----- Avatar -----
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string>(
-        currentUser?.avatar_url ||
+        currentUser?.avatarUrl ||
         'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'
     );
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,7 +67,7 @@ const EditProfile = () => {
         setPasswordInfo((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleBasicInfoSubmit = (e: React.FormEvent) => {
+    const handleBasicInfoSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const result = basicInfoSchema.safeParse({ ...basicInfo, avatar: avatarFile });
@@ -83,11 +85,23 @@ const EditProfile = () => {
         // Gọi API cập nhật thông tin cơ bản
         console.log('Update basic information:', result.data);
 
+        const formData = new FormData();
+        formData.append('firstName', basicInfo.firstName);
+        formData.append('lastName', basicInfo.lastName);
+        formData.append('email', basicInfo.email);
+        if (avatarFile) formData.append('avatar', avatarFile);
+
         // Giả lập gọi API thành công.
-        toast.success('Cập nhật thông tin cá nhân thành công');
+        try {
+            await userService.editProfile(currentUser?.id ?? 'id', formData);
+            toast.success('Cập nhật thông tin cá nhân thành công');
+        } catch (error) {
+            const message = error?.message;
+            toast.error('Gặp lỗi khi cập nhật thông tin' + message);
+        }
     };
 
-    const handlePasswordSubmit = (e: React.FormEvent) => {
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const result = passwordSchema.safeParse({ ...passwordInfo });
@@ -104,12 +118,26 @@ const EditProfile = () => {
 
         setPasswordErrors({})
         // Gọi API đổi mật khẩu sau này.
-        console.log('Update password:', passwordInfo);
+        // console.log('Update password:', passwordInfo);
+        const formData = new FormData();
+        formData.append('currentPassword', passwordInfo.currentPassword);
+        formData.append('newPassword', passwordInfo.newPassword);
+        formData.append('passwordConfirmation', passwordInfo.confirmPassword);
+        formData.append('email', basicInfo.email);
 
-        // Giả lập gọi API thành công.
-        toast.success('Đổi mật khẩu thành công');
-        setPasswordInfo({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        try {
+            await userService.editProfile(currentUser?.id ?? 'id', formData);
+            toast.success('Đổi mật khẩu thành công');
+            setPasswordInfo({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (error) {
+            const message = error?.message ?? 'Lỗi khi thực hiện';
+            toast.error(message + '\n Vui lòng thử lại sau.');
+        }
     };
+
+    if (!currentUser?.id) {
+        return <Outlet />
+    }
 
     return (
         <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0">

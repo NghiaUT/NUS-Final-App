@@ -4,6 +4,8 @@ export type User = {
   avatarUrl: string;
   email: string;
   role?: Role;
+  firstName: string;
+  lastName: string;
 };
 
 type Role = 'USER' | 'ADMIN';

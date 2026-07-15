@@ -307,7 +307,9 @@ export class AuthService {
 
     const returnUser = {
       id: user.id,
-      name: user.firstName + user.lastName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      name: user.firstName + ' ' + user.lastName,
       avatarUrl: user.avatarUrl,
       role: user.role,
       email: user.email,

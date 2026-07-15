@@ -378,6 +378,7 @@ export class UserService {
           await removeFile(user.avatarUrl ?? '');
 
           const newAvatarUrl = `${constant.SERVER_URL}/uploads/${avatarFile?.filename}`;
+          updatedData.avatarUrl = newAvatarUrl;
         }
 
         return await tx.user.update({
