@@ -31,7 +31,17 @@ export const userController = {
       if (!targetUserId || Array.isArray(targetUserId)) {
         throw new BadRequestError('Invalid Request');
       }
-      const result = await UserService.getFollowingUser(targetUserId);
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await UserService.getFollowingUser(
+        targetUserId,
+        query,
+        limit
+      );
       sendSuccessRes(res, 'Get Following User Successfull', result, 200);
     } catch (error) {
       next(error);
@@ -44,7 +54,17 @@ export const userController = {
       if (!targetUserId || Array.isArray(targetUserId)) {
         throw new BadRequestError('Invalid Request');
       }
-      const result = await UserService.getFollowerUser(targetUserId);
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await UserService.getFollowerUser(
+        targetUserId,
+        page,
+        limit
+      );
       sendSuccessRes(res, 'Get Followers User Successfull', result, 200);
     } catch (error) {
       next(error);
@@ -58,9 +78,17 @@ export const userController = {
         throw new BadRequestError('Invalid Request');
       }
       const currentUserId = req.user?.id;
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
       const result = await UserService.getUserPhoto(
         targetUserId,
-        currentUserId
+        currentUserId,
+        page,
+        limit
       );
       sendSuccessRes(res, 'Get User Photos Successfull', result, 200);
     } catch (error) {
@@ -75,9 +103,17 @@ export const userController = {
         throw new BadRequestError('Invalid Request');
       }
       const currentUserId = req.user?.id;
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
       const result = await UserService.getUserAlbum(
         targetUserId,
-        currentUserId
+        currentUserId,
+        page,
+        limit
       );
       sendSuccessRes(res, 'Get User Albums Successfull', result, 200);
     } catch (error) {

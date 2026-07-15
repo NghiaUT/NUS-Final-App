@@ -13,7 +13,9 @@ export const removeFile = async (input: string) => {
     if (!input)
       throw new InternalServerError('Wrong Remove Filename parameter');
     if (!isLocalhost(input)) {
-      console.log(`[FileCleaner] File ${input} không thuộc về folder uploads`);
+      console.log(
+        `[FileCleaner] File ${input} không thuộc về folder uploads, không cần chạy tiếp file cleaner`
+      );
       return;
     }
     const arr = input.split('/');
