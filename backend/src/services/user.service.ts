@@ -1,4 +1,3 @@
-import { triggerAsyncId } from 'node:async_hooks';
 import { constant } from '../config/constant/constant.js';
 import prisma from '../config/prisma/prisma.init.js';
 
@@ -118,7 +117,7 @@ export class UserService {
     let isOwner = false;
     if (currentUserId && currentUserId === targetUserId) isOwner = true;
 
-    const photo = await prisma.photo.findMany({
+    const photos = await prisma.photo.findMany({
       where: {
         album: null,
         ...(!isOwner && { sharingMode: 'PUBLIC' }),
@@ -140,12 +139,7 @@ export class UserService {
       },
     });
 
-    const returnPhoto = photo.map((p) => ({
-      ...p,
-      imageUrl: `${constant.SERVER_URL}${p.imageUrl}`,
-    }));
-
-    return returnPhoto;
+    return photos;
   }
 
   static async getUserAlbum(

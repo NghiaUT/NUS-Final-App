@@ -66,7 +66,7 @@ export class AlbumService {
     const returnAlbums = albums.map((album) => {
       const image_stack = album.photos.map((photo, idx) => ({
         order: idx + 1, // Bắt đầu từ 1
-        url: `${constant.SERVER_URL}${photo.imageUrl}`,
+        url: photo.imageUrl,
         altText: album.description,
       }));
 
@@ -129,14 +129,7 @@ export class AlbumService {
       );
     }
 
-    const returnAlbum = {
-      ...album,
-      photos: album.photos.map((photo) => ({
-        ...photo,
-        imageUrl: `${constant.SERVER_URL}${photo.imageUrl}`,
-      })),
-    };
-    return returnAlbum;
+    return album;
   }
 
   static async newAlbum(data: FormData, userId: string) {
@@ -166,7 +159,7 @@ export class AlbumService {
         });
 
         const photoData = data.photo.map((photo) => ({
-          imageUrl: `/uploads/${photo.filename}`,
+          imageUrl: `${constant.SERVER_URL}/uploads/${photo.filename}`,
           mimeType: photo.mimetype,
           sharingMode: newAlbum.sharingMode,
           albumId: newAlbum.id,
@@ -204,19 +197,19 @@ export class AlbumService {
     const deletedPhotosId = data.deletedPhotosId;
     let parsedDeletedIds: string[] = [];
 
-    if (deletedPhotosId) {
-      if (typeof deletedPhotosId === 'string') {
-        try {
-          parsedDeletedIds = JSON.parse(deletedPhotosId);
-        } catch (error) {
-          console.error('Lỗi parse deletedPhotosId:', error);
-          parsedDeletedIds = [];
-        }
-      } else if (Array.isArray(deletedPhotosId)) {
-        parsedDeletedIds = deletedPhotosId;
-      }
-    }
     try {
+      if (deletedPhotosId) {
+        if (typeof deletedPhotosId === 'string') {
+          try {
+            parsedDeletedIds = JSON.parse(deletedPhotosId);
+          } catch (error) {
+            console.error('Lỗi parse deletedPhotosId:', error);
+            parsedDeletedIds = [];
+          }
+        } else if (Array.isArray(deletedPhotosId)) {
+          parsedDeletedIds = deletedPhotosId;
+        }
+      }
       const album = await prisma.album.findUnique({
         where: {
           id: albumId,
@@ -238,7 +231,7 @@ export class AlbumService {
 
       oldImgFilesName = album.photos
         .filter((photo) => deletedPhotosId?.includes(photo.id))
-        .map((photo) => photo.imageUrl?.split('/')[2] as string);
+        .map((photo) => photo.imageUrl);
 
       const newAlbum = await prisma.$transaction(async (tx) => {
         // Xóa ảnh cũ.
@@ -256,7 +249,7 @@ export class AlbumService {
         if (Array.isArray(data.photo) && data.photo.length !== 0) {
           // Thêm ảnh mới vào
           const newPhotos = data.photo.map((photo) => ({
-            imageUrl: `/uploads/${photo.filename}`,
+            imageUrl: `${constant.SERVER_URL}/uploads/${photo.filename}`,
             mimeType: photo.mimetype,
             sharingMode: album.sharingMode,
             albumId: album.id,
@@ -343,9 +336,7 @@ export class AlbumService {
     });
 
     await Promise.all(
-      deleteAlbum.photos.map((photo) =>
-        removeFile(photo.imageUrl.split('/')[2] as string)
-      )
+      deleteAlbum.photos.map((photo) => removeFile(photo.imageUrl))
     );
 
     return result;

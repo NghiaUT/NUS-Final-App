@@ -67,7 +67,7 @@ export class PhotoService {
           type: 'photo',
           image_stack: [
             {
-              url: `${constant.SERVER_URL}${photo.imageUrl}`,
+              url: photo.imageUrl,
               altText: photo.description,
             },
           ],
@@ -111,17 +111,7 @@ export class PhotoService {
       throw new BadRequestError('This photo has belong to an album!');
     }
 
-    const returnPhoto = {
-      id: photo.id,
-      mimeType: photo.mimeType,
-      imageUrl: `${constant.SERVER_URL}${photo.imageUrl}`,
-      altText: photo.alt_text,
-      createdAt: photo.createdAt,
-      description: photo.description,
-      sharingMode: photo.sharingMode,
-      title: photo.title,
-    };
-    return returnPhoto;
+    return photo;
   }
 
   static async newPhoto(data: FormData, userId: string) {
@@ -138,7 +128,7 @@ export class PhotoService {
         throw new BadRequestError('Invalid Form Data!');
       }
 
-      const imageUrl = `/uploads/${data.photo.filename}`;
+      const imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
 
       const newPhoto = await prisma.photo.create({
         data: {
@@ -187,8 +177,8 @@ export class PhotoService {
       let imageUrl = photo.imageUrl;
       let mimeType = photo.mimeType;
       if (data.photo) {
-        oldImgFileName = imageUrl.split('/')[2] as string;
-        imageUrl = `/uploads/${data.photo.filename}`;
+        oldImgFileName = imageUrl;
+        imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
         mimeType = data.photo.mimetype;
       }
 
@@ -249,7 +239,7 @@ export class PhotoService {
       });
 
       // Xóa file trong uploads/
-      await removeFile(deletePhoto.imageUrl.split('/')[2] as string);
+      await removeFile(deletePhoto.imageUrl);
       return result;
     } catch (error) {
       throw error;
