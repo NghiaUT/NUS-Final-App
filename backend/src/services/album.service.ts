@@ -44,11 +44,6 @@ export class AlbumService {
             lastName: true,
           },
         },
-        _count: {
-          select: {
-            albumLikes: true,
-          },
-        },
         photos: {
           select: {
             id: true,
@@ -89,7 +84,7 @@ export class AlbumService {
           createdDate: album.createdAt,
         },
         interactions: {
-          likesCount: album._count.albumLikes,
+          likesCount: album.albumLikesCount,
         },
       };
     });

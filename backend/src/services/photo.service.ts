@@ -43,11 +43,6 @@ export class PhotoService {
             lastName: true,
           },
         },
-        _count: {
-          select: {
-            photoLikes: true,
-          },
-        },
       },
     });
 
@@ -76,7 +71,7 @@ export class PhotoService {
           createdDate: photo.createdAt,
         },
         interactions: {
-          likesCount: photo._count.photoLikes,
+          likesCount: photo.photosLikesCount,
         },
       };
     });

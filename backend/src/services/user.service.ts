@@ -25,11 +25,10 @@ export class UserService {
         firstName: true,
         email: true,
         avatarUrl: true,
+        followerCount: true,
+        followingCount: true,
         _count: {
           select: {
-            follower: true,
-            following: true,
-
             photos: isOwner
               ? { where: { album: null } }
               : { where: { sharingMode: 'PUBLIC', album: null } },
@@ -70,12 +69,12 @@ export class UserService {
         },
         {
           id: 'followings',
-          value: user?._count.following || 0,
+          value: user?.followingCount || 0,
           label: 'FOLLOWINGS',
         },
         {
           id: 'followers',
-          value: user?._count.follower || 0,
+          value: user?.followerCount || 0,
           label: 'FOLLOWERS',
         },
       ],
