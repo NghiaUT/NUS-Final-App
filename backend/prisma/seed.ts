@@ -587,16 +587,37 @@ async function main() {
   }
 
   for (const f of followsToCreate) {
-    await prisma.follow.upsert({
-      where: {
-        followerId_followingId: {
-          followerId: f.followerId,
-          followingId: f.followingId,
+    await prisma.$transaction(async (tx) => {
+      await tx.follow.upsert({
+        where: {
+          followerId_followingId: {
+            followerId: f.followerId,
+            followingId: f.followingId,
+          },
         },
-      },
-      update: {},
-      create: f,
+        update: {},
+        create: f,
+      });
+
+      await tx.user.update({
+        where: {
+          id: f.followerId,
+        },
+        data: {
+          followingCount: { increment: 1 },
+        },
+      });
+
+      await tx.user.update({
+        where: {
+          id: f.followingId,
+        },
+        data: {
+          followerCount: { increment: 1 },
+        },
+      });
     });
+    // Cập nhật trường follower và following của followerId và following Id.
   }
   console.log(`✅ Đã tạo ${followsToCreate.length} records Follow.`);
 
@@ -626,10 +647,21 @@ async function main() {
   }
 
   for (const l of photoLikesToCreate) {
-    await prisma.photoLike.upsert({
-      where: { userId_photoId: { userId: l.userId, photoId: l.photoId } },
-      update: {},
-      create: l,
+    await prisma.$transaction(async (tx) => {
+      await tx.photoLike.upsert({
+        where: { userId_photoId: { userId: l.userId, photoId: l.photoId } },
+        update: {},
+        create: l,
+      });
+
+      await tx.photo.update({
+        where: {
+          id: l.photoId,
+        },
+        data: {
+          photosLikesCount: { increment: 1 },
+        },
+      });
     });
   }
   console.log(`✅ Đã tạo ${photoLikesToCreate.length} records PhotoLike.`);
@@ -659,10 +691,21 @@ async function main() {
   }
 
   for (const l of albumLikesToCreate) {
-    await prisma.albumLike.upsert({
-      where: { userId_albumId: { userId: l.userId, albumId: l.albumId } },
-      update: {},
-      create: l,
+    await prisma.$transaction(async (tx) => {
+      await tx.albumLike.upsert({
+        where: { userId_albumId: { userId: l.userId, albumId: l.albumId } },
+        update: {},
+        create: l,
+      });
+
+      await tx.album.update({
+        where: {
+          id: l.albumId,
+        },
+        data: {
+          albumLikesCount: { increment: 1 },
+        },
+      });
     });
   }
   console.log(`✅ Đã tạo ${albumLikesToCreate.length} records AlbumLike.`);

@@ -35,6 +35,8 @@ model User {
   createdAt           DateTime    @default(now())
   follower            Follow[]    @relation("follower")
   following           Follow[]    @relation("following")
+  followerCount       Int         @default(0)
+  followingCount      Int         @default(0)
   photos              Photo[]
   albums              Album[]
   photoLikes          PhotoLike[]
@@ -69,7 +71,8 @@ model Photo {
   albumId String?
   album   Album?  @relation(fields: [albumId], references: [id], onDelete: Cascade)
 
-  photoLikes PhotoLike[]
+  photoLikes       PhotoLike[]
+  photosLikesCount Int         @default(0)
 }
 
 model Album {
@@ -84,7 +87,8 @@ model Album {
 
   photos Photo[]
 
-  albumLikes AlbumLike[]
+  albumLikes      AlbumLike[]
+  albumLikesCount Int         @default(0)
 }
 
 model PhotoLike {
