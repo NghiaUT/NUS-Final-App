@@ -6,8 +6,12 @@ import { removeFile } from '../utils/removeFile.util.js';
 import { redisClient } from '../config/redis/redis.config.js';
 
 export class PhotoService {
-  static async getAllPhoto(page: number, limit: number) {
-    const cachedKey = `photos:public:page:${page}:limit:${limit}`;
+  static async getAllPhotoDiscover(
+    page: number,
+    limit: number,
+    currentUserId: string | null = null
+  ) {
+    const cachedKey = `photos:public:discover:page:${page}:limit:${limit}`;
 
     const cachedPhotos = await redisClient.get(cachedKey);
 
@@ -41,6 +45,13 @@ export class PhotoService {
             avatarUrl: true,
             firstName: true,
             lastName: true,
+            ...(currentUserId && {
+              following: {
+                where: {
+                  followerId: currentUserId,
+                },
+              },
+            }),
           },
         },
       },
@@ -53,6 +64,104 @@ export class PhotoService {
           authorId: photo.author.id,
           name: `${photo.author.firstName} ${photo.author.lastName}`,
           avatarUrl: photo.author.avatarUrl,
+          isFollowing: photo.author.following?.length > 0,
+        },
+        content: {
+          title: photo.title,
+          body: photo.description,
+        },
+        media: {
+          type: 'photo',
+          image_stack: [
+            {
+              url: photo.imageUrl,
+              altText: photo.description,
+            },
+          ],
+        },
+        metadata: {
+          createdDate: photo.createdAt,
+        },
+        interactions: {
+          likesCount: photo.photosLikesCount,
+        },
+      };
+    });
+
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+
+    return returnPhotos;
+  }
+
+  static async getAllPhotoFeed(
+    page: number,
+    limit: number,
+    currentUserId: string
+  ) {
+    const cachedKey = `photos:public:feed:page:${page}:limit:${limit}`;
+
+    const cachedPhotos = await redisClient.get(cachedKey);
+
+    // if (cachedPhotos) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+    //   return JSON.parse(cachedPhotos);
+    // }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
+    const skip = (page - 1) * limit;
+
+    // Những photos này sẽ đi kèm với thông tin liên quan như tác giả, thông tin ảnh và số lượt like...
+    const followingUsers = await prisma.user.findMany({
+      where: {
+        following: {
+          some: {
+            followerId: currentUserId,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    const followingsId = followingUsers.map((u) => u.id);
+    const photos = await prisma.photo.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        sharingMode: 'PUBLIC',
+        album: null, // Các photos đứng riêng lẻ.
+        userId: {
+          // Thuộc về following của người này
+          in: followingsId,
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    const returnPhotos = photos.map((photo) => {
+      return {
+        id: photo.id,
+        author: {
+          authorId: photo.author.id,
+          name: `${photo.author.firstName} ${photo.author.lastName}`,
+          avatarUrl: photo.author.avatarUrl,
+          isFollowing: true,
         },
         content: {
           title: photo.title,

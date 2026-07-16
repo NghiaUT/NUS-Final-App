@@ -11,10 +11,10 @@ const fetchDiscoverData = async ({ pageParam = 1, queryKey }: { pageParam: numbe
     const mediaType = queryKey[1]; // Có dạng ['discover', 'album'] hoặc ['discover', 'photo']
     await delay(3000);
     if (mediaType === "photo") {
-      const photos = await photoService.getAllPhoto(pageParam);
+      const photos = await photoService.getAllPhotoDiscover(pageParam);
       return photos.data.data;
     } else {
-      const albums = await albumService.getAllAlbum(pageParam);
+      const albums = await albumService.getAllAlbumDiscover(pageParam);
       return albums.data.data;
     }
   } catch (error) {

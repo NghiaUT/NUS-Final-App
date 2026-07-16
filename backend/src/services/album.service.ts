@@ -6,7 +6,11 @@ import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { removeFile } from '../utils/removeFile.util.js';
 
 export class AlbumService {
-  static async getAllAlbum(page: number, limit: number) {
+  static async getAllAlbumDiscover(
+    page: number,
+    limit: number,
+    currentUserId: string | null = null
+  ) {
     console.log('[Service] This service get all album.!');
     const cachedKey = `albums:public:page:${page}:limit:${limit}`;
 
@@ -34,6 +38,123 @@ export class AlbumService {
       },
       where: {
         sharingMode: 'PUBLIC',
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+            ...(currentUserId && {
+              following: {
+                where: {
+                  followerId: currentUserId,
+                },
+              },
+            }),
+          },
+        },
+        photos: {
+          select: {
+            id: true,
+            alt_text: true,
+            description: true,
+            imageUrl: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+
+    const returnAlbums = albums.map((album) => {
+      const image_stack = album.photos.map((photo, idx) => ({
+        order: idx + 1, // Bắt đầu từ 1
+        url: photo.imageUrl,
+        altText: album.description,
+      }));
+
+      return {
+        id: album.id,
+        author: {
+          authorId: album.author.id,
+          name: `${album.author.firstName} ${album.author.lastName}`,
+          avatarUrl: album.author.avatarUrl,
+          isFollowing: album.author?.following.length > 0,
+        },
+        content: {
+          title: album.title,
+          body: album.description,
+        },
+        media: {
+          type: 'album',
+          image_stack: image_stack,
+        },
+        metadata: {
+          createdDate: album.createdAt,
+        },
+        interactions: {
+          likesCount: album.albumLikesCount,
+        },
+      };
+    });
+
+    // Lưu dữ liệu trên vào Redis để dùng cache cho lần sau (TTL: 10 phút)
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnAlbums));
+
+    return returnAlbums;
+  }
+
+  static async getAllAlbumFeed(
+    page: number,
+    limit: number,
+    currentUserId: string
+  ) {
+    console.log('[Service] This service get all album.!');
+    const cachedKey = `albums:public:page:${page}:limit:${limit}`;
+
+    const cachedAlbums = await redisClient.get(cachedKey);
+
+    // if (cachedAlbums) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+    //   // Parse lại thành json.
+    //   return JSON.parse(cachedAlbums);
+    // }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
+    // Gọi DB như thông thường
+    const skip = (page - 1) * limit;
+    const followingUsers = await prisma.user.findMany({
+      where: {
+        following: {
+          some: {
+            followerId: currentUserId,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    const followingsId = followingUsers.map((u) => u.id);
+
+    const albums = await prisma.album.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        sharingMode: 'PUBLIC',
+        userId: {
+          in: followingsId,
+        },
       },
       include: {
         author: {
@@ -71,6 +192,7 @@ export class AlbumService {
           authorId: album.author.id,
           name: `${album.author.firstName} ${album.author.lastName}`,
           avatarUrl: album.author.avatarUrl,
+          isFollowing: true,
         },
         content: {
           title: album.title,

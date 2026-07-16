@@ -4,7 +4,11 @@ import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { BadRequestError } from '../utils/apiError.js';
 
 export const photoController = {
-  getAllPhoto: async (req: Request, res: Response, next: NextFunction) => {
+  getAllPhotoDiscover: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const query = req.query;
       if (!query.page || !query.limit) {
@@ -12,7 +16,30 @@ export const photoController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
-      const result = await PhotoService.getAllPhoto(page, limit);
+      const result = await PhotoService.getAllPhotoDiscover(
+        page,
+        limit,
+        req?.user.id ?? null
+      );
+      sendSuccessRes(res, 'Get Photo succesfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllPhotoFeed: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await PhotoService.getAllPhotoFeed(
+        page,
+        limit,
+        req.user.id
+      );
       sendSuccessRes(res, 'Get Photo succesfully', result, 200);
     } catch (error) {
       next(error);

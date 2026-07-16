@@ -1,11 +1,19 @@
 import express from 'express';
 import { albumController } from '../controllers/album.controller.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import {
+  optionalVerifyToken,
+  verifyToken,
+} from '../middlewares/auth.middleware.js';
 import upload from '../config/multer/multer.config.js';
 
 const albumRouter = express.Router();
 
-albumRouter.get('/', albumController.getAllAlbum);
+albumRouter.get(
+  '/discover',
+  optionalVerifyToken,
+  albumController.getAllAlbumDiscover
+);
+albumRouter.get('/feed', verifyToken, albumController.getAllAlbumFeed);
 albumRouter.post(
   '/',
   verifyToken,

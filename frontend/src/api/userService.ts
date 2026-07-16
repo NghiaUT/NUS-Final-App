@@ -11,4 +11,6 @@ export const userService = {
     axiosInstance.get(`/users/${id}/albums?page=${page}&limit=${limit}`),
   getStats: (id: string) => axiosInstance.get(`/users/${id}/stats`),
   editProfile: (id: string, body: FormData) => axiosInstance.put(`/users/${id}/profile`, body),
+  follow: (targetUserId: string) => axiosInstance.post(`/users/${targetUserId}/follow`),
+  unfollow: (targetUserId: string) => axiosInstance.delete(`/users/${targetUserId}/follow`),
 };

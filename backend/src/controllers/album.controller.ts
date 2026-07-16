@@ -25,7 +25,11 @@ export type FormData = {
 type SharingMode = 'PUBLIC' | 'PRIVATE';
 
 export const albumController = {
-  getAllAlbum: async (req: Request, res: Response, next: NextFunction) => {
+  getAllAlbumDiscover: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const query = req.query;
@@ -34,7 +38,31 @@ export const albumController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
-      const result = await AlbumService.getAllAlbum(page, limit);
+      const result = await AlbumService.getAllAlbumDiscover(
+        page,
+        limit,
+        req?.user.id
+      );
+      sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllAlbumFeed: async (req: Request, res: Response, next: NextFunction) => {
+    console.log('[Controller] This Controller handle data and pass to service');
+    try {
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await AlbumService.getAllAlbumFeed(
+        page,
+        limit,
+        req.user.id
+      );
       sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
     } catch (error) {
       next(error);
