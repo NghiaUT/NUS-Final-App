@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useFollow } from '../../hooks/useFollow';
 
 /*
 {
@@ -14,20 +15,28 @@ import { useAuth } from '../../hooks/useAuth';
     ]
   },
 */
-const ProfileCard = ({ profile, handleFollow }) => {
-  const [isFollowing, setIsFollowing] = useState(profile.isFollowing ?? true);
+const ProfileCard = ({ profile, onFollowChange }) => {
+  const [isFollowing, setIsFollowing] = useState(profile.isFollowing ?? false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toggleFollow } = useFollow();
 
   useEffect(() => {
     setIsFollowing(profile.isFollowing);
   }, [profile.isFollowing]);
 
-  const handleFollowClick = () => {
-    const newState = !isFollowing;
-    setIsFollowing(newState); // Đổi UI ngay lập tức
+  const handleFollowClick = async () => {
+    const wasFollowing = isFollowing;
+    setIsFollowing(!wasFollowing); // Đổi UI ngay lập tức (optimistic)
+    onFollowChange(wasFollowing); // Cập nhật số liệu ở trang cha, KHÔNG kéo theo refetch danh sách (xem ProfilePage)
 
-    handleFollow(profile.id, isFollowing);
+    try {
+      await toggleFollow(profile.id, wasFollowing);
+    } catch (error) {
+      // Rollback nếu API thất bại: trả UI và số liệu về trạng thái cũ
+      setIsFollowing(wasFollowing);
+      onFollowChange(!wasFollowing);
+    }
   };
 
   return (
@@ -66,7 +75,7 @@ const ProfileCard = ({ profile, handleFollow }) => {
           </p>
         </div>
       </div>
-      {user?.id !== profile.id && (profile.isFollowing === true ? (
+      {user?.id !== profile.id && (isFollowing === true ? (
         <div className="inline-block p-[2px] rounded-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
           <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer" onClick={handleFollowClick}>
             following

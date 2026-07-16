@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge';
 import { formatDate } from '../../utils/formatDate';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
+import { useFollow } from '../../hooks/useFollow';
 
 const PhotoCard = ({ data }: any) => {
   const {
@@ -23,10 +24,12 @@ const PhotoCard = ({ data }: any) => {
   const [likeCount, setLikeCount] = useState(likesCount);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+  const { toggleFollow } = useFollow();
 
   const navigate = useNavigate();
 
   const handleFollowClick = () => {
+    toggleFollow(authorId, isStateFollowing);
     setIsStateFollowing(!isStateFollowing);
   };
 

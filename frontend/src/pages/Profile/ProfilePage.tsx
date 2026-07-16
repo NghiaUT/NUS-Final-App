@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../mocks/mock_data';
 import MediaGrid from '../../components/profile/MediaGrid';
@@ -8,23 +8,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { useParams } from 'react-router-dom';
 import { userService } from '../../api/userService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
-  // const stats = [
-  //   { id: 'photos', value: 108, label: 'PHOTOS' },
-  //   { id: 'albums', value: 43, label: 'ALBUMS' },
-  //   { id: 'followings', value: 22, label: 'FOLLOWINGS' },
-  //   { id: 'followers', value: 13, label: 'FOLLOWERS' },
-  // ];
-
-  // const data = MOCK_DATA;
-  // const user = {
-  //   id: 2,
-  //   name: 'Hansford Nguyen',
-  //   avatar_url:
-  //     'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-  // };
-
   const [activeTab, setActiveTab] = useState('photos');
   const [stats, setStats] = useState([]);
   const [user, setUser] = useState(() => ({
@@ -60,11 +46,7 @@ const ProfilePage = () => {
     fetchStats();
   }, [targetUserId]) // Hàm useEffect fetch API sau này.
 
-  const handleFollow = (id, isFollowing) => {
-    // gọi API để gửi lên hệ thống follow hay là unfollow
-  }
-
-  const handleFetchData = async (type: string, page: number = 1, limit: number = 10) => {
+  const handleFetchData = useCallback(async (type: string, page: number = 1, limit: number = 10) => {
     switch (type) {
       case 'photo':
         return await userService.getUserPhotos(targetUserId, page, limit);
@@ -75,21 +57,34 @@ const ProfilePage = () => {
       case 'following':
         return await userService.getFollowings(targetUserId, page, limit);
     }
-  }
+  }, [targetUserId]);
 
-  const tabContents = {
+  const handleOptimisticCountUpdate = useCallback((isCurrentlyFollowing: boolean) => {
+    setStats((prevStats: any) =>
+      prevStats.map((stat) => {
+        if (stat.id === 'followings') {
+          return {
+            ...stat,
+            value: isCurrentlyFollowing ? stat.value - 1 : stat.value + 1,
+          };
+        }
+        return stat;
+      }));
+  }, []);
+
+  const tabContents = useMemo(() => ({
     photos: <MediaGrid fetchData={handleFetchData} type={'photo'} isMyProfile={isMyProfile} />,
     albums: <MediaGrid fetchData={handleFetchData} type={'album'} isMyProfile={isMyProfile} />,
-    followings: <ProfileGrid fetchData={handleFetchData} type={'following'} handleFollow={handleFollow} />,
-    followers: <ProfileGrid fetchData={handleFetchData} type={'follower'} handleFollow={handleFollow} />,
-  };
+    followings: <ProfileGrid fetchData={handleFetchData} type={'following'} onFollowChange={handleOptimisticCountUpdate} />,
+    followers: <ProfileGrid fetchData={handleFetchData} type={'follower'} onFollowChange={handleOptimisticCountUpdate} />,
+  }), [handleFetchData, handleOptimisticCountUpdate, isMyProfile]);
 
   if (loading) {
     return <LoadingSpinner />;
   }
   return (
     <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0">
-      <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, handleFollow, isFollowing }} />
+      <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }} />
       {tabContents[activeTab]}
       <MobileTabar />
     </div>
