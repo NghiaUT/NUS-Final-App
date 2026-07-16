@@ -131,4 +131,34 @@ export const albumController = {
       next(error);
     }
   },
+
+  likeAlbum: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: albumId } = req.params;
+
+      if (!albumId || Array.isArray(albumId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await AlbumService.toggleLike(req.user.id, albumId, 'post');
+      sendSuccessRes(res, 'Like album successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  unlikeAlbum: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: albumId } = req.params;
+
+      if (!albumId || Array.isArray(albumId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await AlbumService.toggleLike(req.user.id, albumId, 'delete');
+      sendSuccessRes(res, 'Unlike album successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

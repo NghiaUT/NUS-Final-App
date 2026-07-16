@@ -110,4 +110,34 @@ export const photoController = {
       next(error);
     }
   },
+
+  likePhoto: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: photoId } = req.params;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await PhotoService.toggleLike(req.user.id, photoId, 'post');
+      sendSuccessRes(res, 'Like photo successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  unlikePhoto: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: photoId } = req.params;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await PhotoService.toggleLike(req.user.id, photoId, 'delete');
+      sendSuccessRes(res, 'Unlike photo successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

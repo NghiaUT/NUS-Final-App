@@ -9,4 +9,6 @@ export const photoService = {
   addPhoto: (data: FormData) => axiosInstance.post('/photos', data),
   editPhoto: (id: string, data: FormData) => axiosInstance.put(`/photos/${id}`, data),
   deletePhoto: (id: string) => axiosInstance.delete(`/photos/${id}`),
+  likePhoto: (id: string) => axiosInstance.post(`/photos/${id}/like`),
+  unlikePhoto: (id: string) => axiosInstance.delete(`/photos/${id}/like`),
 };

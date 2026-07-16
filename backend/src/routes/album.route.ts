@@ -28,5 +28,6 @@ albumRouter.put(
   albumController.editAlbum
 );
 albumRouter.delete('/:id', verifyToken, albumController.deleteAlbum);
-
+albumRouter.post('/:id/like', verifyToken, albumController.likeAlbum);
+albumRouter.delete('/:id/like', verifyToken, albumController.unlikeAlbum);
 export default albumRouter;

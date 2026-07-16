@@ -12,7 +12,7 @@ export class AlbumService {
     currentUserId: string | null = null
   ) {
     console.log('[Service] This service get all album.!');
-    const cachedKey = `albums:public:page:${page}:limit:${limit}`;
+    const cachedKey = `albums:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
     const cachedAlbums = await redisClient.get(cachedKey);
 
@@ -66,6 +66,16 @@ export class AlbumService {
             createdAt: 'desc',
           },
         },
+        ...(currentUserId && {
+          albumLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
       },
     });
 
@@ -97,6 +107,7 @@ export class AlbumService {
         },
         interactions: {
           likesCount: album.albumLikesCount,
+          isLiked: album?.albumLikes?.length > 0,
         },
       };
     });
@@ -113,7 +124,7 @@ export class AlbumService {
     currentUserId: string
   ) {
     console.log('[Service] This service get all album.!');
-    const cachedKey = `albums:public:page:${page}:limit:${limit}`;
+    const cachedKey = `albums:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
     const cachedAlbums = await redisClient.get(cachedKey);
 
@@ -176,6 +187,16 @@ export class AlbumService {
             createdAt: 'desc',
           },
         },
+        ...(currentUserId && {
+          albumLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
       },
     });
 
@@ -207,6 +228,7 @@ export class AlbumService {
         },
         interactions: {
           likesCount: album.albumLikesCount,
+          isLiked: album?.albumLikes?.length > 0,
         },
       };
     });
@@ -457,5 +479,71 @@ export class AlbumService {
     );
 
     return result;
+  }
+
+  static async toggleLike(userId: string, albumId: string, type: string) {
+    const album = await prisma.album.findUnique({
+      where: {
+        id: albumId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!album) {
+      throw new BadRequestError('Invalid albumId or album does not exist');
+    }
+
+    const albumLike = await prisma.albumLike.findUnique({
+      where: {
+        userId_albumId: { userId, albumId },
+      },
+    });
+
+    if (!albumLike && type === 'post') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.albumLike.create({
+          data: {
+            userId: userId,
+            albumId: albumId,
+          },
+        });
+
+        await tx.album.update({
+          where: {
+            id: albumId,
+          },
+          data: {
+            albumLikesCount: {
+              increment: 1,
+            },
+          },
+        });
+      });
+    }
+
+    if (albumLike && type === 'delete') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.albumLike.delete({
+          where: {
+            userId_albumId: { userId, albumId },
+          },
+        });
+
+        await tx.album.update({
+          where: {
+            id: albumId,
+          },
+          data: {
+            albumLikesCount: {
+              decrement: 1,
+            },
+          },
+        });
+      });
+    }
+
+    return;
   }
 }

@@ -11,7 +11,7 @@ export class PhotoService {
     limit: number,
     currentUserId: string | null = null
   ) {
-    const cachedKey = `photos:public:discover:page:${page}:limit:${limit}`;
+    const cachedKey = `photos:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
     const cachedPhotos = await redisClient.get(cachedKey);
 
@@ -54,6 +54,16 @@ export class PhotoService {
             }),
           },
         },
+        ...(currentUserId && {
+          photoLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
       },
     });
 
@@ -84,6 +94,7 @@ export class PhotoService {
         },
         interactions: {
           likesCount: photo.photosLikesCount,
+          isLiked: photo?.photoLikes?.length > 0,
         },
       };
     });
@@ -98,7 +109,7 @@ export class PhotoService {
     limit: number,
     currentUserId: string
   ) {
-    const cachedKey = `photos:public:feed:page:${page}:limit:${limit}`;
+    const cachedKey = `photos:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
     const cachedPhotos = await redisClient.get(cachedKey);
 
@@ -151,6 +162,16 @@ export class PhotoService {
             lastName: true,
           },
         },
+        ...(currentUserId && {
+          photoLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
       },
     });
 
@@ -181,6 +202,7 @@ export class PhotoService {
         },
         interactions: {
           likesCount: photo.photosLikesCount,
+          isLiked: photo?.photoLikes?.length > 0,
         },
       };
     });
@@ -348,5 +370,71 @@ export class PhotoService {
     } catch (error) {
       throw error;
     }
+  }
+
+  static async toggleLike(userId: string, photoId: string, type: string) {
+    const photo = await prisma.photo.findUnique({
+      where: {
+        id: photoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!photo) {
+      throw new BadRequestError('Invalid photoId or photo does not exist');
+    }
+
+    const photoLike = await prisma.photoLike.findUnique({
+      where: {
+        userId_photoId: { userId, photoId },
+      },
+    });
+
+    if (!photoLike && type === 'post') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.photoLike.create({
+          data: {
+            userId: userId,
+            photoId: photoId,
+          },
+        });
+
+        await tx.photo.update({
+          where: {
+            id: photoId,
+          },
+          data: {
+            photosLikesCount: {
+              increment: 1,
+            },
+          },
+        });
+      });
+    }
+
+    if (photoLike && type === 'delete') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.photoLike.delete({
+          where: {
+            userId_photoId: { userId, photoId },
+          },
+        });
+
+        await tx.photo.update({
+          where: {
+            id: photoId,
+          },
+          data: {
+            photosLikesCount: {
+              decrement: 1,
+            },
+          },
+        });
+      });
+    }
+
+    return;
   }
 }

@@ -28,5 +28,8 @@ photoRouter.put(
   photoController.editPhoto
 );
 photoRouter.delete('/:id', verifyToken, photoController.deletePhoto);
+// Like and unlike photo, handle photolike.
+photoRouter.post('/:id/like', verifyToken, photoController.likePhoto);
+photoRouter.delete('/:id/like', verifyToken, photoController.unlikePhoto);
 
 export default photoRouter;

@@ -7,6 +7,7 @@ import { formatDate } from '../../utils/formatDate';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import { useFollow } from '../../hooks/useFollow';
+import { useLike } from '../../hooks/useLike';
 
 const PhotoCard = ({ data }: any) => {
   const {
@@ -25,21 +26,31 @@ const PhotoCard = ({ data }: any) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
   const { toggleFollow } = useFollow();
+  const { toggleLike, isLoading: likeLoading } = useLike();
 
   const navigate = useNavigate();
+  // const isUserMedia = user ? user.id === authorId : false;
 
   const handleFollowClick = () => {
     toggleFollow(authorId, isStateFollowing);
     setIsStateFollowing(!isStateFollowing);
   };
 
-  const handleLikedClick = () => {
+  const handleLikedClick = async () => {
     if (!user) {
       toast.error("Đăng nhập ngay để thả cảm xúc!");
       return;
     }
+    const previousIsLiked = isStateLiked;
+    const previousLikesCount = likeCount;
     setLikeCount((prev) => (isStateLiked ? prev - 1 : prev + 1));
     setIsStateLiked(!isStateLiked);
+    const success = await toggleLike(id, previousIsLiked, type);
+
+    if (!success) {
+      setLikeCount(previousLikesCount);
+      setIsStateLiked(previousIsLiked);
+    }
   };
 
   const handleProfileClick = () => {
@@ -120,7 +131,7 @@ const PhotoCard = ({ data }: any) => {
         </div>
         <div className="flex items-center justify-between">
           <div
-            className="flex justify-start items-center cursor-pointer"
+            className={twMerge("flex justify-start items-center cursor-pointer", likeLoading && "pointer-events-none cursor-not-allowed opacity-50")}
             onClick={handleLikedClick}
           >
             {isStateLiked ? (

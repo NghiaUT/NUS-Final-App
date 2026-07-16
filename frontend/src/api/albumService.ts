@@ -9,4 +9,6 @@ export const albumService = {
   addAlbum: (data: FormData) => axiosInstance.post('/albums', data),
   editAlbum: (id: string, data: FormData) => axiosInstance.put(`/albums/${id}`, data),
   deleteAlbum: (id: string) => axiosInstance.delete(`/albums/${id}`),
+  likeAlbum: (id: string) => axiosInstance.post(`/albums/${id}/like`),
+  unlikeAlbum: (id: string) => axiosInstance.delete(`/albums/${id}/like`),
 };
