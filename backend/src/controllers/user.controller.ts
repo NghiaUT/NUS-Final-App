@@ -155,4 +155,38 @@ export const userController = {
       next(error);
     }
   },
+
+  followUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: userId } = req.params;
+      if (!userId || Array.isArray(userId)) {
+        throw new BadRequestError('Invalid request');
+      }
+      const currentUserId = req.user.id;
+      if (userId === currentUserId) {
+        throw new BadRequestError('Can not follow yourself!');
+      }
+      await UserService.follow(userId, currentUserId);
+      sendSuccessRes(res, 'Follow user successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  unfollowUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: userId } = req.params;
+      if (!userId || Array.isArray(userId)) {
+        throw new BadRequestError('Invalid request');
+      }
+      const currentUserId = req.user.id;
+      if (userId === currentUserId) {
+        throw new BadRequestError('Can not follow yourself!');
+      }
+      await UserService.unfollow(userId, currentUserId);
+      sendSuccessRes(res, 'Unfollow user successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

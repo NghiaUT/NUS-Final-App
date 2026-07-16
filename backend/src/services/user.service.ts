@@ -1,7 +1,11 @@
 import { constant } from '../config/constant/constant.js';
 import prisma from '../config/prisma/prisma.init.js';
 import bcrypt from 'bcrypt';
-import { BadRequestError, UnauthorizedError } from '../utils/apiError.js';
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../utils/apiError.js';
 import { SALT } from './auth.service.js';
 import { removeFile } from '../utils/removeFile.util.js';
 import type { UploadPhoto, UserDataProfile } from '../types/form.types.js';
@@ -401,5 +405,81 @@ export class UserService {
       if (avatarFile) await removeFile(avatarFile?.filename);
       throw error;
     }
+  }
+
+  static async follow(followingId: string, followerId: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: followingId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User does not exist!');
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const existingFollow = await tx.follow.findUnique({
+        where: {
+          followerId_followingId: { followerId, followingId },
+        },
+      });
+
+      if (existingFollow) {
+        return;
+      }
+
+      await tx.follow.create({
+        data: { followerId, followingId },
+      });
+
+      await tx.user.update({
+        where: { id: followerId },
+        data: { followingCount: { increment: 1 } },
+      });
+
+      await tx.user.update({
+        where: { id: followingId },
+        data: { followerCount: { increment: 1 } },
+      });
+    });
+  }
+
+  static async unfollow(followingId: string, followerId: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: followingId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User does not exist!');
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const deleteResult = await tx.follow.deleteMany({
+        where: { followerId, followingId },
+      });
+
+      if (deleteResult.count > 0) {
+        await tx.user.update({
+          where: {
+            id: followerId,
+          },
+          data: {
+            followingCount: { increment: -1 },
+          },
+        });
+
+        await tx.user.update({
+          where: {
+            id: followingId,
+          },
+          data: {
+            followerCount: { increment: -1 },
+          },
+        });
+      }
+    });
   }
 }

@@ -39,7 +39,7 @@ const MOCK_IMAGES = [
   'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&q=80', // Chó cưng
   'https://images.unsplash.com/photo-1481349518771-20055b2a7b24?w=1200&q=80', // Mèo cưng
   'https://images.unsplash.com/photo-1444927714506-8492d94b5ba0?w=1200&q=80', // Động vật hoang dã
-  'https://images.unsplash.com/photo-1517849845537-4d257902861a?w=1200&q=80', // Công nghệ
+  'https://images.unsplash.com/photo-1783961797133-dd0fc5a722ec?w=1200&q=80', // Công nghệ
   'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80', // Mạch điện tử
   'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1200&q=80', // Tranh nghệ thuật
   'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=1200&q=80', // Tượng điêu khắc

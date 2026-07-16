@@ -31,7 +31,21 @@ userRouter.get('/:id/photos', optionalVerifyToken, userController.getUserPhoto);
 
 userRouter.get('/:id/albums', optionalVerifyToken, userController.getUserAlbum);
 
-// Route handle update user Profile.
+// Route handle for users follow and update profile.
+userRouter.post(
+  '/:id/follow',
+  verifyToken,
+  checkPermission(['USER']),
+  userController.followUser
+);
+
+userRouter.delete(
+  '/:id/follow',
+  verifyToken,
+  checkPermission(['USER']),
+  userController.unfollowUser
+);
+
 userRouter.put(
   '/:id/profile',
   verifyToken,

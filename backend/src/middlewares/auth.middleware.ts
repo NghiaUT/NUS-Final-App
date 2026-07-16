@@ -3,9 +3,11 @@ import { type Request, type Response, type NextFunction } from 'express';
 import {
   BadRequestError,
   ForbiddenError,
+  NotFoundError,
   UnauthorizedError,
 } from '../utils/apiError.js';
 import { verifyAndCheckExpiration } from '../utils/jwt.util.js';
+import prisma from '../config/prisma/prisma.init.js';
 
 // Định nghĩa thêm type cho Request Express.
 declare global {
@@ -16,7 +18,7 @@ declare global {
   }
 }
 
-export const verifyToken = (
+export const verifyToken = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -42,6 +44,16 @@ export const verifyToken = (
         throw new BadRequestError('JWT has wrong format!');
       }
     }
+    // Check xem có người dùng thật không:
+    const user = await prisma.user.findUnique({
+      where: {
+        id: result.payload.id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('Invalid or Not found user!');
+    }
 
     req.user = result.payload;
 
@@ -51,7 +63,7 @@ export const verifyToken = (
   }
 };
 
-export const optionalVerifyToken = (
+export const optionalVerifyToken = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -78,6 +90,16 @@ export const optionalVerifyToken = (
       } else {
         throw new BadRequestError('JWT has wrong format!');
       }
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: result.payload.id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('Invalid or Not found user!');
     }
 
     req.user = result.payload;
