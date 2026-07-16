@@ -38,10 +38,11 @@ export const albumController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
+      const currentUserId = req?.user?.id ?? null;
       const result = await AlbumService.getAllAlbumDiscover(
         page,
         limit,
-        req?.user.id
+        currentUserId
       );
       sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
     } catch (error) {

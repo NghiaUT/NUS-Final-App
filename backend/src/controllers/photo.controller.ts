@@ -16,10 +16,11 @@ export const photoController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
+      const currentUserId = req?.user?.id ?? null;
       const result = await PhotoService.getAllPhotoDiscover(
         page,
         limit,
-        req?.user.id ?? null
+        currentUserId
       );
       sendSuccessRes(res, 'Get Photo succesfully', result, 200);
     } catch (error) {

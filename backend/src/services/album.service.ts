@@ -82,7 +82,7 @@ export class AlbumService {
           authorId: album.author.id,
           name: `${album.author.firstName} ${album.author.lastName}`,
           avatarUrl: album.author.avatarUrl,
-          isFollowing: album.author?.following.length > 0,
+          isFollowing: album.author?.following?.length > 0,
         },
         content: {
           title: album.title,
