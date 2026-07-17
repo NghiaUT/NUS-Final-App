@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isInitialized, isAuthenticated: !!user, user, logout, login }}>
+    <AuthContext.Provider value={{ isInitialized, isAuthenticated: !!user, isAdmin: user?.role === "ADMIN", user, logout, login }}>
       {isInitialized ? children : <LoadingSpinner />}
     </AuthContext.Provider>
   );
