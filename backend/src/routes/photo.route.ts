@@ -1,11 +1,19 @@
 import express from 'express';
 import { photoController } from '../controllers/photo.controller.js';
 import upload from '../config/multer/multer.config.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import {
+  optionalVerifyToken,
+  verifyToken,
+} from '../middlewares/auth.middleware.js';
 
 const photoRouter = express.Router();
 
-photoRouter.get('/', photoController.getAllPhoto);
+photoRouter.get(
+  '/discover',
+  optionalVerifyToken,
+  photoController.getAllPhotoDiscover
+);
+photoRouter.get('/feed', verifyToken, photoController.getAllPhotoFeed);
 photoRouter.post(
   '/',
   verifyToken,
@@ -20,5 +28,8 @@ photoRouter.put(
   photoController.editPhoto
 );
 photoRouter.delete('/:id', verifyToken, photoController.deletePhoto);
+// Like and unlike photo, handle photolike.
+photoRouter.post('/:id/like', verifyToken, photoController.likePhoto);
+photoRouter.delete('/:id/like', verifyToken, photoController.unlikePhoto);
 
 export default photoRouter;

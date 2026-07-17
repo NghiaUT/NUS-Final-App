@@ -3,28 +3,12 @@ import { PhotoService } from '../services/photo.service.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { BadRequestError } from '../utils/apiError.js';
 
-type UploadPhoto = {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  path: string;
-  destination: string;
-  filename: string;
-  size: number;
-};
-
-export type FormData = {
-  title?: string;
-  description?: string;
-  sharingMode?: SharingMode;
-  photo?: UploadPhoto;
-};
-
-type SharingMode = 'PUBLIC' | 'PRIVATE';
-
 export const photoController = {
-  getAllPhoto: async (req: Request, res: Response, next: NextFunction) => {
+  getAllPhotoDiscover: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const query = req.query;
       if (!query.page || !query.limit) {
@@ -32,7 +16,31 @@ export const photoController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
-      const result = await PhotoService.getAllPhoto(page, limit);
+      const currentUserId = req?.user?.id ?? null;
+      const result = await PhotoService.getAllPhotoDiscover(
+        page,
+        limit,
+        currentUserId
+      );
+      sendSuccessRes(res, 'Get Photo succesfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllPhotoFeed: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await PhotoService.getAllPhotoFeed(
+        page,
+        limit,
+        req.user.id
+      );
       sendSuccessRes(res, 'Get Photo succesfully', result, 200);
     } catch (error) {
       next(error);
@@ -98,6 +106,36 @@ export const photoController = {
 
       const result = await PhotoService.deletePhoto(req.user?.id, photoId);
       sendSuccessRes(res, 'Delete Photo Sucessfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  likePhoto: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: photoId } = req.params;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await PhotoService.toggleLike(req.user.id, photoId, 'post');
+      sendSuccessRes(res, 'Like photo successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  unlikePhoto: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: photoId } = req.params;
+
+      if (!photoId || Array.isArray(photoId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await PhotoService.toggleLike(req.user.id, photoId, 'delete');
+      sendSuccessRes(res, 'Unlike photo successfull', null, 200);
     } catch (error) {
       next(error);
     }

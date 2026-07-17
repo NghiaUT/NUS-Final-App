@@ -19,12 +19,17 @@ export type FormData = {
   description?: string;
   sharingMode?: SharingMode;
   photo?: UploadPhoto[];
+  deletedPhotosId?: string[];
 };
 
 type SharingMode = 'PUBLIC' | 'PRIVATE';
 
 export const albumController = {
-  getAllAlbum: async (req: Request, res: Response, next: NextFunction) => {
+  getAllAlbumDiscover: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const query = req.query;
@@ -33,7 +38,32 @@ export const albumController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
-      const result = await AlbumService.getAllAlbum(page, limit);
+      const currentUserId = req?.user?.id ?? null;
+      const result = await AlbumService.getAllAlbumDiscover(
+        page,
+        limit,
+        currentUserId
+      );
+      sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllAlbumFeed: async (req: Request, res: Response, next: NextFunction) => {
+    console.log('[Controller] This Controller handle data and pass to service');
+    try {
+      const query = req.query;
+      if (!query.page || !query.limit) {
+        throw new BadRequestError('Invalid query!');
+      }
+      const page = parseInt((query.page as string) || '1');
+      const limit = parseInt((query.limit as string) || '10');
+      const result = await AlbumService.getAllAlbumFeed(
+        page,
+        limit,
+        req.user.id
+      );
       sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
     } catch (error) {
       next(error);
@@ -97,6 +127,36 @@ export const albumController = {
 
       const result = await AlbumService.deleteAlbum(req.user?.id, albumId);
       sendSuccessRes(res, 'Delete Album Sucessfully', result, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  likeAlbum: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: albumId } = req.params;
+
+      if (!albumId || Array.isArray(albumId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await AlbumService.toggleLike(req.user.id, albumId, 'post');
+      sendSuccessRes(res, 'Like album successfull', null, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  unlikeAlbum: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: albumId } = req.params;
+
+      if (!albumId || Array.isArray(albumId)) {
+        throw new BadRequestError('Invalid Request!');
+      }
+
+      await AlbumService.toggleLike(req.user.id, albumId, 'delete');
+      sendSuccessRes(res, 'Unlike album successfull', null, 200);
     } catch (error) {
       next(error);
     }

@@ -17,7 +17,7 @@ export const privateRoutes: RouteObject[] = [
         path: '/',
         element: <MainLayout />,
         children: [
-            { path: 'profile', element: <ProfilePage /> },
+            { path: 'profile/:id', element: <ProfilePage /> },
             { path: 'edit-profile', element: <EditProfile /> },
             { path: 'feed', element: <Feed /> },
             { path: 'photo', element: <NewPhoto /> },

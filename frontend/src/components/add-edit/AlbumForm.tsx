@@ -1,23 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { albumSchema } from '../../utils/validators';
+import { albumImageSchema, formInfoSchema } from '../../utils/validators';
 import { z } from 'zod';
 
 type PhotoPreview = {
-    photo: File;
+    id?: string;
+    file?: File;
     previewUrl: string;
 };
 
 const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
     const [formData, setFormData] = useState({
         title: initialData?.title || '',
-        sharingMode: initialData?.sharingMode || 'public',
+        sharingMode: initialData?.sharingMode || 'PUBLIC',
         description: initialData?.description || '',
-        // Khởi tạo mảng ảnh
-        photos: initialData?.photos || [],
     });
-    const [currPhotos, setCurrPhotos] = useState<PhotoPreview[]>([]);
+    const [currPhotos, setCurrPhotos] = useState<PhotoPreview[]>(() => {
+        if (!initialData?.photos) return [];
+
+        return initialData.photos.map((photo) => ({
+            id: photo.id,
+            previewUrl: photo.imageUrl,
+        }));
+    });
 
     const [errors, setErrors] = useState<string[]>([]);
+    const [deletedPhotosId, setDeletedPhotosId] = useState<string[]>([]);
 
     const fileInputRef = useRef(null); // -> dùng để upload ảnh lên bằng ref
 
@@ -50,62 +57,60 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
         };
     }, [currPhotosRef]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
     // Xử lý cho cả trường hợp chọn nhiều file.
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files);
 
+        // Chỉ tạo file mới khi người dùng thêm ảnh.
         const newPhotos = files.map(file => ({
-            file,
+            file: file,
             previewUrl: URL.createObjectURL(file)
         }));
 
         setCurrPhotos(prev => [...prev, ...newPhotos]);
 
         // Mục đích để giữ cho FormData luôn sạch và trở nên nhất quán. (Không chứa previewUrl thừa)
-        setFormData(prev => ({
-            ...prev,
-            photos: [...prev.photos, ...newPhotos.map(photo => photo.file)]
-        }));
     }
 
-    const handleRemovePhoto = (idx) => {
+    const handleRemovePhoto = (idx: number) => {
         const updatedPhotos = [...currPhotos];
         const removedPhoto = updatedPhotos[idx];
 
-        if (removedPhoto.previewUrl) {
+        /* Với trường hợp xóa file cần quan tâm đến 2 trường hợp: file cũ: có id, file mới có File. */
+        if (removedPhoto.id) {
+            // lưu trữ Id vào mảng.
+            setDeletedPhotosId(prev => [...prev, removedPhoto.id]);
+        }
+
+        if (removedPhoto.file && removedPhoto.previewUrl.startsWith('blob:')) {
             URL.revokeObjectURL(removedPhoto.previewUrl);
         }
 
         // Xóa phần tử đó.
         updatedPhotos.splice(idx, 1);
-
-        // Cập nhật 2 state:
         setCurrPhotos(updatedPhotos);
-        setFormData(prev => ({
-            ...prev,
-            photos: updatedPhotos.map(photo => photo.file)
-        }))
     }
 
     const handleBoxClick = () => {
         fileInputRef.current.click();
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrors([]);
 
         if (currPhotos.length > 25) {
             setErrors(prev => [...prev, "Không được vượt quá 25 ảnh"]);
             return;
         }
-        const result = albumSchema.safeParse(formData);
+        const form = formInfoSchema.safeParse(formData);
 
-        if (!result.success) {
-            const fieldErrors = z.treeifyError(result.error);
+        if (!form.success) {
+            const fieldErrors = z.treeifyError(form.error);
             // Chuyển đổi array lỗi đầu tiên thành string cho dễ hiển thị
             const formattedErrors = [];
             Object.entries(fieldErrors.properties).forEach(([key, value]) => {
@@ -115,8 +120,32 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
             return;
         }
 
+        // Kiểm tra schema ảnh cho các file ảnh mới, bao gồm cả tạo mới và edit ảnh.
+        if (currPhotos.length < 1) setErrors((prev) => [...prev, 'Vui lòng đính kèm ít nhất 1 hình ảnh']);
+        if (currPhotos.length > 25) setErrors((prev) => [...prev, 'Tối đa được tải lên 25 hình ảnh']);
+        const albumResult = albumImageSchema.safeParse(currPhotos.filter((photo) => photo.file).map((photo) => (photo.file))); //Kiểm tra trên các ảnh mới.
+        if (!albumResult.success) {
+            const fieldErrors = z.treeifyError(albumResult.error);
+            const formattedErrors = fieldErrors?.items ? fieldErrors?.items[0]?.errors : 'Lỗi khi tải ảnh';
+            setErrors((prev) => [...prev, ...formattedErrors]);
+            return;
+        }
+
         setErrors([]);
-        onSubmit(formData);
+
+        const submitData = new FormData();
+        console.log(formData);
+        submitData.append('title', formData.title);
+        submitData.append('description', formData.description);
+        submitData.append('sharingMode', formData.sharingMode);
+        submitData.append('deletedPhotosId', JSON.stringify(deletedPhotosId));
+        console.log(JSON.stringify(deletedPhotosId));
+        currPhotos.map((photo) => {
+            if (!photo.file) return;
+            submitData.append('album', photo.file);
+        })
+
+        onSubmit(submitData);
     }
 
     const handleDeleteClick = () => {
@@ -143,7 +172,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                             </ul>
                         </div>
                     )}
-                    <form onSubmit={handleSubmit}>
+                    <form encType='multipart/form-data'>
                         {/* Chia layout 2 cột */}
                         <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6'>
                             {/* Cột trái */}
@@ -171,8 +200,8 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                                         onChange={handleChange}
                                         className="w-48 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-green-500"
                                     >
-                                        <option value="public">Public</option>
-                                        <option value="private">Private</option>
+                                        <option value="PUBLIC">Public</option>
+                                        <option value="PRIVATE">Private</option>
                                     </select>
                                 </div>
                             </div>
@@ -227,7 +256,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete }) => {
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
                                     accept="image/*"
-                                    // multiple
+                                    multiple
                                     className="hidden"
                                 />
                             </div>

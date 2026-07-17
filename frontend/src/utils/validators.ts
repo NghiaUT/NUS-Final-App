@@ -27,26 +27,9 @@ export const singleImageSchema = z
     }
   });
 
-export const albumSchema = z.object({
-  title: z.string().trim().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự'),
+export const albumImageSchema = z.array(singleImageSchema);
 
-  description: z
-    .string()
-    .trim()
-    .min(1, 'Description không được để trống')
-    .max(300, 'Description tối đa 300 ký tự'),
-
-  sharingMode: z.enum(['PUBLIC', 'PRIVATE'], {
-    error: () => ({ message: 'Vui lòng chọn chế độ chia sẻ hợp lệ' }),
-  }),
-
-  photos: z
-    .array(singleImageSchema)
-    .min(1, 'Vui lòng đính kèm ít nhất 1 hình ảnh')
-    .max(25, 'Tối đa được tải lên 25 hình ảnh'),
-});
-
-export const photoSchema = z.object({
+export const formInfoSchema = z.object({
   title: z.string().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự.'),
 
   description: z.string().min(1, 'Description không được để trống').max(300, 'Tối đa 300 ký tự'),

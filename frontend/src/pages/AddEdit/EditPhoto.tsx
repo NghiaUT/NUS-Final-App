@@ -37,19 +37,19 @@ const EditPhoto = () => {
             await photoService.editPhoto(photoId, formData);
             console.log("Thành công")
             toast.success("Cập nhật thành công!");
-            setTimeout(() => navigate('/profile'), 2000);
+            setTimeout(() => navigate('/'), 2000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
         }
     }
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async () => {
         try {
             await photoService.deletePhoto(photoId);
             console.log("Thành công")
             toast.success("Xóa ảnh thành công!");
-            setTimeout(() => navigate('/profile'), 2000);
+            setTimeout(() => navigate('/'), 2000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
@@ -63,7 +63,7 @@ const EditPhoto = () => {
                 <h3 style={{ color: 'red' }}>Không thể tải dữ liệu ảnh</h3>
                 <p>Ảnh có thể đã bị xóa hoặc không tồn tại.</p>
                 <button
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate('/')}
                     style={{ marginTop: '16px', padding: '8px 16px', cursor: 'pointer' }}
                 >
                     Quay lại trang cá nhân

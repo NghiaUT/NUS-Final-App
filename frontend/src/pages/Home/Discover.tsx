@@ -1,18 +1,25 @@
+import { albumService } from '../../api/albumService';
 import { photoService } from '../../api/photoService';
 import AlbumsGridLayout from '../../components/feed/AlbumsGridLayout';
-import { MOCK_DATA } from '../../mocks/mock_data';
+// import { MOCK_DATA } from '../../mocks/mock_data';
 
-const fetchDiscoverData = async ({ pageParam = 1 }) => {
-  // return new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     resolve(MOCK_DATA);
-  //   }, 1500); //-> Set time out 1500 for delaying;
-  // });
+// Giả lập thời gian chờ
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const fetchDiscoverData = async ({ pageParam = 1, queryKey }: { pageParam: number; queryKey: string[] }) => {
   try {
-    const result = await photoService.getAllPhoto(pageParam);
-    return result.data.data;
+    const mediaType = queryKey[1]; // Có dạng ['discover', 'album'] hoặc ['discover', 'photo']
+    await delay(3000);
+    if (mediaType === "photo") {
+      const photos = await photoService.getAllPhotoDiscover(pageParam);
+      return photos.data.data;
+    } else {
+      const albums = await albumService.getAllAlbumDiscover(pageParam);
+      return albums.data.data;
+    }
   } catch (error) {
     console.error(error);
+    throw error; //Throw để tanstack bắt.
   }
 };
 

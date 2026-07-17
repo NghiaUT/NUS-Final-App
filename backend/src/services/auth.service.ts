@@ -15,7 +15,7 @@ import { generateDefaultAvatar } from '../utils/avatar.util.js';
 import { generateHashedToken, hashToken } from '../utils/token.util.js';
 import { constant } from '../config/constant/constant.js';
 
-const SALT = 10;
+export const SALT = 10;
 
 export class AuthService {
   static async signup(userData: any) {
@@ -307,7 +307,9 @@ export class AuthService {
 
     const returnUser = {
       id: user.id,
-      name: user.firstName + user.lastName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      name: user.firstName + ' ' + user.lastName,
       avatarUrl: user.avatarUrl,
       role: user.role,
       email: user.email,

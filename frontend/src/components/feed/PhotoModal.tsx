@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,7 +58,7 @@ const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
             />
           </svg>
         </div>
-        <div className="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center" onDoubleClick={handleDoubleClick}>
+        <div className="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center">
           {image_type === 'album' && (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -77,6 +78,7 @@ const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
               src={image_stack[currentIndex].url}
               alt={image_stack[currentIndex].alt_text}
               className="w-full h-full object-contain"
+              onDoubleClick={handleDoubleClick}
             />
           }
 
@@ -106,6 +108,19 @@ const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           ))}
+
+          {image_type === 'album' && image_stack.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+              {image_stack.map((_: any, idx: number) => (
+                <div
+                  key={idx}
+                  className={twMerge("h-2 rounded-full transition-all duration-300 cursor-pointer", currentIndex === idx ? 'w-7 bg-blue' : 'w-2 bg-blue/50'
+                  )}
+                  onClick={() => setCurrentIndex(idx)}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <p className="text-xs md:text-base line-clamp-2">{body}</p>
       </div>

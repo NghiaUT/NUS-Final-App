@@ -1,21 +1,25 @@
 import prisma from '../config/prisma/prisma.init.js';
-import type { FormData } from '../controllers/photo.controller.js';
+import type { FormData } from '../types/form.types.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
 import { removeFile } from '../utils/removeFile.util.js';
 import { redisClient } from '../config/redis/redis.config.js';
 
 export class PhotoService {
-  static async getAllPhoto(page: number, limit: number) {
-    const cachedKey = `photos:public:page:${page}:limit:${limit}`;
+  static async getAllPhotoDiscover(
+    page: number,
+    limit: number,
+    currentUserId: string | null = null
+  ) {
+    const cachedKey = `photos:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
     const cachedPhotos = await redisClient.get(cachedKey);
 
-    if (cachedPhotos) {
-      console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    // if (cachedPhotos) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
 
-      return JSON.parse(cachedPhotos);
-    }
+    //   return JSON.parse(cachedPhotos);
+    // }
 
     console.log(
       `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
@@ -41,13 +45,25 @@ export class PhotoService {
             avatarUrl: true,
             firstName: true,
             lastName: true,
+            ...(currentUserId && {
+              following: {
+                where: {
+                  followerId: currentUserId,
+                },
+              },
+            }),
           },
         },
-        _count: {
-          select: {
-            photoLikes: true,
+        ...(currentUserId && {
+          photoLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
           },
-        },
+        }),
       },
     });
 
@@ -58,6 +74,7 @@ export class PhotoService {
           authorId: photo.author.id,
           name: `${photo.author.firstName} ${photo.author.lastName}`,
           avatarUrl: photo.author.avatarUrl,
+          isFollowing: photo.author.following?.length > 0,
         },
         content: {
           title: photo.title,
@@ -67,7 +84,7 @@ export class PhotoService {
           type: 'photo',
           image_stack: [
             {
-              url: `${constant.SERVER_URL}${photo.imageUrl}`,
+              url: photo.imageUrl,
               altText: photo.description,
             },
           ],
@@ -76,7 +93,116 @@ export class PhotoService {
           createdDate: photo.createdAt,
         },
         interactions: {
-          likesCount: photo._count.photoLikes,
+          likesCount: photo.photosLikesCount,
+          isLiked: photo?.photoLikes?.length > 0,
+        },
+      };
+    });
+
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+
+    return returnPhotos;
+  }
+
+  static async getAllPhotoFeed(
+    page: number,
+    limit: number,
+    currentUserId: string
+  ) {
+    const cachedKey = `photos:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
+
+    const cachedPhotos = await redisClient.get(cachedKey);
+
+    // if (cachedPhotos) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+    //   return JSON.parse(cachedPhotos);
+    // }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
+    const skip = (page - 1) * limit;
+
+    // Những photos này sẽ đi kèm với thông tin liên quan như tác giả, thông tin ảnh và số lượt like...
+    const followingUsers = await prisma.user.findMany({
+      where: {
+        following: {
+          some: {
+            followerId: currentUserId,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    const followingsId = followingUsers.map((u) => u.id);
+    const photos = await prisma.photo.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        sharingMode: 'PUBLIC',
+        album: null, // Các photos đứng riêng lẻ.
+        userId: {
+          // Thuộc về following của người này
+          in: followingsId,
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        ...(currentUserId && {
+          photoLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
+      },
+    });
+
+    const returnPhotos = photos.map((photo) => {
+      return {
+        id: photo.id,
+        author: {
+          authorId: photo.author.id,
+          name: `${photo.author.firstName} ${photo.author.lastName}`,
+          avatarUrl: photo.author.avatarUrl,
+          isFollowing: true,
+        },
+        content: {
+          title: photo.title,
+          body: photo.description,
+        },
+        media: {
+          type: 'photo',
+          image_stack: [
+            {
+              url: photo.imageUrl,
+              altText: photo.description,
+            },
+          ],
+        },
+        metadata: {
+          createdDate: photo.createdAt,
+        },
+        interactions: {
+          likesCount: photo.photosLikesCount,
+          isLiked: photo?.photoLikes?.length > 0,
         },
       };
     });
@@ -111,17 +237,7 @@ export class PhotoService {
       throw new BadRequestError('This photo has belong to an album!');
     }
 
-    const returnPhoto = {
-      id: photo.id,
-      mimeType: photo.mimeType,
-      imageUrl: `${constant.SERVER_URL}${photo.imageUrl}`,
-      altText: photo.alt_text,
-      createdAt: photo.createdAt,
-      description: photo.description,
-      sharingMode: photo.sharingMode,
-      title: photo.title,
-    };
-    return returnPhoto;
+    return photo;
   }
 
   static async newPhoto(data: FormData, userId: string) {
@@ -138,7 +254,7 @@ export class PhotoService {
         throw new BadRequestError('Invalid Form Data!');
       }
 
-      const imageUrl = `/uploads/${data.photo.filename}`;
+      const imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
 
       const newPhoto = await prisma.photo.create({
         data: {
@@ -187,8 +303,8 @@ export class PhotoService {
       let imageUrl = photo.imageUrl;
       let mimeType = photo.mimeType;
       if (data.photo) {
-        oldImgFileName = imageUrl.split('/')[2] as string;
-        imageUrl = `/uploads/${data.photo.filename}`;
+        oldImgFileName = imageUrl;
+        imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
         mimeType = data.photo.mimetype;
       }
 
@@ -249,10 +365,76 @@ export class PhotoService {
       });
 
       // Xóa file trong uploads/
-      await removeFile(deletePhoto.imageUrl.split('/')[2] as string);
+      await removeFile(deletePhoto.imageUrl);
       return result;
     } catch (error) {
       throw error;
     }
+  }
+
+  static async toggleLike(userId: string, photoId: string, type: string) {
+    const photo = await prisma.photo.findUnique({
+      where: {
+        id: photoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!photo) {
+      throw new BadRequestError('Invalid photoId or photo does not exist');
+    }
+
+    const photoLike = await prisma.photoLike.findUnique({
+      where: {
+        userId_photoId: { userId, photoId },
+      },
+    });
+
+    if (!photoLike && type === 'post') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.photoLike.create({
+          data: {
+            userId: userId,
+            photoId: photoId,
+          },
+        });
+
+        await tx.photo.update({
+          where: {
+            id: photoId,
+          },
+          data: {
+            photosLikesCount: {
+              increment: 1,
+            },
+          },
+        });
+      });
+    }
+
+    if (photoLike && type === 'delete') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.photoLike.delete({
+          where: {
+            userId_photoId: { userId, photoId },
+          },
+        });
+
+        await tx.photo.update({
+          where: {
+            id: photoId,
+          },
+          data: {
+            photosLikesCount: {
+              decrement: 1,
+            },
+          },
+        });
+      });
+    }
+
+    return;
   }
 }
