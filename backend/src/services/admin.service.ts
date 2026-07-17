@@ -50,6 +50,7 @@ export class AdminService {
         firstName: true,
         password: true,
         isActive: true,
+        avatarUrl: true,
         email: true,
       },
     });

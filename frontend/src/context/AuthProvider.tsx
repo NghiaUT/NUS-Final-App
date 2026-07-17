@@ -51,7 +51,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('accessToken');
     setUser(null);
     setAuthHeader(null);
-    window.location.href = "/";
   };
 
   return (
