@@ -4,6 +4,7 @@ import PhotoForm from '../../components/add-edit/PhotoForm';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { photoService } from '../../api/photoService';
+import { useAuth } from '../../hooks/useAuth';
 
 const EditPhoto = () => {
     const { photoId } = useParams();
