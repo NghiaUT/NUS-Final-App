@@ -30,7 +30,15 @@ export class AdminService {
       },
     });
 
-    return users;
+    const totalCount = await prisma.user.count({
+      where: {
+        role: {
+          not: 'ADMIN',
+        },
+      },
+    });
+
+    return { users: users, count: totalCount };
   }
 
   static async getUser(userId: string) {

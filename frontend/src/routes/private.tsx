@@ -41,6 +41,7 @@ export const privateRoutes: RouteObject[] = [
             { path: 'manage-photos', element: <ManagePhotos /> },
             { path: 'manage-albums', element: <ManageAlbums /> },
             { path: 'manage-users', element: <ManageUsers /> },
+            { path: 'edit-user/:id', element: <EditProfile /> },
         ]
     },
 ];
