@@ -239,7 +239,11 @@ export class AlbumService {
     return returnAlbums;
   }
 
-  static async getAlbum(userId: string, albumId: string) {
+  static async getAlbum(
+    userId: string,
+    albumId: string,
+    isAdmin: boolean = false
+  ) {
     console.log(`[Service] This service get an album with id: ${albumId}.!`);
 
     const album = await prisma.album.findUnique({
@@ -262,7 +266,7 @@ export class AlbumService {
       throw new BadRequestError('Cannot find the approriate album!');
     }
 
-    if (album.userId !== userId) {
+    if (album.userId !== userId && !isAdmin) {
       throw new ForbiddenError(
         'You do not have permisson to access this album!.'
       );
@@ -328,7 +332,12 @@ export class AlbumService {
     }
   }
 
-  static async editAlbum(data: FormData, userId: string, albumId: string) {
+  static async editAlbum(
+    data: FormData,
+    userId: string,
+    albumId: string,
+    isAdmin: boolean = false
+  ) {
     console.log('[Service] This service edit a current Album.!');
 
     let oldImgFilesName: string[] | null = null;
@@ -362,7 +371,7 @@ export class AlbumService {
         throw new BadRequestError('Cannot find the approriate album!');
       }
 
-      if (album.userId !== userId) {
+      if (album.userId !== userId && !isAdmin) {
         throw new ForbiddenError(
           'You do not have permission to edit this album!'
         );
@@ -433,7 +442,11 @@ export class AlbumService {
     }
   }
 
-  static async deleteAlbum(userId: string, albumId: string) {
+  static async deleteAlbum(
+    userId: string,
+    albumId: string,
+    isAdmin: boolean = false
+  ) {
     console.log('[Service] This service delete a Album.!');
     const deleteAlbum = await prisma.album.findUnique({
       where: {
@@ -453,7 +466,7 @@ export class AlbumService {
       throw new BadRequestError('Cannot find approriate album!');
     }
 
-    if (deleteAlbum.userId !== userId) {
+    if (deleteAlbum.userId !== userId && !isAdmin) {
       throw new ForbiddenError('You do not have permission for this album.!');
     }
 
