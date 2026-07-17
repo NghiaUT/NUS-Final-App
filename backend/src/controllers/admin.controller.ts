@@ -159,7 +159,7 @@ export const adminController = {
         albumId,
         true
       );
-      sendSuccessRes(res, 'Edit the album successfully!', result, 200);
+      sendSuccessRes(res, 'Edit the album successfully!', result, 201);
     } catch (error) {
       next(error);
     }

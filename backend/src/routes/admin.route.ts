@@ -22,12 +22,20 @@ adminRouter.delete('/users/:id', adminController.deleteUser);
 
 adminRouter.get('/photos', adminController.getPhotos);
 adminRouter.get('/photos/:id', adminController.getPhoto);
-adminRouter.put('/photos/:id', adminController.editPhoto);
+adminRouter.put(
+  '/photos/:id',
+  upload.single('photo'),
+  adminController.editPhoto
+);
 adminRouter.delete('/photos/:id', adminController.deletePhoto);
 
 adminRouter.get('/albums', adminController.getAlbums);
 adminRouter.get('/albums/:id', adminController.getAlbum);
-adminRouter.put('/albums/:id', adminController.editAlbum);
+adminRouter.put(
+  '/albums/:id',
+  upload.array('album'),
+  adminController.editAlbum
+);
 adminRouter.delete('/albums/:id', adminController.deleteAlbum);
 
 export default adminRouter;

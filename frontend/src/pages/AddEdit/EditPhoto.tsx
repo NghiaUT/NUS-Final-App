@@ -11,12 +11,13 @@ const EditPhoto = () => {
     const [photoData, setPhotoData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const { isAdmin } = useAuth();
     useEffect(() => {
         const fetchPhotoData = async () => {
             try {
                 setLoading(true);
 
-                const response = await photoService.getPhoto(photoId ?? "1");
+                const response = await photoService.getPhoto(photoId ?? "1", isAdmin);
                 const photoData = response.data.data;
                 setPhotoData(photoData);
             } catch (error) {
@@ -29,12 +30,12 @@ const EditPhoto = () => {
         }
 
         fetchPhotoData();
-    }, [photoId]);
+    }, [photoId, isAdmin]);
 
     const handleUpdate = async (formData: FormData) => {
         console.log(formData)
         try {
-            await photoService.editPhoto(photoId, formData);
+            await photoService.editPhoto(photoId, formData, isAdmin);
             console.log("Thành công")
             toast.success("Cập nhật thành công!");
             setTimeout(() => navigate('/'), 2000);
@@ -46,7 +47,7 @@ const EditPhoto = () => {
 
     const handleDelete = async () => {
         try {
-            await photoService.deletePhoto(photoId);
+            await photoService.deletePhoto(photoId, isAdmin);
             console.log("Thành công")
             toast.success("Xóa ảnh thành công!");
             setTimeout(() => navigate('/'), 2000);
