@@ -3,6 +3,7 @@ import { publicRoutes } from "./public";
 import { privateRoutes } from "./private";
 import NotFound from "../pages/NotFound";
 import { RouteErrorPage } from "../components/common/ErrorElement";
+import { RouteNotFound } from "./guard/RouteGard";
 
 const router = createBrowserRouter([
     {
@@ -10,7 +11,8 @@ const router = createBrowserRouter([
         children: [
             ...publicRoutes,
             ...privateRoutes,
-            { path: '*', element: <NotFound /> }
+            { path: '/404', element: <NotFound /> },
+            { path: '*', element: <RouteNotFound /> }
         ]
     }
 ]);
