@@ -37,7 +37,7 @@ const LoginPage = () => {
       toast.success("Đăng nhập thành công!");
       login(data.data.accessToken, data.data.user);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+      const errorMessage = error.response?.data?.message || error?.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
       toast.error(errorMessage);
     }
   };

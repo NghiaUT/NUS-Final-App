@@ -7,6 +7,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   lastLogin?: string;
+  isActive?: boolean;
 }
 
 type Role = 'USER' | 'ADMIN';
