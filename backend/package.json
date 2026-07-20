@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "prisma generate",
     "dev": "tsx watch app.ts",
-    "prisma": "npx prisma db push && npx prisma generate"
+    "prisma": "npx prisma db push && npx prisma generate",
+    "seed": "npx prisma db seed"
   },
   "keywords": [
     "Nodejs",
