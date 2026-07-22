@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import MediaList from '../../../components/admin/MediaList'
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import { adminService } from '../../../api/adminService';
+import { toast } from 'react-toastify';
+import FooterPagination from '../../../components/admin/FooterPagination';
 
 type PhotoItem = {
     id: number;
@@ -9,32 +12,36 @@ type PhotoItem = {
     alt_text: string;
 };
 
-// Mock data - 40 items, sẽ thay bằng dữ liệu thật từ API sau này.
-const MOCK_MEDIA: PhotoItem[] = Array.from({ length: 150 }, (_, i) => ({
-    id: i + 1,
-    title: 'Lorem ipsum dolor sit amet...',
-    url: `https://picsum.photos/seed/media-${i + 1}/400/400`,
-    alt_text: 'Lorem ipsum',
-}));
+const PHOTOS_PER_PAGE = 10;
 
 const ManagePhotos = () => {
     const [photoData, setPhotoData] = useState<PhotoItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [totalPhotos, setTotalPhotos] = useState(0);
     useEffect(() => {
-        const timer = setTimeout(() => {
-            // Dữ liệu giả định trả về từ API
-            setPhotoData(MOCK_MEDIA);
-            setLoading(false); // Đã lấy dữ liệu thành công
-        }, 2000);
-
-        // Hàm dọn dẹp (cleanup) để hủy timeout nếu component bị unmount
-        return () => clearTimeout(timer);
-    }, []); // Gọi API lấy danh sách dữ liệu 
+        const fetchingPhotosData = async () => {
+            try {
+                setLoading(true);
+                const result = await adminService.getAllPhotos(page, PHOTOS_PER_PAGE);
+                setPhotoData(result.data.data.photos);
+                setTotalPhotos(result.data.data.count);
+            } catch (error) {
+                toast.error("Lỗi khi lấy danh sách albums");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchingPhotosData();
+    }, [page]); // Gọi API lấy danh sách dữ liệu 
     if (loading) return <LoadingSpinner />
     return (
-        <MediaList
-            type={"photo"}
-            data={photoData} />
+        <div className="w-full h-full flex flex-col justify-between p-6">
+            <MediaList
+                type={"photo"}
+                data={photoData} />
+            <FooterPagination currentPage={page} setCurrentPage={setPage} totalPages={Math.ceil(totalPhotos / PHOTOS_PER_PAGE)} />
+        </div>
     )
 }
 

@@ -3,6 +3,7 @@ import prisma from '../config/prisma/prisma.init.js';
 import {
   ApiError,
   BadRequestError,
+  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
 } from '../utils/apiError.js';
@@ -71,8 +72,14 @@ export class AuthService {
       throw new UnauthorizedError('Wrong email or password!');
     }
 
-    if (!user.isVerified || !user.isActive) {
+    if (!user.isVerified) {
       throw new UnauthorizedError('Account is not verified or inactive!');
+    }
+
+    if (!user.isActive) {
+      throw new ForbiddenError(
+        'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.'
+      );
     }
 
     const isAuth = await bcrypt.compare(userData.password, user.password);
@@ -276,8 +283,21 @@ export class AuthService {
     }
 
     const userId = payload?.id;
-    if (!userId) {
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
       throw new BadRequestError('Missing or invalid User ID');
+    }
+
+    if (!user.isActive) {
+      throw new ForbiddenError(
+        'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.'
+      );
     }
 
     const newPayload = {

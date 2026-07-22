@@ -5,19 +5,22 @@ import NewPhoto from "../pages/AddEdit/NewPhoto";
 import NewAlbum from "../pages/AddEdit/NewAlbum";
 import EditPhoto from "../pages/AddEdit/EditPhoto";
 import EditAlbum from "../pages/AddEdit/EditAlbum";
-import ProfilePage from "../pages/Profile/ProfilePage";
 import EditProfile from "../pages/Profile/EditProfile";
 import ManagePhotos from "../pages/Admin/ManagePhotos/ManagePhotos";
 import ManageAlbums from "../pages/Admin/ManageAlbums/ManageAlbums";
 import ManageUsers from "../pages/Admin/ManageUsers/ManageUsers";
 import AdminLayout from "../layouts/AdminLayout";
+import { RequireAdmin, RequireAuth } from "./guard/RouteGard";
 
 export const privateRoutes: RouteObject[] = [
     {
         path: '/',
-        element: <MainLayout />,
+        element: (
+            <RequireAuth>
+                <MainLayout />
+            </RequireAuth>
+        ),
         children: [
-            { path: 'profile/:id', element: <ProfilePage /> },
             { path: 'edit-profile', element: <EditProfile /> },
             { path: 'feed', element: <Feed /> },
             { path: 'photo', element: <NewPhoto /> },
@@ -28,11 +31,17 @@ export const privateRoutes: RouteObject[] = [
     },
     {
         path: '/admin',
-        element: <AdminLayout />,
+        element: (
+            <RequireAdmin>
+                <AdminLayout />
+            </RequireAdmin>
+        )
+        ,
         children: [
             { path: 'manage-photos', element: <ManagePhotos /> },
             { path: 'manage-albums', element: <ManageAlbums /> },
             { path: 'manage-users', element: <ManageUsers /> },
+            { path: 'edit-user/:id', element: <EditProfile /> },
         ]
     },
 ];

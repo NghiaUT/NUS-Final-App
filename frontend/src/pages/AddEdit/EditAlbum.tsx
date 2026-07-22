@@ -4,6 +4,7 @@ import AlbumForm from '../../components/add-edit/AlbumForm';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { albumService } from '../../api/albumService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useAuth } from '../../hooks/useAuth';
 
 const EditAlbum = () => {
     const [albumData, setAlbumData] = useState(null);
@@ -11,12 +12,13 @@ const EditAlbum = () => {
     const [hasError, setHasError] = useState(false);
     const navigate = useNavigate();
     const { albumId } = useParams();
+    const { isAdmin } = useAuth();
     useEffect(() => {
         const fetchAlbumData = async () => {
             try {
                 setLoading(true);
 
-                const result = await albumService.getAlbum(albumId ?? "1");
+                const result = await albumService.getAlbum(albumId ?? "1", isAdmin);
                 setAlbumData(result.data.data);
             } catch (error) {
                 const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
@@ -28,7 +30,7 @@ const EditAlbum = () => {
         }
 
         fetchAlbumData();
-    }, [albumId]) // Để gọi API lấy thông tin album hiện tại.
+    }, [albumId, isAdmin]) // Để gọi API lấy thông tin album hiện tại.
 
     const handleUpdate = async (formData: FormData) => {
         console.log(formData);
@@ -37,7 +39,7 @@ const EditAlbum = () => {
                 toast.error("Album Id không hợp lệ!");
                 return;
             }
-            await albumService.editAlbum(albumId, formData);
+            await albumService.editAlbum(albumId, formData, isAdmin);
             console.log("Thành công")
             toast.success("Cập nhật thành công!");
             setTimeout(() => navigate('/'), 2000);
@@ -53,7 +55,7 @@ const EditAlbum = () => {
                 toast.error("Album Id không hợp lệ!");
                 return;
             }
-            await albumService.deleteAlbum(albumId);
+            await albumService.deleteAlbum(albumId, isAdmin);
             console.log("Thành công")
             toast.success(`Xóa thành công album ${albumId} ! \n Chuyển hướng sau 2s`);
             setTimeout(() => navigate('/'), 2000);

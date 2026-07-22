@@ -7,6 +7,7 @@ export type UserDataProfile = {
   currentPassword?: string;
   newPassword?: string;
   passwordConfirmation?: string;
+  isActive?: string;
 };
 
 export type UploadPhoto = {

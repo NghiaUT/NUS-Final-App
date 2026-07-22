@@ -101,3 +101,11 @@ export const passwordSchema = z
       });
     }
   });
+
+export const adminProfileSchema = z.object({
+  firstName: z.string().min(1, 'Vui lòng nhập First Name'),
+  lastName: z.string().min(1, 'Vui lòng nhập Last Name'),
+  email: z.string().email('Email không hợp lệ'),
+  password: z.union([z.string().length(0), z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự')]),
+  isActive: z.boolean(),
+});

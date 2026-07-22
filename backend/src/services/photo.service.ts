@@ -212,7 +212,11 @@ export class PhotoService {
     return returnPhotos;
   }
 
-  static async getPhoto(userId: string, photoId: string) {
+  static async getPhoto(
+    userId: string,
+    photoId: string,
+    isAdmin: boolean = false
+  ) {
     // Get photo này nhằm lấy dữ liệu phục vụ cho quá trình edit - sẽ khác với API lấy tất cả photo và album public.
     console.log(`[Service] This service get the photo of id: ${photoId}`);
 
@@ -226,7 +230,7 @@ export class PhotoService {
       throw new BadRequestError('Cannot find the approriate photo!');
     }
 
-    if (photo.userId !== userId) {
+    if (photo.userId !== userId && !isAdmin) {
       throw new ForbiddenError(
         'You do not have permission to access this photo!'
       );
@@ -277,7 +281,12 @@ export class PhotoService {
     }
   }
 
-  static async editPhoto(data: FormData, userId: string, photoId: string) {
+  static async editPhoto(
+    data: FormData,
+    userId: string,
+    photoId: string,
+    isAdmin: boolean = false
+  ) {
     console.log('[Service] This service edit a current Photo.!');
 
     let oldImgFileName: string | null = null;
@@ -293,7 +302,7 @@ export class PhotoService {
         throw new BadRequestError('Cannot find the approriate photo!');
       }
 
-      if (photo.userId !== userId) {
+      if (photo.userId !== userId && !isAdmin) {
         throw new ForbiddenError(
           'You do not have permission to edit this photo!'
         );
@@ -339,7 +348,11 @@ export class PhotoService {
     }
   }
 
-  static async deletePhoto(userId: string, photoId: string) {
+  static async deletePhoto(
+    userId: string,
+    photoId: string,
+    isAdmin: boolean = false
+  ) {
     console.log('[Service] This service delete a Photo.!');
     // Xóa luôn cả photo trong db và ảnh liên quan trong /uploads
     try {
@@ -353,7 +366,7 @@ export class PhotoService {
         throw new BadRequestError('Cannot find approriate photo!');
       }
 
-      if (deletePhoto.userId !== userId) {
+      if (deletePhoto.userId !== userId && !isAdmin) {
         throw new ForbiddenError('You do not have permission for this photo.!');
       }
 
