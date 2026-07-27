@@ -1,7 +1,7 @@
 // Gen mockdata for db
 import { SharingMode, UserRole } from '../generated/prisma/enums.js';
 import 'dotenv/config';
-import { PrismaClient } from '../generated/prisma/client.js';
+import { Album, PrismaClient, User } from '../generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import bcrypt from 'bcrypt';
@@ -473,7 +473,7 @@ async function main() {
   // --------------------------------------------------
   const defaultPasswordHash = await hashPassword('Password123!');
 
-  const createdUsers = [];
+  const createdUsers: User[] = [];
   for (let i = 0; i < usersData.length; i++) {
     const u = usersData[i];
     const user = await prisma.user.upsert({
@@ -519,7 +519,7 @@ async function main() {
   // --------------------------------------------------
   // BƯỚC 3: TẠO 25 ALBUMS, MỖI ALBUM CÓ 2-20 PHOTOS
   // --------------------------------------------------
-  const createdAlbums = [];
+  const createdAlbums: Album[] = [];
   let imageCursor = 0; // tiếp tục xoay vòng pool ảnh cho album, khác điểm bắt đầu với standalone photos
 
   for (let i = 0; i < albumsData.length; i++) {
