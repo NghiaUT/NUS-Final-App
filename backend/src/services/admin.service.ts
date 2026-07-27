@@ -139,7 +139,7 @@ export class AdminService {
 
       return userData;
     } catch (error) {
-      console.log('Có lỗi prisma rollback xóa file đã tải lên.');
+      console.log('[FileCleaner] Có lỗi prisma rollback xóa file đã tải lên.');
       if (avatarFile) await removeFileCloudinary(avatarFile?.filename);
       throw error;
     }

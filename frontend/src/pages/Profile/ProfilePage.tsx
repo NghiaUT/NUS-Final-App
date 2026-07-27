@@ -79,14 +79,14 @@ const ProfilePage = () => {
     followers: <ProfileGrid fetchData={handleFetchData} type={'follower'} onFollowChange={handleOptimisticCountUpdate} />,
   }), [handleFetchData, handleOptimisticCountUpdate, isMyProfile]);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
   return (
     <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0">
-      <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }} />
-      {tabContents[activeTab]}
-      <MobileTabar />
+      {loading ? <LoadingSpinner /> :
+        <>
+          <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }} />
+          {tabContents[activeTab]}
+          <MobileTabar />
+        </>}
     </div>
   );
 };

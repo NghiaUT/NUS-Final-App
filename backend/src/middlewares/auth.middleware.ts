@@ -128,7 +128,6 @@ export const checkPermission = (roles: string[] = []) => {
         throw new ForbiddenError('You do not have right access to this');
       }
 
-      console.log('========> Role cua user', role);
       next();
     } catch (error) {
       next(error);

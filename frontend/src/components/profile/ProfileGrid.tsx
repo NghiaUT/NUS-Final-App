@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProfileCard from './ProfileCard';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const ProfileGrid = ({ fetchData, type, onFollowChange }) => {
   const [data, setData] = useState(null);
@@ -14,13 +15,28 @@ const ProfileGrid = ({ fetchData, type, onFollowChange }) => {
       }
     }
     fetchingData();
+
+    return () => setData(null);
   }, [type, fetchData])
-  if (data === null) {
-    return <div className="flex-1 w-full text-center text-gray-400 py-12">Đang tải...</div>;
+  if (!data) {
+    return (
+      <div className="flex-1 w-full flex justify-center items-center py-16 text-slate-500">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (data.length === 0) {
-    return <div className="flex-1 w-full text-center text-gray-400 py-12">Không có dữ liệu để hiển thị.</div>;
+    return (
+      <div className="flex-1 w-[95%] mx-auto flex flex-col items-center justify-center py-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 mb-16">
+        {/* Icon Nhóm người (Users) */}
+        <svg className="w-16 h-16 mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <p className="text-lg font-medium text-slate-600">Chưa có người dùng nào</p>
+        <p className="text-sm mt-1 text-center">Không có dữ liệu hồ sơ để hiển thị lúc này.</p>
+      </div>
+    );
   }
 
   return (
