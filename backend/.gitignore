@@ -4,3 +4,4 @@ package-lock.json
 .vscode
 generated
 uploads
+dist

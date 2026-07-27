@@ -1,0 +1,94 @@
+# File docker compose cho quá trình dev, chứa FE, BE, redis, Postgresql.
+
+version: "3.8"
+
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: app_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: app_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  # 2. Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: app_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  # Thêm service SMTP giả lập
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025" # Giao diện Web UI để xem mail đã gửi
+      - "1025:1025" # Cổng nhận SMTP
+
+  # 3. Node.js Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: app_backend
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      # Kết nối DB và Redis thông qua tên service trong docker-compose
+      # - DB_HOST=postgres
+      # - DB_PORT=5432
+      # - DB_USER=db_user
+      # - DB_PASSWORD=db_password
+      # - DB_NAME=app_database
+      - DATABASE_URL=postgresql://db_user:db_password@postgres:5432/app_database?schema=public
+      - REDIS_CLIENT_HOST=redis
+      - REDIS_CLIENT_PORT=6379
+      - SERVER_URL=http://localhost:3000
+      - CLIENT_URL=http://localhost
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app_network
+
+  # 4. React Vite Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: app_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+# Định nghĩa Volumes để dữ liệu không bị mất khi container bị xóa
+volumes:
+  postgres_data:
+  redis_data:
+
+# Định nghĩa Network nội bộ để các container giao tiếp với nhau
+networks:
+  app_network:
+    driver: bridge
