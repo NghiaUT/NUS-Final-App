@@ -16,7 +16,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const initAuth = async () => {
     const token = localStorage.getItem('accessToken');
 
-    if (!token) return;
+    if (!token) {
+      setIsInitialized(true);
+      return;
+    }
 
     try {
       setAuthHeader(token);
@@ -48,11 +51,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('accessToken');
     setUser(null);
     setAuthHeader(null);
-    window.location.href = "/";
   };
 
   return (
-    <AuthContext.Provider value={{ isInitialized, isAuthenticated: !!user, user, logout, login }}>
+    <AuthContext.Provider value={{ isInitialized, isAuthenticated: !!user, isAdmin: user?.role === "ADMIN", user, logout, login }}>
       {isInitialized ? children : <LoadingSpinner />}
     </AuthContext.Provider>
   );

@@ -1,0 +1,453 @@
+import prisma from '../config/prisma/prisma.init.js';
+import type { FormData } from '../types/form.types.js';
+import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
+import { constant } from '../config/constant/constant.js';
+import { removeFile } from '../utils/removeFile.util.js';
+import { redisClient } from '../config/redis/redis.config.js';
+
+export class PhotoService {
+  static async getAllPhotoDiscover(
+    page: number,
+    limit: number,
+    currentUserId: string | null = null
+  ) {
+    const cachedKey = `photos:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
+
+    const cachedPhotos = await redisClient.get(cachedKey);
+
+    // if (cachedPhotos) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+    //   return JSON.parse(cachedPhotos);
+    // }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
+    const skip = (page - 1) * limit;
+
+    // Những photos này sẽ đi kèm với thông tin liên quan như tác giả, thông tin ảnh và số lượt like...
+    const photos = await prisma.photo.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        sharingMode: 'PUBLIC',
+        album: null, // Các photos đứng riêng lẻ.
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+            ...(currentUserId && {
+              following: {
+                where: {
+                  followerId: currentUserId,
+                },
+              },
+            }),
+          },
+        },
+        ...(currentUserId && {
+          photoLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
+      },
+    });
+
+    const returnPhotos = photos.map((photo) => {
+      return {
+        id: photo.id,
+        author: {
+          authorId: photo.author.id,
+          name: `${photo.author.firstName} ${photo.author.lastName}`,
+          avatarUrl: photo.author.avatarUrl,
+          isFollowing: photo.author.following?.length > 0,
+        },
+        content: {
+          title: photo.title,
+          body: photo.description,
+        },
+        media: {
+          type: 'photo',
+          image_stack: [
+            {
+              url: photo.imageUrl,
+              altText: photo.description,
+            },
+          ],
+        },
+        metadata: {
+          createdDate: photo.createdAt,
+        },
+        interactions: {
+          likesCount: photo.photosLikesCount,
+          isLiked: photo?.photoLikes?.length > 0,
+        },
+      };
+    });
+
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+
+    return returnPhotos;
+  }
+
+  static async getAllPhotoFeed(
+    page: number,
+    limit: number,
+    currentUserId: string
+  ) {
+    const cachedKey = `photos:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
+
+    const cachedPhotos = await redisClient.get(cachedKey);
+
+    // if (cachedPhotos) {
+    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+
+    //   return JSON.parse(cachedPhotos);
+    // }
+
+    console.log(
+      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    );
+
+    const skip = (page - 1) * limit;
+
+    // Những photos này sẽ đi kèm với thông tin liên quan như tác giả, thông tin ảnh và số lượt like...
+    const followingUsers = await prisma.user.findMany({
+      where: {
+        following: {
+          some: {
+            followerId: currentUserId,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    const followingsId = followingUsers.map((u) => u.id);
+    const photos = await prisma.photo.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        sharingMode: 'PUBLIC',
+        album: null, // Các photos đứng riêng lẻ.
+        userId: {
+          // Thuộc về following của người này
+          in: followingsId,
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        ...(currentUserId && {
+          photoLikes: {
+            where: {
+              userId: currentUserId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
+      },
+    });
+
+    const returnPhotos = photos.map((photo) => {
+      return {
+        id: photo.id,
+        author: {
+          authorId: photo.author.id,
+          name: `${photo.author.firstName} ${photo.author.lastName}`,
+          avatarUrl: photo.author.avatarUrl,
+          isFollowing: true,
+        },
+        content: {
+          title: photo.title,
+          body: photo.description,
+        },
+        media: {
+          type: 'photo',
+          image_stack: [
+            {
+              url: photo.imageUrl,
+              altText: photo.description,
+            },
+          ],
+        },
+        metadata: {
+          createdDate: photo.createdAt,
+        },
+        interactions: {
+          likesCount: photo.photosLikesCount,
+          isLiked: photo?.photoLikes?.length > 0,
+        },
+      };
+    });
+
+    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+
+    return returnPhotos;
+  }
+
+  static async getPhoto(
+    userId: string,
+    photoId: string,
+    isAdmin: boolean = false
+  ) {
+    // Get photo này nhằm lấy dữ liệu phục vụ cho quá trình edit - sẽ khác với API lấy tất cả photo và album public.
+    console.log(`[Service] This service get the photo of id: ${photoId}`);
+
+    const photo = await prisma.photo.findUnique({
+      where: {
+        id: photoId,
+      },
+    });
+
+    if (!photo) {
+      throw new BadRequestError('Cannot find the approriate photo!');
+    }
+
+    if (photo.userId !== userId && !isAdmin) {
+      throw new ForbiddenError(
+        'You do not have permission to access this photo!'
+      );
+    }
+
+    // Nếu photo thuộc về một album khác thì không nên lấy.
+    if (photo.albumId) {
+      throw new BadRequestError('This photo has belong to an album!');
+    }
+
+    return photo;
+  }
+
+  static async newPhoto(data: FormData, userId: string) {
+    console.log('[Service] This service create new Photo.!');
+
+    // 1. Tạo photo mới với những thông tin trên
+    try {
+      if (
+        !data.description ||
+        !data.sharingMode ||
+        !data.title ||
+        !data.photo
+      ) {
+        throw new BadRequestError('Invalid Form Data!');
+      }
+
+      const imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
+
+      const newPhoto = await prisma.photo.create({
+        data: {
+          imageUrl: imageUrl,
+          title: data.title,
+          description: data.description,
+          sharingMode: data.sharingMode,
+          mimeType: data.photo.mimetype,
+          userId: userId,
+        },
+      });
+
+      return newPhoto;
+    } catch (error) {
+      console.error(
+        '[Service] Lỗi khi thực hiện! Bắt đầu rollback xóa file rác...'
+      );
+      if (data.photo) await removeFile(data.photo.filename);
+      throw error;
+    }
+  }
+
+  static async editPhoto(
+    data: FormData,
+    userId: string,
+    photoId: string,
+    isAdmin: boolean = false
+  ) {
+    console.log('[Service] This service edit a current Photo.!');
+
+    let oldImgFileName: string | null = null;
+    try {
+      // 1. Find the photoId:
+      const photo = await prisma.photo.findUnique({
+        where: {
+          id: photoId,
+        },
+      });
+
+      if (!photo) {
+        throw new BadRequestError('Cannot find the approriate photo!');
+      }
+
+      if (photo.userId !== userId && !isAdmin) {
+        throw new ForbiddenError(
+          'You do not have permission to edit this photo!'
+        );
+      }
+
+      // 2.Update the photo.
+      let imageUrl = photo.imageUrl;
+      let mimeType = photo.mimeType;
+      if (data.photo) {
+        oldImgFileName = imageUrl;
+        imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
+        mimeType = data.photo.mimetype;
+      }
+
+      const newPhoto = await prisma.photo.update({
+        where: {
+          id: photoId,
+        },
+        data: {
+          title: data.title || photo.title,
+          sharingMode: data.sharingMode || photo.sharingMode,
+          description: data.description || photo.description,
+          imageUrl: imageUrl,
+          mimeType: mimeType,
+          userId: userId,
+        },
+      });
+
+      // Chỉ xóa file sau khi db cập nhật thành công!:
+      if (oldImgFileName) {
+        await removeFile(oldImgFileName);
+      }
+
+      return newPhoto;
+    } catch (error) {
+      console.error('[Service] Lỗi Prisma! Bắt đầu rollback xóa file rác...');
+      // Rollback: Khi prisma bị lỗi thì đã có file ảnh trong uploads
+      if (data.photo) {
+        console.log('FileName: ', data.photo.filename);
+        await removeFile(data.photo.filename);
+      }
+      throw error;
+    }
+  }
+
+  static async deletePhoto(
+    userId: string,
+    photoId: string,
+    isAdmin: boolean = false
+  ) {
+    console.log('[Service] This service delete a Photo.!');
+    // Xóa luôn cả photo trong db và ảnh liên quan trong /uploads
+    try {
+      const deletePhoto = await prisma.photo.findUnique({
+        where: {
+          id: photoId,
+        },
+      });
+
+      if (!deletePhoto) {
+        throw new BadRequestError('Cannot find approriate photo!');
+      }
+
+      if (deletePhoto.userId !== userId && !isAdmin) {
+        throw new ForbiddenError('You do not have permission for this photo.!');
+      }
+
+      // Delete trong DB trước
+      const result = await prisma.photo.delete({
+        where: {
+          id: photoId,
+        },
+      });
+
+      // Xóa file trong uploads/
+      await removeFile(deletePhoto.imageUrl);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async toggleLike(userId: string, photoId: string, type: string) {
+    const photo = await prisma.photo.findUnique({
+      where: {
+        id: photoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!photo) {
+      throw new BadRequestError('Invalid photoId or photo does not exist');
+    }
+
+    const photoLike = await prisma.photoLike.findUnique({
+      where: {
+        userId_photoId: { userId, photoId },
+      },
+    });
+
+    if (!photoLike && type === 'post') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.photoLike.create({
+          data: {
+            userId: userId,
+            photoId: photoId,
+          },
+        });
+
+        await tx.photo.update({
+          where: {
+            id: photoId,
+          },
+          data: {
+            photosLikesCount: {
+              increment: 1,
+            },
+          },
+        });
+      });
+    }
+
+    if (photoLike && type === 'delete') {
+      return await prisma.$transaction(async (tx) => {
+        await tx.photoLike.delete({
+          where: {
+            userId_photoId: { userId, photoId },
+          },
+        });
+
+        await tx.photo.update({
+          where: {
+            id: photoId,
+          },
+          data: {
+            photosLikesCount: {
+              decrement: 1,
+            },
+          },
+        });
+      });
+    }
+
+    return;
+  }
+}

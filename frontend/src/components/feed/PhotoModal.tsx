@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 
-const PhotoModal = ({ data, handleModalClose }: any) => {
+const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const image_stack = data.media.image_stack;
   const image_type = data.media.type;
   const title = data.content.title;
@@ -18,6 +20,23 @@ const PhotoModal = ({ data, handleModalClose }: any) => {
       return index === image_stack.length - 1 ? 0 : index + 1;
     });
   };
+
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    handleLike();
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const newHeart = { id: Date.now(), x, y };
+    setHearts((prev) => [...prev, newHeart]);
+
+    // Xóa trái tim khỏi DOM khi hết animation.
+    setTimeout(() => {
+      setHearts((prev) => prev.filter((heart) => heart.id !== newHeart.id));
+    }, 800);
+  }
+
   return (
     <div className="fixed top-0 bottom-0 right-0 left-0 bg-black/50 flex justify-center items-center z-1000">
       <div className="rounded-sm w-[90vw] max-w-[1000px] aspect-square sm:aspect-4/3 max-h-[85vh] object-contain bg-white p-2.5 flex flex-col items-center gap-2.5">
@@ -59,6 +78,7 @@ const PhotoModal = ({ data, handleModalClose }: any) => {
               src={image_stack[currentIndex].url}
               alt={image_stack[currentIndex].alt_text}
               className="w-full h-full object-contain"
+              onDoubleClick={handleDoubleClick}
             />
           }
 
@@ -74,6 +94,32 @@ const PhotoModal = ({ data, handleModalClose }: any) => {
                 d="M471.1 297.4C483.6 309.9 483.6 330.2 471.1 342.7L279.1 534.7C266.6 547.2 246.3 547.2 233.8 534.7C221.3 522.2 221.3 501.9 233.8 489.4L403.2 320L233.9 150.6C221.4 138.1 221.4 117.8 233.9 105.3C246.4 92.8 266.7 92.8 279.2 105.3L471.2 297.3z"
               />
             </svg>
+          )}
+          {/* Render danh sách trái tim bay */}
+          {hearts.map((heart) => (
+            <svg
+              key={heart.id}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="red"
+              className="absolute w-16 h-16 pointer-events-none animate-float-up z-50"
+              style={{ left: heart.x, top: heart.y }}
+            >
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          ))}
+
+          {image_type === 'album' && image_stack.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+              {image_stack.map((_: any, idx: number) => (
+                <div
+                  key={idx}
+                  className={twMerge("h-2 rounded-full transition-all duration-300 cursor-pointer", currentIndex === idx ? 'w-7 bg-blue' : 'w-2 bg-blue/50'
+                  )}
+                  onClick={() => setCurrentIndex(idx)}
+                />
+              ))}
+            </div>
           )}
         </div>
         <p className="text-xs md:text-base line-clamp-2">{body}</p>

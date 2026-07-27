@@ -2,7 +2,7 @@ import React from 'react';
 
 const PhotoAlbumToggle = ({ media, handleOnClick }: any) => {
   return (
-    <div className="relative mt-5 mb-5 border border-blue rounded-lg">
+    <div className="relative mt-5 mb-5 border border-blue rounded-xl">
       {/* Thanh trượt bên dưới */}
       <div
         className={`absolute top-1 left-1 bottom-1 w-[calc(50%-4px)] bg-blue rounded-lg transition-transform duration-300 ease-out ${media === 'photo' ? 'translate-x-0' : 'translate-x-full'}`}

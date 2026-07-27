@@ -1,39 +1,55 @@
 import React, { useEffect, useState } from 'react'
 import UserList from '../../../components/admin/UserList'
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import { adminService } from '../../../api/adminService';
+import { toast } from 'react-toastify';
+import FooterPagination from '../../../components/admin/FooterPagination';
+import type { User } from '../../../types/user.types';
 
-type User = {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    lastLogin: string;
-};
-
-// Mock data - sẽ thay bằng dữ liệu thật từ API sau này.
-const MOCK_USERS: User[] = [
-    { id: 1, firstName: 'Hieu 1', lastName: 'Nguyen', email: '████████@hotmail.com', lastLogin: '4:56am 04/16/2018' },
-    { id: 2, firstName: 'Hieu 2', lastName: 'Nguyen', email: '████████@hotmail.com', lastLogin: '4:56am 04/16/2018' },
-    { id: 3, firstName: 'Hieu 3', lastName: 'Nguyen', email: '████████@hotmail.com', lastLogin: '4:56am 04/16/2018' },
-];
+const USER_PER_PAGES = 10;
 
 const ManageUsers = () => {
     const [usersData, setUsersData] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [totalUser, setTotalUser] = useState(0);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
     useEffect(() => {
-        const timer = setTimeout(() => {
-            // Dữ liệu giả định trả về từ API
-            setUsersData(MOCK_USERS);
-            setLoading(false); // Đã lấy dữ liệu thành công
-        }, 2000);
+        const fetchingUsersData = async () => {
+            try {
+                setLoading(true);
+                const result = await adminService.getAllUsers(page, USER_PER_PAGES);
+                setUsersData(result.data.data.users);
+                setTotalUser(result.data.data.count);
+            } catch (error) {
+                toast.error("Gặp lỗi khi lấy dữ liệu từ server, thử lại sau.");
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchingUsersData();
+    }, [page, refreshTrigger]); // Gọi API lấy danh sách dữ liệu 
 
-        // Hàm dọn dẹp (cleanup) để hủy timeout nếu component bị unmount
-        return () => clearTimeout(timer);
-    }, []); // Gọi API lấy danh sách dữ liệu 
+    const handleDelete = async (id: string) => {
+        try {
+            await adminService.deleteUser(id);
+            toast.success("Xóa người dùng thành công");
+            setRefreshTrigger(prev => prev + 1);
+        } catch (error) {
+            toast.error("Gặp lỗi khi cố gắng xóa người dùng!");
+        }
+    }
+
     if (loading) return <LoadingSpinner />
+
     return (
-        <UserList
-            data={usersData} />
+        <div className="w-full h-full flex flex-col justify-between p-6">
+            <UserList
+                data={usersData}
+                onDelete={handleDelete} />
+            <FooterPagination currentPage={page} setCurrentPage={setPage} totalPages={Math.ceil(totalUser / USER_PER_PAGES)} />
+        </div>
+
     )
 }
 

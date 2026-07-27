@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { useFollow } from '../../hooks/useFollow';
+import { twMerge } from 'tailwind-merge';
 
 /*
 {
@@ -12,24 +16,42 @@ import React, { useState } from 'react';
     ]
   },
 */
-const ProfileCard = ({ profile, handleFollow }) => {
-  const [isFollowing, setIsFollowing] = useState(profile.isFollowing ?? true);
+const ProfileCard = ({ profile, onFollowChange }) => {
+  const [isFollowing, setIsFollowing] = useState(profile.isFollowing ?? false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toggleFollow } = useFollow();
+  const isUserProfile = user?.id === profile.id;
 
-  const handleFollowClick = () => {
-    setIsFollowing(prev => !prev);
-    handleFollow(profile.id, isFollowing);
+  useEffect(() => {
+    setIsFollowing(profile.isFollowing);
+  }, [profile.isFollowing]);
+
+  const handleFollowClick = async () => {
+    const wasFollowing = isFollowing;
+    setIsFollowing(!wasFollowing); // Đổi UI ngay lập tức (optimistic)
+    onFollowChange(wasFollowing); // Cập nhật số liệu ở trang cha, KHÔNG kéo theo refetch danh sách (xem ProfilePage)
+
+    try {
+      await toggleFollow(profile.id, wasFollowing);
+    } catch (error) {
+      // Rollback nếu API thất bại: trả UI và số liệu về trạng thái cũ
+      setIsFollowing(wasFollowing);
+      onFollowChange(!wasFollowing);
+    }
   };
 
   return (
     // Card Container: Đổ bóng nhẹ, bo góc, flex cột và căn giữa nội dung
-    <div className="bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px] mx-auto">
+    <div className={twMerge("bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px] mx-auto", isUserProfile ? "pb-15" : '')}>
       {/* Avatar & Name Group */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-24 h-24 rounded-full overflow-hidden mb-3">
           <img
-            src={profile.avatar_url}
+            src={profile.avatarUrl}
             alt={profile.name}
             className="w-full h-full object-cover cursor-pointer"
+            onClick={() => navigate(`/profile/${profile.id}`)}
           />
         </div>
         <p className="text-lg font-bold text-gray-800">{profile.name}</p>
@@ -55,17 +77,17 @@ const ProfileCard = ({ profile, handleFollow }) => {
           </p>
         </div>
       </div>
-      {isFollowing === true ? (
-        <div className="inline-block p-[2px] rounded-full bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
+      {!isUserProfile && (isFollowing === true ? (
+        <div className="inline-block p-[2px] rounded-full bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
           <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer" onClick={handleFollowClick}>
             following
           </button>
         </div>
       ) : (
-        <button className="px-6 py-1 text-sm font-semibold text-white bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 rounded-full transition-colors cursor-pointer" onClick={handleFollowClick}>
+        <button className="px-6 py-1.5 text-sm font-semibold text-white bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 rounded-full transition-colors cursor-pointer" onClick={handleFollowClick}>
           follow
         </button>
-      )}
+      ))}
     </div>
   );
 };

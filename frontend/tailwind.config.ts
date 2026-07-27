@@ -12,9 +12,14 @@ export default {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
+        floatUp: {
+          '0%': { transform: 'translate(-50%, -50%) scale(1.5)', opacity: '1' },
+          '100%': { transform: 'translate(-50%, calc(-50% - 100px)) scale(1)', opacity: '0' },
+        },
       },
       animation: {
         'ios-fade': 'ios-fade 1.2s linear infinite',
+        floatUp: 'floatUp 3s ease-out forwards',
       },
       colors: {
         graywhite: '#F8F8F8',

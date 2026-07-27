@@ -1,7 +1,7 @@
 import prisma from './config/prisma/prisma.init.js';
 
 async function main() {
-  const users = await prisma.user.findMany();
+  const users = await prisma.photo.findMany();
   console.log(users);
 }
 

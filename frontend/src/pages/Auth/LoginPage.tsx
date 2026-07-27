@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MediaTabbar from '../../components/auth/MediaTabbar';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../api/authService';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (location?.state?.error) {
+      toast.error(location.state.error);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,9 +34,11 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const { data } = await authService.login(formData);
+      toast.success("Đăng nhập thành công!");
       login(data.data.accessToken, data.data.user);
     } catch (error) {
-      console.error(error);
+      const errorMessage = error.response?.data?.message || error?.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+      toast.error(errorMessage);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import ErrorFallback from '../../pages/error/ErrorFallback';
 
 type Props = {
@@ -18,6 +18,7 @@ class ErrorBoundary extends Component<Props, State> {
     };
 
     static getDerivedStateFromError(error: Error): State {
+        console.log("Error Boundary bắt được lỗi:", error);
         return { hasError: true, error };
     }
 
@@ -32,9 +33,6 @@ class ErrorBoundary extends Component<Props, State> {
 
     render() {
         if (this.state.hasError) {
-            if (this.props.fallback) {
-                return this.props.fallback;
-            }
             return <ErrorFallback error={this.state.error} onReset={this.handleReset} />;
         }
 

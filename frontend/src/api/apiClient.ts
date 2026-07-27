@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { toast } from 'react-toastify';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -13,9 +14,6 @@ interface FailedQueueItem {
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // ============= GẮn tokne bearer vào trong header của instance.
@@ -54,6 +52,10 @@ axiosInstance.interceptors.response.use(
       setAuthHeader(null);
       if (status === 400) {
         window.location.href = '/login'; // Điều hướng người dùng sang trang login.
+      }
+      if (status === 403) {
+        toast.error(err.response?.data?.message);
+        window.location.href = '/login';
       }
       return Promise.reject(err);
     }

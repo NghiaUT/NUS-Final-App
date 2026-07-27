@@ -1,57 +1,77 @@
 import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PhotoModal from './PhotoModal';
+import { twMerge } from 'tailwind-merge';
+import { formatDate } from '../../utils/formatDate';
+import { useAuth } from '../../hooks/useAuth';
+import { toast } from 'react-toastify';
+import { useFollow } from '../../hooks/useFollow';
+import { useLike } from '../../hooks/useLike';
 
-const PhotoCard = ({ data, onImgClick }: any) => {
+const PhotoCard = ({ data }: any) => {
   const {
-    author: { name, avatar_initials, avatar_url, is_following },
+    id,
+    author: { authorId, name, avatarUrl, isFollowing },
     content: { title, body },
     media: { type, image_stack },
-    interactions: { likes_count, is_liked },
-    metadata: { formatted_date },
+    interactions: { likesCount, isLiked },
+    metadata: { createdDate },
   } = data;
 
   // State để theo dõi các giá trị này và thực hiện chỉnh sửa.
-  const [isFollowing, setIsFollowing] = useState(data.author.is_following);
-  const [isLiked, setIsLiked] = useState(data.interactions.is_liked);
-  const [likesCount, setLikesCount] = useState(data.interactions.likes_count);
+  const [isStateFollowing, setIsStateFollowing] = useState(isFollowing ?? false);
+  const [isStateLiked, setIsStateLiked] = useState(isLiked ?? false);
+  const [likeCount, setLikeCount] = useState(likesCount);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
+  const { toggleFollow } = useFollow();
+  const { toggleLike, isLoading: likeLoading } = useLike();
+
   const navigate = useNavigate();
+  // const isUserMedia = user ? user.id === authorId : false;
 
   const handleFollowClick = () => {
-    setIsFollowing(!isFollowing);
+    toggleFollow(authorId, isStateFollowing);
+    setIsStateFollowing(!isStateFollowing);
   };
 
-  const handleLikedClick = () => {
-    setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
-    setIsLiked(!isLiked);
+  const handleLikedClick = async () => {
+    if (!user) {
+      toast.error("Đăng nhập ngay để thả cảm xúc!");
+      return;
+    }
+    const previousIsLiked = isStateLiked;
+    const previousLikesCount = likeCount;
+    setLikeCount((prev) => (isStateLiked ? prev - 1 : prev + 1));
+    setIsStateLiked(!isStateLiked);
+    const success = await toggleLike(id, previousIsLiked, type);
+
+    if (!success) {
+      setLikeCount(previousLikesCount);
+      setIsStateLiked(previousIsLiked);
+    }
   };
 
   const handleProfileClick = () => {
-    navigate(`/profile`);
+    navigate(`/profile/${authorId}`);
   };
-  const commonImgConfig =
-    'w-40 sm:w-60 mx-auto aspect-square object-cover border-4 border-white shadow-md ';
-  // console.log(data);
-  // console.log(type);
-  // console.log(image_stack)
+
+  const handleLike = () => {
+    if (!isStateLiked) {
+      handleLikedClick();
+    }
+  }
   return (
     <div className="flex flex-col sm:flex-row items-center w-full mx-auto md:h-[300px] p-2 md:p-2.5 bg-graywhite shadow-xs transition duration-300 ease-in-out gap-2.5">
       <div
         className="group flex-1 max-h-[300px] md:h-full m-1.5 sm:m-2 relative cursor-pointer w-40 sm:w-60"
-        onClick={() => onImgClick(data)}
+        onClick={() => setIsModalOpen(true)}
       >
         {/* Render các ảnh */}
-        {data.media.type === 'album' ? (
+        {type === 'album' ? (
           // Nếu là album thì chỉ render 3 ảnh đầu tiên.
           image_stack.slice(0, 3).map((img) => {
-            let imgConfig =
-              commonImgConfig +
-              (img.order === 1
-                ? 'relative z-3 group-hover:-translate-y-2'
-                : img.order === 2
-                  ? 'absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4'
-                  : 'absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4');
-
             return (
               <img
                 key={img.order}
@@ -60,7 +80,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
                   'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80'
                 }
                 alt={img.alt_text}
-                className={imgConfig}
+                className={twMerge('w-40 sm:w-60 mx-auto aspect-square object-cover border-4 border-white shadow-md', img.order === 1 && 'relative z-3 group-hover:-translate-y-2', img.order === 2 && 'absolute z-2 left-0 right-0 mx-auto w-fit top-[2px] sm:top-[5px] text-center -rotate-[4deg] group-hover:-translate-y-6 group-hover:-translate-x-4', img.order > 2 && 'absolute z-1 left-0 right-0 mx-auto w-fit -top-[2px] rotate-[5deg] group-hover:-translate-y-8 group-hover:translate-x-4')}
               ></img>
             );
           }) // Nếu là ảnh thì render kiểu khác
@@ -81,7 +101,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={handleProfileClick}>
             <img
               src={
-                avatar_url ||
+                avatarUrl ||
                 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80'
               }
               alt="ảnh avatar"
@@ -89,7 +109,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
             />
             <p className="text-sm sm:text-base text-blue font-semibold line-clamp-1">{name}</p>
           </div>
-          {isFollowing ? (
+          {user && (isStateFollowing ? (
             <div
               className="px-1.5 py-1.5 sm:px-2 sm:py-2 rounded-full font-semibold text-white text-xs bg-orange cursor-pointer select-none"
               onClick={handleFollowClick}
@@ -103,7 +123,7 @@ const PhotoCard = ({ data, onImgClick }: any) => {
             >
               Follow
             </div>
-          )}
+          ))}
         </div>
         <div className="flex-1 flex flex-col gap-2 flex-start overflow-hidden">
           <h1 className="text-sm font-semibold sm:text-lg">{title}</h1>
@@ -111,10 +131,10 @@ const PhotoCard = ({ data, onImgClick }: any) => {
         </div>
         <div className="flex items-center justify-between">
           <div
-            className="flex justify-start items-center cursor-pointer"
+            className={twMerge("flex justify-start items-center cursor-pointer", likeLoading && "pointer-events-none cursor-not-allowed opacity-50")}
             onClick={handleLikedClick}
           >
-            {isLiked ? (
+            {isStateLiked ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 640 640"
@@ -137,11 +157,16 @@ const PhotoCard = ({ data, onImgClick }: any) => {
                 />
               </svg>
             )}
-            <p className="text-xs sm:text-base text-blue ml-1">{likesCount}</p>
+            <p className="text-xs sm:text-base text-blue ml-1">{likeCount}</p>
           </div>
-          <p className="text-xs opacity-80">{formatted_date}</p>
+          <p className="text-xs opacity-80">{formatDate(createdDate)}</p>
         </div>
       </div>
+
+      {/* Render modal hiển thị chi tiết ảnh */}
+      {isModalOpen && (
+        <PhotoModal data={data} handleModalClose={() => setIsModalOpen(false)} handleLike={handleLike} />
+      )}
     </div>
   );
 };

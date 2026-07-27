@@ -5,7 +5,7 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
 
 // Schema validate cho 1 file ảnh
-const singleImageSchema = z
+export const singleImageSchema = z
   .any()
   .refine((file) => !!file, 'Vui lòng tải lên một hình ảnh')
   .superRefine((file, ctx) => {
@@ -27,36 +27,20 @@ const singleImageSchema = z
     }
   });
 
-export const albumSchema = z.object({
-  title: z.string().trim().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự'),
+export const albumImageSchema = z.array(singleImageSchema);
 
-  description: z
-    .string()
-    .trim()
-    .min(1, 'Description không được để trống')
-    .max(300, 'Description tối đa 300 ký tự'),
-
-  sharingMode: z.enum(['public', 'private'], {
-    error: () => ({ message: 'Vui lòng chọn chế độ chia sẻ hợp lệ' }),
-  }),
-
-  photos: z
-    .array(singleImageSchema)
-    .min(1, 'Vui lòng đính kèm ít nhất 1 hình ảnh')
-    .max(25, 'Tối đa được tải lên 25 hình ảnh'),
-});
-
-export const photoSchema = z.object({
+export const formInfoSchema = z.object({
   title: z.string().min(1, 'Title không được để trống').max(140, 'Title tối đa 140 ký tự.'),
 
-  description: z.string().max(300, 'Tối đa 300 ký tự').optional(),
+  description: z.string().min(1, 'Description không được để trống').max(300, 'Tối đa 300 ký tự'),
 
-  sharingMode: z.enum(['public', 'private'], {
-    error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }),
-  }),
-
-  // Dùng lại đúng schema file cho ảnh duy nhất đã định nghĩa ở trên
-  photo: singleImageSchema,
+  sharingMode: z.preprocess(
+    (val) => {
+      if (typeof val === 'string') return val.toLowerCase();
+      return val;
+    },
+    z.enum(['public', 'private'], { error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }) }),
+  ),
 });
 
 export const avatarSchema = z
@@ -117,3 +101,11 @@ export const passwordSchema = z
       });
     }
   });
+
+export const adminProfileSchema = z.object({
+  firstName: z.string().min(1, 'Vui lòng nhập First Name'),
+  lastName: z.string().min(1, 'Vui lòng nhập Last Name'),
+  email: z.string().email('Email không hợp lệ'),
+  password: z.union([z.string().length(0), z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự')]),
+  isActive: z.boolean(),
+});

@@ -10,3 +10,12 @@ export type RegisterForm = {
   password: string;
   confirmedPassword: string;
 };
+
+type SharingMode = 'PUBLIC' | 'PRIVATE';
+
+export type PhotoDataForm = {
+  title?: string;
+  description?: string;
+  sharingMode?: SharingMode;
+  photo?: File;
+};

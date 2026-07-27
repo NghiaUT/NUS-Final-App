@@ -40,7 +40,7 @@ const NotFound = () => {
                     onClick={() => navigate('/')}
                     className="mt-2 bg-blue/80 hover:bg-blue text-white text-sm sm:text-base font-bold px-8 py-3.5 rounded-full backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                 >
-                    VỀ TRANG FEEDS
+                    VỀ TRANG CHỦ
                 </button>
             </div>
         </div>

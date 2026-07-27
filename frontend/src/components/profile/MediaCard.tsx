@@ -1,15 +1,18 @@
 import React from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { Image } from '../../types/media.types';
+import { useNavigate } from 'react-router-dom';
 /* data = {
     title: "",
     media: {
         type: "album" or "photo"
         image_stack: [] -> 1 or many
+        status: "public" or "private"
     }
 }
 */
 const MediaCard = ({ data, type, editable }: { data: any; type: string, editable: boolean }) => {
+  const navigate = useNavigate();
   const commonImgConfig =
     'w-32 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md shrink-0';
 
@@ -21,7 +24,7 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
           type === 'photo' && 'hover:scale-105'
         )}
       >
-        {data.media.status === 'private' && (
+        {data.media.status === 'PRIVATE' && (
           <div
             className="absolute top-2 right-2 z-30 w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md"
             title="Private"
@@ -59,13 +62,13 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
         ) : (
           <img
             src={data.media.image_stack[0].url}
-            alt={data.content.title}
+            alt={data.title}
             className="w-40 sm:w-50 h-40 sm:h-50 object-cover rounded-lg"
           />
         )}
 
         {editable && type === 'album' && (
-          <div className="absolute inset-0 flex items-center justify-center z-20">
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
             <div className="w-28 h-28 rounded-full bg-white/30 backdrop-blur-md flex flex-col items-center justify-center text-white shadow-lg">
               <span className="text-3xl font-semibold">{data.media.image_stack.length}</span>
               <span className="text-xs tracking-wider uppercase">Photos</span>
@@ -77,8 +80,8 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
           <button
             onClick={(e) => {
               e.stopPropagation();
-              console.log("Edit clicked");
-              // navigate('/photo/:id') or navigate('/album/:id');
+              console.log("Edit Cliecked");
+              navigate(`/${type === 'photo' ? 'photo' : 'album'}/${data.id}`)
             }}
             className="absolute bottom-6 right-6 sm:bottom-4 sm:right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-4 py-1.5 rounded-full backdrop-blur-sm cursor-pointer"
           >
@@ -87,7 +90,7 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
         )}
       </div>
       <p className="text-xs sm:text-base line-clamp-1 overflow-hidden text-ellipsis text-center">
-        {data.content.title}
+        {data.title}
       </p>
     </div>
   );
