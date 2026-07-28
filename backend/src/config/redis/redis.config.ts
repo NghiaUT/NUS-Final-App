@@ -1,13 +1,11 @@
 import { Redis, type RedisOptions } from 'ioredis';
 import { constant } from '../constant/constant.js';
 
-const redisConfig: RedisOptions = {
-  host: constant.REDIS_CLIENT_HOST,
-  port: Number(constant.REDIS_CLIENT_PORT),
+const redisOptions: RedisOptions = {
   maxRetriesPerRequest: null,
 };
 
-export const redisClient = new Redis(redisConfig);
+export const redisClient = new Redis(constant.REDIS_CLIENT_URL, redisOptions);
 
 redisClient.on('connect', () => console.log('====> Kết nối Redis thành công!'));
 
