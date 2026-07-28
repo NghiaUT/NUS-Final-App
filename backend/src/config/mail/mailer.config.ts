@@ -1,16 +1,10 @@
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import { constant } from '../../config/constant/constant.js';
-
-interface MailData {
-  to: string;
-  subject: string;
-  html: string;
-  from?: string;
-}
+import type { EmailJobData } from '../queue/email.queue.js';
 
 interface MailTransporter {
-  sendMail(data: MailData): Promise<void>;
+  sendMail(data: EmailJobData): Promise<void>;
 }
 
 // Nodemailer / SMTP config, dùng cho development (ví dụ Mailtrap, Ethereal...).
@@ -42,6 +36,7 @@ const createDevTransporter = (): MailTransporter => {
         to: data.to,
         subject: data.subject,
         html: data.html,
+        text: data.text,
       });
     },
   };
@@ -52,12 +47,16 @@ const createProdTransporter = (): MailTransporter => {
 
   return {
     async sendMail(data) {
-      const { error } = await resend.emails.send({
+      const base = {
         from: data.from ?? constant.SMTP_USER,
         to: data.to,
         subject: data.subject,
-        html: data.html,
-      });
+      };
+
+      const { error } =
+        data.html !== undefined
+          ? await resend.emails.send({ ...base, html: data.html })
+          : await resend.emails.send({ ...base, text: data.text ?? '' });
 
       if (error) {
         throw new Error(error.message);

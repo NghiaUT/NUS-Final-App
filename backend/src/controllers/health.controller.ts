@@ -20,7 +20,6 @@ export const healthController = {
           timestamp: new Date().toISOString(),
           database: 'connected',
           redis: redisClient.status,
-          mailer: await transporter.verify(),
         },
         200
       );

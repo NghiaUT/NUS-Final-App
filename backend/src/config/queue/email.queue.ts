@@ -29,8 +29,8 @@ export const emailWorker = new Worker<EmailJobData>(
       from,
       to,
       subject,
-      text,
-      html,
+      ...(text !== undefined ? { text } : {}),
+      ...(html !== undefined ? { html } : {}),
     });
   },
   {
