@@ -105,7 +105,42 @@ export const passwordSchema = z
 export const adminProfileSchema = z.object({
   firstName: z.string().min(1, 'Vui lòng nhập First Name'),
   lastName: z.string().min(1, 'Vui lòng nhập Last Name'),
-  email: z.string().email('Email không hợp lệ'),
+  email: z.email('Email không hợp lệ'),
   password: z.union([z.string().length(0), z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự')]),
   isActive: z.boolean(),
+});
+
+export const signupSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, 'First name không thể để trống')
+    .max(25, 'First name không được dài quá 25 ký tự'),
+
+  lastName: z
+    .string()
+    .min(1, 'Last name không thể để trống')
+    .max(25, 'Last name không được dài quá 25 ký tự'),
+
+  email: z
+    .email('Email không hợp lệ!')
+    .min(1, 'Email không được để trống')
+    .max(255, 'Email phải nhỏ hơn 255 ký tự'),
+
+  password: z
+    .string()
+    .min(1, 'Password cannot be empty')
+    .max(64, 'Password must be a maximum of 64 characters long'),
+
+  confirmedPassword: z
+    .string()
+    .min(1, 'Confirmed password cannot be empty')
+    .max(64, 'Confirmed password must be a maximum of 64 characters long'),
+});
+
+export const loginSchema = z.object({
+  email: z.email('Email không hợp lệ'),
+  password: z
+    .string()
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .max(64, 'Mật khẩu phải nhỏ hơn 64 ký tự'),
 });
