@@ -100,6 +100,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     }
 
     const handleDeleteClick = () => {
+        if (!initialData?.id) return;
         onDelete(initialData.id);
     }
     return (

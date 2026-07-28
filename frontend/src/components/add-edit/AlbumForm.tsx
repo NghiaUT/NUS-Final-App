@@ -152,9 +152,8 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     }
 
     const handleDeleteClick = () => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa album này? Hành động này không thể hoàn tác.")) {
-            onDelete();
-        }
+        if (!initialData?.id) return;
+        onDelete(initialData.id);
     }
 
     return (
