@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 import AlbumForm from '../../components/add-edit/AlbumForm';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { albumService } from '../../api/albumService';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingModal } from '../../components/common/LoadingModal';
 

@@ -31,7 +31,7 @@ const NewAlbum = () => {
                 initialData={albumData}
                 onSubmit={handleCreate}
                 onDelete={() => { }}
-                loading={loading}
+                loading={false}
             />
 
             <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />
