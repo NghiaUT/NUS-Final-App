@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 import PhotoForm from '../../components/add-edit/PhotoForm';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { photoService } from '../../api/photoService';
 import { useAuth } from '../../hooks/useAuth';
+import { LoadingModal } from '../../components/common/LoadingModal';
 
 const EditPhoto = () => {
     const { photoId } = useParams();
     const navigate = useNavigate();
     const [photoData, setPhotoData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
     const [hasError, setHasError] = useState(false);
     const { isAdmin } = useAuth();
     useEffect(() => {
@@ -36,6 +37,7 @@ const EditPhoto = () => {
     const handleUpdate = async (formData: FormData) => {
         console.log(formData)
         try {
+            setIsUploading(true);
             await photoService.editPhoto(photoId, formData, isAdmin);
             console.log("Thành công")
             toast.success("Cập nhật thành công!");
@@ -43,6 +45,8 @@ const EditPhoto = () => {
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
     }
 
@@ -58,7 +62,6 @@ const EditPhoto = () => {
         }
     }
     if (!photoId) return <Outlet />;
-    if (loading) return <LoadingSpinner />
     if (hasError || !photoData) {
         return (
             <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">
@@ -74,11 +77,15 @@ const EditPhoto = () => {
         );
     }
     return (
-        <PhotoForm
-            isEditMode={true}
-            initialData={photoData}
-            onSubmit={handleUpdate}
-            onDelete={handleDelete} />
+        <>
+            <PhotoForm
+                isEditMode={true}
+                initialData={photoData}
+                onSubmit={handleUpdate}
+                onDelete={handleDelete}
+                loading={loading} />
+            <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />
+        </>
     )
 }
 

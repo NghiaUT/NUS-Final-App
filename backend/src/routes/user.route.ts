@@ -5,7 +5,8 @@ import {
   optionalVerifyToken,
   verifyToken,
 } from '../middlewares/auth.middleware.js';
-import upload from '../config/multer/multer.config.js';
+// import upload from '../config/multer/multer.config.js';
+import { uploadCloud } from '../config/cloudinary/cloudinary.config.js';
 
 const userRouter = express.Router();
 
@@ -50,7 +51,7 @@ userRouter.put(
   '/:id/profile',
   verifyToken,
   checkPermission(['USER', 'ADMIN']),
-  upload.single('avatar'),
+  uploadCloud.single('avatar'),
   userController.updateUserProfile
 );
 

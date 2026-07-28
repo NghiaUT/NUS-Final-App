@@ -3,7 +3,7 @@ import prisma from '../config/prisma/prisma.init.js';
 import { redisClient } from '../config/redis/redis.config.js';
 import { type FormData } from '../controllers/album.controller.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
-import { removeFile } from '../utils/removeFile.util.js';
+import { removeFileCloudinary } from '../utils/removeFile.util.js';
 
 export class AlbumService {
   static async getAllAlbumDiscover(
@@ -302,7 +302,7 @@ export class AlbumService {
         });
 
         const photoData = data.photo.map((photo) => ({
-          imageUrl: `${constant.SERVER_URL}/uploads/${photo.filename}`,
+          imageUrl: photo.path,
           mimeType: photo.mimetype,
           sharingMode: newAlbum.sharingMode,
           albumId: newAlbum.id,
@@ -325,7 +325,7 @@ export class AlbumService {
 
       if (Array.isArray(data.photo) && data.photo.length !== 0) {
         await Promise.all(
-          data.photo.map((photo) => removeFile(photo.filename))
+          data.photo.map((photo) => removeFileCloudinary(photo.filename))
         );
       }
       throw error;
@@ -379,7 +379,7 @@ export class AlbumService {
 
       oldImgFilesName = album.photos
         .filter((photo) => deletedPhotosId?.includes(photo.id))
-        .map((photo) => photo.imageUrl);
+        .map((photo) => photo.publicId ?? 'None');
 
       const newAlbum = await prisma.$transaction(async (tx) => {
         // Xóa ảnh cũ.
@@ -397,7 +397,7 @@ export class AlbumService {
         if (Array.isArray(data.photo) && data.photo.length !== 0) {
           // Thêm ảnh mới vào
           const newPhotos = data.photo.map((photo) => ({
-            imageUrl: `${constant.SERVER_URL}/uploads/${photo.filename}`,
+            imageUrl: photo.path,
             mimeType: photo.mimetype,
             sharingMode: album.sharingMode,
             albumId: album.id,
@@ -426,7 +426,7 @@ export class AlbumService {
 
       if (oldImgFilesName) {
         await Promise.all(
-          oldImgFilesName.map((filename) => removeFile(filename))
+          oldImgFilesName.map((publicId) => removeFileCloudinary(publicId))
         );
       }
 
@@ -435,7 +435,7 @@ export class AlbumService {
       console.error('[Service] Lỗi Prisma! Bắt đầu rollback xóa file rác...');
       if (Array.isArray(data.photo) && data.photo.length !== 0) {
         await Promise.all(
-          data.photo.map((photo) => removeFile(photo.filename))
+          data.photo.map((photo) => removeFileCloudinary(photo.filename))
         );
       }
       throw error;
@@ -457,6 +457,7 @@ export class AlbumService {
           select: {
             id: true,
             imageUrl: true,
+            publicId: true,
           },
         },
       },
@@ -488,7 +489,7 @@ export class AlbumService {
     });
 
     await Promise.all(
-      deleteAlbum.photos.map((photo) => removeFile(photo.imageUrl))
+      deleteAlbum.photos.map((photo) => removeFileCloudinary(photo.publicId))
     );
 
     return result;

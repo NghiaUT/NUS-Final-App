@@ -48,7 +48,7 @@ export const sendResetPasswordEmail = async (to: string, token: string) => {
     await emailQueue.add(
       'reset-password-email',
       {
-        from: '"Fotobook Security" <noreply@app.com>',
+        from: `"Fotobook Security" <${constant.SMTP_USER}>`,
         to,
         subject: 'Password Reset Request',
         html: mailHtml,

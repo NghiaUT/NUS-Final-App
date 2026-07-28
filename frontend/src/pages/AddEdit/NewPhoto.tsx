@@ -4,14 +4,17 @@ import PhotoForm from '../../components/add-edit/PhotoForm';
 // import type { PhotoDataForm } from '../../types/forms.types';
 import { photoService } from '../../api/photoService';
 import { useNavigate } from 'react-router-dom';
+import { LoadingModal } from '../../components/common/LoadingModal';
 
 const NewPhoto = () => {
     const [photoData, setPhotoData] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
     const navigate = useNavigate();
 
     const handleUpdate = async (formData: FormData) => {
         console.log(formData)
         try {
+            setIsUploading(true);
             await photoService.addPhoto(formData);
             console.log("Thành công")
             toast.success("Tạo mới ảnh thành công! \n Chuyển hướng sang trang chủ sau 2s");
@@ -19,16 +22,22 @@ const NewPhoto = () => {
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
     }
 
     return (
         // Thêm mới nên không cần hàm xóa: Cần thêm hàm cập nhật để đưa lên server.
-        <PhotoForm
-            isEditMode={false}
-            initialData={photoData}
-            onSubmit={handleUpdate}
-            onDelete={() => { }} />
+        <>
+            <PhotoForm
+                isEditMode={false}
+                initialData={photoData}
+                onSubmit={handleUpdate}
+                onDelete={() => { }}
+                loading={false} />
+            <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />
+        </>
     )
 }
 

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'fs/promises';
 import { InternalServerError } from './apiError.js';
+import { cloudinary } from '../config/cloudinary/cloudinary.config.js';
 
 function isLocalhost(url: string) {
   const localhostRegex =
@@ -8,6 +9,7 @@ function isLocalhost(url: string) {
   return localhostRegex.test(url);
 }
 
+// Remove file cho giai đoạn dev local
 export const removeFile = async (input: string) => {
   try {
     if (!input)
@@ -29,5 +31,24 @@ export const removeFile = async (input: string) => {
       '[FileCleaner] CẢNH BÁO: Rollback xóa file thất bại!',
       fsError
     );
+  }
+};
+
+export const removeFileCloudinary = async (id: string | null) => {
+  // Xóa file đã tải lên Cloudinary
+  try {
+    if (!id) {
+      throw new InternalServerError('Wrong Remove Filename parameter');
+    }
+    const result = await cloudinary.uploader.destroy(id);
+    if (result.result === 'ok') {
+      console.log(`[FileCleaner] Đã dọn dẹp thành công file rác: ${id}`);
+    } else if (result.result === 'not found') {
+      console.log(`[FileCleaner] Không tìm thấy file rác có id: ${id}`);
+    } else {
+      throw new InternalServerError('Xóa ảnh thất bại');
+    }
+  } catch (error) {
+    console.error('[FileCleaner] CẢNH BÁO: Rollback xóa file thất bại!', error);
   }
 };

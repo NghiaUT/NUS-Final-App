@@ -7,8 +7,8 @@ import {
   UnauthorizedError,
 } from '../utils/apiError.js';
 import { SALT } from './auth.service.js';
-import { removeFile } from '../utils/removeFile.util.js';
 import type { UploadPhoto, UserDataProfile } from '../types/form.types.js';
+import { removeFileCloudinary } from '../utils/removeFile.util.js';
 
 export class UserService {
   static async getProfileInformation(
@@ -378,9 +378,7 @@ export class UserService {
       const userData = await prisma.$transaction(async (tx) => {
         // Không lưu avatar xuống photos database.
         if (avatarFile) {
-          await removeFile(user.avatarUrl ?? '');
-
-          const newAvatarUrl = `${constant.SERVER_URL}/uploads/${avatarFile?.filename}`;
+          const newAvatarUrl = avatarFile.path;
           updatedData.avatarUrl = newAvatarUrl;
         }
 
@@ -402,7 +400,7 @@ export class UserService {
       return userData;
     } catch (error) {
       console.log('Có lỗi prisma rollback xóa file đã tải lên.');
-      if (avatarFile) await removeFile(avatarFile?.filename);
+      if (avatarFile) await removeFileCloudinary(avatarFile.filename);
       throw error;
     }
   }

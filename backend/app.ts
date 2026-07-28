@@ -10,7 +10,7 @@ import './src/config/redis/redis.config.js';
 import './src/config/queue/email.queue.js';
 import path from 'path';
 
-const port = 3000;
+const port = constant.PORT;
 const app = express();
 
 // Allow frontend domain:

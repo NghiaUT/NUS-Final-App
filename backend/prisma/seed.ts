@@ -1,7 +1,11 @@
 // Gen mockdata for db
 import { SharingMode, UserRole } from '../generated/prisma/enums.js';
 import 'dotenv/config';
-import { PrismaClient } from '../generated/prisma/client.js';
+import {
+  type Album,
+  PrismaClient,
+  type User,
+} from '../generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import bcrypt from 'bcrypt';
@@ -473,9 +477,10 @@ async function main() {
   // --------------------------------------------------
   const defaultPasswordHash = await hashPassword('Password123!');
 
-  const createdUsers = [];
+  const createdUsers: User[] = [];
   for (let i = 0; i < usersData.length; i++) {
     const u = usersData[i];
+    if (!u) break;
     const user = await prisma.user.upsert({
       where: { email: u.email },
       update: {},
@@ -499,6 +504,7 @@ async function main() {
   // --------------------------------------------------
   for (let i = 0; i < standalonePhotosData.length; i++) {
     const p = standalonePhotosData[i];
+    if (!p) break;
     const owner = createdUsers[i % createdUsers.length];
     await prisma.photo.create({
       data: {
@@ -506,9 +512,9 @@ async function main() {
         description: p.description,
         alt_text: p.alt_text,
         sharingMode: p.sharingMode,
-        imageUrl: pickImage(i),
+        imageUrl: pickImage(i) ?? 'None',
         mimeType: 'image/jpeg',
-        userId: owner.id,
+        userId: owner?.id ?? '123',
       },
     });
   }
@@ -519,11 +525,12 @@ async function main() {
   // --------------------------------------------------
   // BƯỚC 3: TẠO 25 ALBUMS, MỖI ALBUM CÓ 2-20 PHOTOS
   // --------------------------------------------------
-  const createdAlbums = [];
+  const createdAlbums: Album[] = [];
   let imageCursor = 0; // tiếp tục xoay vòng pool ảnh cho album, khác điểm bắt đầu với standalone photos
 
   for (let i = 0; i < albumsData.length; i++) {
     const a = albumsData[i];
+    if (!a) break;
     const owner = createdUsers[i % createdUsers.length];
 
     const album = await prisma.album.create({
@@ -531,7 +538,7 @@ async function main() {
         title: a.title,
         description: a.description,
         sharingMode: a.sharingMode,
-        userId: owner.id,
+        userId: owner?.id ?? '123',
       },
     });
     createdAlbums.push(album);
@@ -543,9 +550,9 @@ async function main() {
           description: `Một khoảnh khắc thuộc bộ sưu tập "${a.title}".`,
           alt_text: `${a.title} ${j + 1}`,
           sharingMode: a.sharingMode,
-          imageUrl: pickImage(imageCursor),
+          imageUrl: pickImage(imageCursor) ?? 'None',
           mimeType: 'image/jpeg',
-          userId: owner.id,
+          userId: owner?.id ?? '123',
           albumId: album.id,
         },
       });
@@ -574,6 +581,7 @@ async function main() {
 
       const follower = createdUsers[followerIndex];
       const following = createdUsers[followingIndex];
+      if (!follower || !following) break;
       const key = `${follower.id}-${following.id}`;
 
       if (!followPairs.has(key)) {
@@ -636,6 +644,7 @@ async function main() {
   ) {
     const photo = allPhotos[attempts % allPhotos.length];
     const user = createdUsers[userCursorForPhotoLike % createdUsers.length];
+    if (!user || !photo) continue;
     const key = `${user.id}-${photo.id}`;
 
     if (!photoLikePairs.has(key)) {
@@ -680,6 +689,7 @@ async function main() {
   ) {
     const album = createdAlbums[albumAttempts % createdAlbums.length];
     const user = createdUsers[userCursorForAlbumLike % createdUsers.length];
+    if (!user || !album) continue;
     const key = `${user.id}-${album.id}`;
 
     if (!albumLikePairs.has(key)) {

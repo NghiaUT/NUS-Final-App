@@ -1,9 +1,9 @@
 import prisma from '../config/prisma/prisma.init.js';
-import type { FormData } from '../types/form.types.js';
+import type { FormData, UploadPhoto } from '../types/form.types.js';
 import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
-import { removeFile } from '../utils/removeFile.util.js';
 import { redisClient } from '../config/redis/redis.config.js';
+import { removeFileCloudinary } from '../utils/removeFile.util.js';
 
 export class PhotoService {
   static async getAllPhotoDiscover(
@@ -258,7 +258,7 @@ export class PhotoService {
         throw new BadRequestError('Invalid Form Data!');
       }
 
-      const imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
+      const imageUrl = data.photo.path;
 
       const newPhoto = await prisma.photo.create({
         data: {
@@ -267,6 +267,7 @@ export class PhotoService {
           description: data.description,
           sharingMode: data.sharingMode,
           mimeType: data.photo.mimetype,
+          publicId: data.photo.filename,
           userId: userId,
         },
       });
@@ -276,7 +277,7 @@ export class PhotoService {
       console.error(
         '[Service] Lỗi khi thực hiện! Bắt đầu rollback xóa file rác...'
       );
-      if (data.photo) await removeFile(data.photo.filename);
+      if (data.photo) await removeFileCloudinary(data.photo.filename);
       throw error;
     }
   }
@@ -312,8 +313,8 @@ export class PhotoService {
       let imageUrl = photo.imageUrl;
       let mimeType = photo.mimeType;
       if (data.photo) {
-        oldImgFileName = imageUrl;
-        imageUrl = `${constant.SERVER_URL}/uploads/${data.photo.filename}`;
+        oldImgFileName = photo.publicId;
+        imageUrl = data.photo.path;
         mimeType = data.photo.mimetype;
       }
 
@@ -333,7 +334,7 @@ export class PhotoService {
 
       // Chỉ xóa file sau khi db cập nhật thành công!:
       if (oldImgFileName) {
-        await removeFile(oldImgFileName);
+        await removeFileCloudinary(oldImgFileName);
       }
 
       return newPhoto;
@@ -342,7 +343,7 @@ export class PhotoService {
       // Rollback: Khi prisma bị lỗi thì đã có file ảnh trong uploads
       if (data.photo) {
         console.log('FileName: ', data.photo.filename);
-        await removeFile(data.photo.filename);
+        await removeFileCloudinary(data.photo.filename);
       }
       throw error;
     }
@@ -377,8 +378,8 @@ export class PhotoService {
         },
       });
 
-      // Xóa file trong uploads/
-      await removeFile(deletePhoto.imageUrl);
+      // Xóa file trong cloudinary
+      await removeFileCloudinary(deletePhoto.publicId);
       return result;
     } catch (error) {
       throw error;

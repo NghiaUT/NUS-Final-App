@@ -50,6 +50,7 @@ axiosInstance.interceptors.response.use(
     // Xử lý khi chính API Refresh Token bị lỗi: -> Refresh Token hết hạn theo chuẩn là 400 Bad Request.
     if (isRefresHUrl) {
       setAuthHeader(null);
+      localStorage.removeItem('accessToken');
       if (status === 400) {
         window.location.href = '/login'; // Điều hướng người dùng sang trang login.
       }

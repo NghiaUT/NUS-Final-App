@@ -1,10 +1,10 @@
 import prisma from '../config/prisma/prisma.init.js';
 import { BadRequestError, NotFoundError } from '../utils/apiError.js';
 import type { UploadPhoto, UserDataProfile } from '../types/form.types.js';
-import { removeFile } from '../utils/removeFile.util.js';
 import { constant } from '../config/constant/constant.js';
 import { SALT } from './auth.service.js';
 import bcrypt from 'bcrypt';
+import { removeFileCloudinary } from '../utils/removeFile.util.js';
 
 export class AdminService {
   static async getUsers(page: number, limit: number) {
@@ -116,7 +116,7 @@ export class AdminService {
       const userData = await prisma.$transaction(async (tx) => {
         // Không lưu avatar xuống photos database.
         if (avatarFile) {
-          await removeFile(user.avatarUrl ?? '');
+          await removeFileCloudinary(user.avatarPublicId);
 
           const newAvatarUrl = `${constant.SERVER_URL}/uploads/${avatarFile?.filename}`;
           updatedData.avatarUrl = newAvatarUrl;
@@ -139,8 +139,8 @@ export class AdminService {
 
       return userData;
     } catch (error) {
-      console.log('Có lỗi prisma rollback xóa file đã tải lên.');
-      if (avatarFile) await removeFile(avatarFile?.filename);
+      console.log('[FileCleaner] Có lỗi prisma rollback xóa file đã tải lên.');
+      if (avatarFile) await removeFileCloudinary(avatarFile?.filename);
       throw error;
     }
   }

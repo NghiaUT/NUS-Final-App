@@ -3,13 +3,14 @@ import { toast } from 'react-toastify';
 import AlbumForm from '../../components/add-edit/AlbumForm';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { albumService } from '../../api/albumService';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { useAuth } from '../../hooks/useAuth';
+import { LoadingModal } from '../../components/common/LoadingModal';
 
 const EditAlbum = () => {
     const [albumData, setAlbumData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const navigate = useNavigate();
     const { albumId } = useParams();
     const { isAdmin } = useAuth();
@@ -35,6 +36,7 @@ const EditAlbum = () => {
     const handleUpdate = async (formData: FormData) => {
         console.log(formData);
         try {
+            setIsUploading(true);
             if (!albumId) {
                 toast.error("Album Id không hợp lệ!");
                 return;
@@ -46,11 +48,14 @@ const EditAlbum = () => {
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
     }
 
     const handleDelete = async () => {
         try {
+            setIsUploading(true);
             if (!albumId) {
                 toast.error("Album Id không hợp lệ!");
                 return;
@@ -62,11 +67,13 @@ const EditAlbum = () => {
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
+            throw error;
+        } finally {
+            setIsUploading(false);
         }
     }
 
     if (!albumId) return <Outlet />;
-    if (loading) return <LoadingSpinner />
     if (hasError || !albumData) {
         return (
             <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">
@@ -83,12 +90,17 @@ const EditAlbum = () => {
     }
 
     return (
-        <AlbumForm
-            isEditMode={true}
-            initialData={albumData}
-            onSubmit={handleUpdate}
-            onDelete={handleDelete}
-        />
+        <>
+            <AlbumForm
+                isEditMode={true}
+                initialData={albumData}
+                onSubmit={handleUpdate}
+                onDelete={handleDelete}
+                loading={loading}
+            />
+
+            <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />
+        </>
     )
 }
 

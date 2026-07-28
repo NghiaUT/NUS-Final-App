@@ -4,7 +4,7 @@ import {
   checkPermission,
   verifyToken,
 } from '../middlewares/auth.middleware.js';
-import upload from '../config/multer/multer.config.js';
+import { uploadCloud } from '../config/cloudinary/cloudinary.config.js';
 
 const adminRouter = express.Router();
 
@@ -15,7 +15,7 @@ adminRouter.get('/users', adminController.getUsers);
 adminRouter.get('/users/:id', adminController.getUser);
 adminRouter.put(
   '/users/:id/profile',
-  upload.single('avatar'),
+  uploadCloud.single('avatar'),
   adminController.updateUser
 );
 adminRouter.delete('/users/:id', adminController.deleteUser);
@@ -24,7 +24,7 @@ adminRouter.get('/photos', adminController.getPhotos);
 adminRouter.get('/photos/:id', adminController.getPhoto);
 adminRouter.put(
   '/photos/:id',
-  upload.single('photo'),
+  uploadCloud.single('photo'),
   adminController.editPhoto
 );
 adminRouter.delete('/photos/:id', adminController.deletePhoto);
@@ -33,7 +33,7 @@ adminRouter.get('/albums', adminController.getAlbums);
 adminRouter.get('/albums/:id', adminController.getAlbum);
 adminRouter.put(
   '/albums/:id',
-  upload.array('album'),
+  uploadCloud.array('album'),
   adminController.editAlbum
 );
 adminRouter.delete('/albums/:id', adminController.deleteAlbum);

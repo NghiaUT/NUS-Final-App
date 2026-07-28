@@ -13,39 +13,11 @@ type PhotoItem = {
     alt_text: string;
 };
 
-// Trường photos của kiểu Album chỉ chứa 3 photo đầu tiên 
 type AlbumItem = {
     id: number;
     title: string;
     photos: PhotoItem[];
 }
-
-// // Hàm random số nguyên trong khoảng [min, max] (bao gồm cả 2 đầu).
-// const randomInt = (min: number, max: number) => {
-//     return Math.floor(Math.random() * (max - min + 1)) + min;
-// };
-
-// // Sinh danh sách ảnh con cho 1 album, số lượng từ 5-25 ảnh.
-// const generateAlbumPhotos = (albumId: number): PhotoItem[] => {
-//     const photoCount = randomInt(5, 25);
-
-//     return Array.from({ length: photoCount }, (_, i) => ({
-//         id: albumId * 1000 + i + 1, // Đảm bảo id duy nhất giữa các album.
-//         url: `https://picsum.photos/seed/album-${albumId}-photo-${i + 1}/400/400`,
-//         alt_text: 'Lorem ipsum',
-//     }));
-// };
-
-// // Mock data - 150 album, mỗi album có 5-25 ảnh, sẽ thay bằng dữ liệu thật từ API sau này.
-// const MOCK_MEDIA: AlbumItem[] = Array.from({ length: 50 }, (_, i) => {
-//     const albumId = i + 1;
-
-//     return {
-//         id: albumId,
-//         title: 'Lorem ipsum dolor sit amet...',
-//         photos: generateAlbumPhotos(albumId),
-//     };
-// });
 
 const ALBUMS_PER_PAGE = 40;
 
@@ -69,15 +41,47 @@ const ManageAlbums = () => {
         }
         fetchingAlbumData();
     }, [page]); // Gọi API lấy danh sách dữ liệu 
-    if (loading) return <LoadingSpinner />
     return (
         <div className="w-full h-full flex flex-col justify-between p-6">
-            <MediaList
-                type={"album"}
-                data={albumData} />
-            <FooterPagination currentPage={page} setCurrentPage={setPage} totalPages={Math.ceil(totalAlbums / ALBUMS_PER_PAGE)} />
+
+            {loading ? (
+                // 1. Trạng thái Loading
+                <div className="flex-1 flex flex-col justify-center items-center text-slate-500">
+                    <LoadingSpinner />
+                    Đang tải danh sách album...
+                </div>
+
+            ) : !albumData || albumData.length === 0 ? (
+                // 2. Trạng thái Empty
+                <div className="flex-1 w-[95%] mx-auto flex flex-col items-center justify-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 my-4">
+                    {/* Icon Photo/Album */}
+                    <svg className="w-16 h-16 mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p className="text-lg font-medium text-slate-600">Chưa có album nào</p>
+                    <p className="text-sm mt-1 text-center">Hệ thống chưa có dữ liệu album để hiển thị.</p>
+                </div>
+
+            ) : (
+                // 3. Trạng thái Có dữ liệu
+                <>
+                    <div className="flex-1 mb-8">
+                        <MediaList
+                            type="album"
+                            data={albumData}
+                        />
+                    </div>
+
+                    <FooterPagination
+                        currentPage={page}
+                        setCurrentPage={setPage}
+                        totalPages={Math.ceil(totalAlbums / ALBUMS_PER_PAGE)}
+                    />
+                </>
+            )}
+
         </div>
-    )
+    );
 }
 
 export default ManageAlbums;

@@ -4,7 +4,8 @@ import {
   optionalVerifyToken,
   verifyToken,
 } from '../middlewares/auth.middleware.js';
-import upload from '../config/multer/multer.config.js';
+// import upload from '../config/multer/multer.config.js';
+import { uploadCloud } from '../config/cloudinary/cloudinary.config.js';
 
 const albumRouter = express.Router();
 
@@ -17,14 +18,14 @@ albumRouter.get('/feed', verifyToken, albumController.getAllAlbumFeed);
 albumRouter.post(
   '/',
   verifyToken,
-  upload.array('album', 25),
+  uploadCloud.array('album', 25),
   albumController.newAlbum
 );
 albumRouter.get('/:id', verifyToken, albumController.getAlbum);
 albumRouter.put(
   '/:id',
   verifyToken,
-  upload.array('album', 25),
+  uploadCloud.array('album', 25),
   albumController.editAlbum
 );
 albumRouter.delete('/:id', verifyToken, albumController.deleteAlbum);

@@ -6,4 +6,11 @@ import tailwindcss from '@tailwindcss/vite';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
+  server: {
+    watch: {
+      usePolling: true,
+    },
+    host: true,
+    port: 5173,
+  },
 });
