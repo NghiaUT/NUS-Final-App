@@ -152,8 +152,8 @@ const LoginPage = () => {
                 </button>
               </div>
 
-              <div className="text-center mt-4">
-                <a href="#" className="text-sm font-medium text-[#3b5998] hover:text-[#2d4373]">
+              <div className="text-center mt-4 cursor-pointer">
+                <a onClick={() => navigate('/forgot-password')} className="text-sm font-medium text-[#3b5998] hover:text-[#2d4373]">
                   Forgot password?
                 </a>
               </div>

@@ -144,3 +144,18 @@ export const loginSchema = z.object({
     .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
     .max(64, 'Mật khẩu phải nhỏ hơn 64 ký tự'),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.email('Email không hợp lệ!').max(255, 'Email phải nhỏ hơn 255 ký tự'),
+});
+
+export const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(1, 'Password cannot be empty')
+    .max(64, 'Password must be a maximum of 64 characters long'),
+  confirmedPassword: z
+    .string()
+    .min(1, 'Confirmed password cannot be empty')
+    .max(64, 'Confirmed password must be a maximum of 64 characters long'),
+});

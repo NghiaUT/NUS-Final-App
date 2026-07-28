@@ -82,9 +82,9 @@ export const authController = {
       }
 
       const { newPassword } = req.body;
-      const result = await AuthService.resetPassword(token, newPassword);
+      await AuthService.resetPassword(token, newPassword);
 
-      res.redirect(302, result.directLink);
+      sendSuccessRes(res, 'Update Password successfully', null, 201);
     } catch (error) {
       next(error);
     }
