@@ -15,10 +15,7 @@ export const constant = {
   SMTP_PASS: process.env.SMTP_PASS ?? 'Password',
   CLIENT_URL: process.env.CLIENT_URL ?? 'http://localhost:5173',
   SERVER_URL: process.env.SERVER_URL ?? 'http://localhost:3000',
-  REDIS_CLIENT_URL:
-    process.env.NODE_ENV === 'development'
-      ? (process.env.REDIS_CLIENT_URL ?? 'redis_client_url')
-      : 'redis://127.0.0.1:6379',
+  REDIS_CLIENT_URL: process.env.REDIS_CLIENT_URL ?? 'redis_client_url',
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ?? 'cloud_name',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ?? 'cloud_api_key',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ?? 'cloud_secret',
