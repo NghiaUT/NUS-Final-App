@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
 
 // Schema validate cho 1 file ảnh
@@ -14,7 +14,7 @@ export const singleImageSchema = z
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Chỉ chấp nhận các định dạng .jpeg, .png, .gif',
+        message: 'Chỉ chấp nhận các định dạng .jpeg, .png, .gif, .webp',
       });
       return; // Dừng lại nếu sai định dạng
     }

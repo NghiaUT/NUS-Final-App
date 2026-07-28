@@ -12,7 +12,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
         photo: initialData?.photo || null,
         imageUrl: initialData?.imageUrl || null,
     });
-    const [errors, setErrors] = useState([]);
+    const [errors, setErrors] = useState<string[]>([]);
     const [previewUrl, setPreviewUrl] = useState(
         initialData?.imageUrl ? initialData.imageUrl : null
     );
@@ -65,10 +65,12 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
         if (!formResult.success) {
             const fieldErrors = z.treeifyError(formResult.error);
             // Chuyển đổi array lỗi đầu tiên thành string cho dễ hiển thị
-            const formattedErrors = [];
-            Object.entries(fieldErrors.properties).forEach(([key, value]) => {
-                formattedErrors.push(value.errors[0]);
-            });
+            const formattedErrors = [
+                ...fieldErrors.errors,                                   // lỗi root (path rỗng, ví dụ refine chéo nhiều field)
+                ...Object.values(fieldErrors.properties ?? {})           // guard undefined
+                    .flatMap((value) => value.errors),
+            ];
+
             setErrors(formattedErrors);
             return;
         }

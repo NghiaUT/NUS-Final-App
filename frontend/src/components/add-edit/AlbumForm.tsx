@@ -114,23 +114,39 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
 
         if (!form.success) {
             const fieldErrors = z.treeifyError(form.error);
-            // Chuyển đổi array lỗi đầu tiên thành string cho dễ hiển thị
-            const formattedErrors = [];
-            Object.entries(fieldErrors.properties).forEach(([key, value]) => {
-                formattedErrors.push(value.errors[0]);
-            });
+
+            const formattedErrors = [
+                ...fieldErrors.errors,                                   // lỗi root (path rỗng, ví dụ refine chéo nhiều field)
+                ...Object.values(fieldErrors.properties ?? {})           // guard undefined
+                    .flatMap((value) => value.errors),
+            ];
+
             setErrors(formattedErrors);
             return;
         }
 
         // Kiểm tra schema ảnh cho các file ảnh mới, bao gồm cả tạo mới và edit ảnh.
-        if (currPhotos.length < 1) setErrors((prev) => [...prev, 'Vui lòng đính kèm ít nhất 1 hình ảnh']);
-        if (currPhotos.length > 25) setErrors((prev) => [...prev, 'Tối đa được tải lên 25 hình ảnh']);
+        if (currPhotos.length < 1) {
+            setErrors((prev) => [...prev, 'Vui lòng đính kèm ít nhất 1 hình ảnh']);
+            return;
+        }
+        if (currPhotos.length > 25) {
+            setErrors((prev) => [...prev, 'Tối đa được tải lên 25 hình ảnh']);
+            return;
+        }
         const albumResult = albumImageSchema.safeParse(currPhotos.filter((photo) => photo.file).map((photo) => (photo.file))); //Kiểm tra trên các ảnh mới.
         if (!albumResult.success) {
             const fieldErrors = z.treeifyError(albumResult.error);
-            const formattedErrors = fieldErrors?.items ? fieldErrors?.items[0]?.errors : 'Lỗi khi tải ảnh';
-            setErrors((prev) => [...prev, ...formattedErrors]);
+
+            // items là mảng thưa: phần tử hợp lệ = undefined, phần tử lỗi = { errors: [...] }
+            // dùng ?? [] để an toàn khi items không tồn tại (ví dụ lỗi nằm ở root, không theo index)
+            const formattedErrors = (fieldErrors.items ?? [])
+                .flatMap((item) => item?.errors ?? []);
+
+            setErrors((prev) => [
+                ...prev,
+                ...(formattedErrors.length > 0 ? formattedErrors : ['Lỗi khi tải ảnh']),
+            ]);
             return;
         }
 
