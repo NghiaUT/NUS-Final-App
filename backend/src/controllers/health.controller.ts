@@ -3,7 +3,7 @@ import prisma from '../config/prisma/prisma.init.js';
 import { ApiError } from '../utils/apiError.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { redisClient } from '../config/redis/redis.config.js';
-import { emailQueue } from '../config/queue/email.queue.js';
+import transporter from '../config/mail/mailer.config.js';
 
 export const healthController = {
   check: async (_req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +20,7 @@ export const healthController = {
           timestamp: new Date().toISOString(),
           database: 'connected',
           redis: redisClient.status,
+          mailer: await transporter.verify(),
         },
         200
       );

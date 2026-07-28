@@ -77,7 +77,7 @@ const ProfileCard = ({ profile, onFollowChange }) => {
           </p>
         </div>
       </div>
-      {!isUserProfile && (isFollowing === true ? (
+      {user && !isUserProfile && (isFollowing === true ? (
         <div className="inline-block p-[2px] rounded-full bg-linear-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 transition-all">
           <button className="px-4 py-1 text-sm font-bold text-[#f26522] bg-white rounded-full w-full h-full cursor-pointer" onClick={handleFollowClick}>
             following

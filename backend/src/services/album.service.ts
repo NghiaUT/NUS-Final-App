@@ -306,6 +306,7 @@ export class AlbumService {
           mimeType: photo.mimetype,
           sharingMode: newAlbum.sharingMode,
           albumId: newAlbum.id,
+          publicId: photo.filename, // Lưu id của nó trên cloudinary
           userId: userId,
         }));
 

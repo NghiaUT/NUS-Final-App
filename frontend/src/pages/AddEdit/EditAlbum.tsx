@@ -5,6 +5,7 @@ import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { albumService } from '../../api/albumService';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingModal } from '../../components/common/LoadingModal';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const EditAlbum = () => {
     const [albumData, setAlbumData] = useState(null);
@@ -74,6 +75,10 @@ const EditAlbum = () => {
     }
 
     if (!albumId) return <Outlet />;
+    if (loading) return (
+        <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">
+            <LoadingSpinner />
+        </div>);
     if (hasError || !albumData) {
         return (
             <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">

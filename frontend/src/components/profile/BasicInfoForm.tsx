@@ -168,8 +168,9 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                             name="email"
                             value={basicInfo.email}
                             onChange={handleChange}
+                            readOnly
                             placeholder="someone@example.com"
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500 read-only:bg-gray-200 read-only:text-gray-500 read-only:focus:ring-0 cursor-default"
                         />
                         {basicErrors.email && (
                             <p className="text-red-500 text-xs mt-1">{basicErrors.email}</p>

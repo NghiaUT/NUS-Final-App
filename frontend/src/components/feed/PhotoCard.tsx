@@ -109,7 +109,7 @@ const PhotoCard = ({ data }: any) => {
             />
             <p className="text-sm sm:text-base text-blue font-semibold line-clamp-1">{name}</p>
           </div>
-          {user && (isStateFollowing ? (
+          {user && user.id !== authorId && (isStateFollowing ? (
             <div
               className="px-1.5 py-1.5 sm:px-2 sm:py-2 rounded-full font-semibold text-white text-xs bg-orange cursor-pointer select-none"
               onClick={handleFollowClick}

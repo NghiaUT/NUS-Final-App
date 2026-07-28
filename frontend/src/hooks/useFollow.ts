@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { userService } from '../api/userService';
+import { useAuth } from './useAuth';
+import { toast } from 'react-toastify';
 
 export const useFollow = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const toggleFollow = async (targetUserId: string, isFollowing: boolean) => {
     setIsLoading(true);
     setError(null);
     try {
+      if (!user) {
+        toast.error('Vui lòng đăng nhập trước khi follow người dùng');
+        throw new Error();
+      }
       if (!isFollowing) {
         await userService.follow(targetUserId);
       } else {
@@ -17,7 +24,7 @@ export const useFollow = () => {
       return true;
     } catch (error: any) {
       setError(error?.message ?? 'Lỗi khi gửi yêu cầu follow');
-      return false;
+      throw error;
     } finally {
       setIsLoading(false);
     }

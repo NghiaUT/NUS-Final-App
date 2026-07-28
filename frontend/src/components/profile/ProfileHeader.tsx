@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
 import { useFollow } from '../../hooks/useFollow';
+import { useAuth } from '../../hooks/useAuth';
 
 const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }) => {
   const navigate = useNavigate();
   const [isFollow, setIsFollow] = useState(isFollowing);
   const { toggleFollow } = useFollow();
+  const { user: currentUser } = useAuth();
   const handleFollowClick = async () => {
     const previous = isFollow;
     setIsFollow(!previous); // cập nhật UI lạc quan
@@ -26,15 +28,17 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFo
         {isMyProfile ?
           <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#405b95] border-2 border-[#405b95] rounded-full hover:bg-blue-50 transition-colors cursor-pointer bg-white" onClick={() => navigate('/edit-profile')}>
             Edit Profile
-          </button> : (
-            isFollow ?
-              <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#f26522] border border-[#f26522] rounded-full hover:bg-orange-50 transition-colors cursor-pointer" onClick={handleFollowClick}>
-                unfollow
-              </button> :
-              <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold rounded-full transition-colors cursor-pointer text-white bg-[#f26522] border border-[#f26522] hover:bg-[#d9581b] hover:border-[#d9581b]" onClick={handleFollowClick}>
-                follow
-              </button>
-          )}
+          </button> :
+          (currentUser ? (isFollow ?
+            <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#f26522] border border-[#f26522] rounded-full hover:bg-orange-50 transition-colors cursor-pointer" onClick={handleFollowClick}>
+              unfollow
+            </button> :
+            <button className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold rounded-full transition-colors cursor-pointer text-white bg-[#f26522] border border-[#f26522] hover:bg-[#d9581b] hover:border-[#d9581b]" onClick={handleFollowClick}>
+              follow
+            </button>
+          ) : <div className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#f26522] border border-[#f26522] rounded-full hover:bg-orange-50 transition-colors cursor-pointer invisible">
+            Hello
+          </div>)}
         <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 w-full text-center md:text-left">
           {user.name}
         </h1>
