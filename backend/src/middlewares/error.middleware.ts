@@ -13,10 +13,12 @@ export const errorHandler = (
   console.log('Error found in app: \n', '='.repeat(50), '\n', err);
   let statusCode = 500;
   let message = 'Internal Server Error';
+  let errCode = '';
 
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
+    errCode = err.errCode;
   }
 
   if (err instanceof MulterError) {
@@ -27,5 +29,5 @@ export const errorHandler = (
   //   Formatting
   const stack =
     constant.NODE_ENV === 'development' ? { stack: err.stack } : null;
-  sendErrorRes(res, message, statusCode, stack);
+  sendErrorRes(res, message, statusCode, stack, errCode);
 };

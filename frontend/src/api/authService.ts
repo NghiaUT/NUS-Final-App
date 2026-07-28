@@ -8,4 +8,6 @@ export const authService = {
   refreshToken: () => axiosInstance.post('/auth/refresh-token'),
   forgotPassword: (email: string) => axiosInstance.post('/auth/forgot-password', { email }),
   me: () => axiosInstance.get<{ data: User }>('/auth/me'),
+  resetPassword: (token: string, newPassword: string) =>
+    axiosInstance.post(`/auth/reset-password?token=${encodeURIComponent(token)}`, { newPassword }),
 };

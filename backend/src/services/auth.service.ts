@@ -191,7 +191,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundError('User with this email does not exist!');
+      return;
     }
 
     // 2. Tạo chuỗi token ngẫu nhiên và gửi về phía người dùng email.
@@ -208,18 +208,15 @@ export class AuthService {
     });
 
     sendResetPasswordEmail(email, token.token).catch(async (error) => {
-      await prisma.user.update({
+      await prisma.user.updateMany({
         where: {
           id: user.id,
+          resetPasswordToken: token.hashedToken, // chỉ xóa nếu vẫn còn đúng token này
         },
-        data: {
-          resetPasswordToken: null,
-          resetPasswordExpire: null,
-        },
+        data: { resetPasswordToken: null, resetPasswordExpire: null },
       });
-
       console.error(error);
-    }); // Rollback nếu có lỗi xảy ra. -> Update sử dụng prisma transaction cho sau này.
+    });
   }
 
   static async resetPassword(token: string, newPassword: string) {
@@ -261,10 +258,10 @@ export class AuthService {
       },
     });
 
-    // 3. Trả về link điều hướng người dùng sang trang login.
-    return {
-      directLink: `${constant.CLIENT_URL}/login`,
-    };
+    // 3. Trả về link điều hướng người dùng sang trang login. -> Có thể không cần khi có cơ chế thực hiện ở frontend.
+    // return {
+    //   directLink: `${constant.CLIENT_URL}/login`,
+    // };
   }
 
   static async checkRefreshToken(token: string) {
@@ -301,11 +298,11 @@ export class AuthService {
     }
 
     const newPayload = {
-      id: payload.id,
-      name: payload.name,
-      role: payload.role,
-      email: payload.email,
-      avatarUrl: payload.avatarUrl,
+      id: userId,
+      name: `${user.firstName || 'User'} ${user.lastName || ''}`.trim(),
+      role: user.role,
+      email: user.email,
+      avatarUrl: user.avatarUrl ?? 'avatar',
     };
 
     // 2. Tạo accessToken mới và trả về.

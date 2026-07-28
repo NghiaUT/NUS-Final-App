@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { formInfoSchema, singleImageSchema } from '../../utils/validators';
 import { z } from 'zod';
 import LoadingSpinner from '../common/LoadingSpinner';
+import DeleteModal from '../common/DeleteModal';
 
 const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => {
     const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     const [previewUrl, setPreviewUrl] = useState(
         initialData?.imageUrl ? initialData.imageUrl : null
     );
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     // Cleanup blob for review image
     useEffect(() => {
@@ -98,9 +100,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     }
 
     const handleDeleteClick = () => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa ảnh này? Hành động này không thể hoàn tác.")) {
-            onDelete(initialData.id);
-        }
+        onDelete(initialData.id);
     }
     return (
         <div className='flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0'>
@@ -213,7 +213,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                                     Save
                                 </button>
                                 {isEditMode && (
-                                    <button type="button" onClick={handleDeleteClick} className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded transition-colors flex gap-1">
+                                    <button type="button" onClick={() => setShowDeleteModal(true)} className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded transition-colors flex gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                                         <span>Delete</span>
                                     </button>
@@ -222,6 +222,15 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                         </form>
                     </div>
                 </div>}
+            <DeleteModal
+                isOpen={showDeleteModal}
+                onCancel={() => setShowDeleteModal(false)}
+                onConfirm={(skipNextTime) => {
+                    if (skipNextTime) localStorage.setItem('skipDeleteConfirm', '1');
+                    setShowDeleteModal(false);
+                    handleDeleteClick();
+                }}
+            />
         </div>
     )
 }

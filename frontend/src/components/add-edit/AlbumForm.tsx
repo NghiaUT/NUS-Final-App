@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { albumImageSchema, formInfoSchema } from '../../utils/validators';
 import { z } from 'zod';
 import LoadingSpinner from '../common/LoadingSpinner';
+import DeleteModal from '../common/DeleteModal';
 
 type PhotoPreview = {
     id?: string;
@@ -26,6 +27,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
 
     const [errors, setErrors] = useState<string[]>([]);
     const [deletedPhotosId, setDeletedPhotosId] = useState<string[]>([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const fileInputRef = useRef(null); // -> dùng để upload ảnh lên bằng ref
 
@@ -273,7 +275,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                                     Save
                                 </button>
                                 {isEditMode && (
-                                    <button type="button" onClick={handleDeleteClick} className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded transition-colors flex gap-1">
+                                    <button type="button" onClick={() => setShowDeleteModal(true)} className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded transition-colors flex gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                                         <span>Delete</span>
                                     </button>
@@ -283,6 +285,16 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                     </div>
                 </div>
             }
+            <DeleteModal
+                isOpen={showDeleteModal}
+                onCancel={() => setShowDeleteModal(false)}
+                onConfirm={(skipNextTime) => {
+                    if (skipNextTime) localStorage.setItem('skipDeleteConfirm', '1');
+                    setShowDeleteModal(false);
+                    handleDeleteClick();
+                }}
+                description='Bạn sắp xóa vĩnh viễn album này khỏi Fotobook. Người khác đã xem hoặc lưu album vẫn có thể còn bản sao.'
+            />
         </div>
     )
 }

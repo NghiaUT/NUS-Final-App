@@ -39,7 +39,10 @@ export const verifyToken = async (
 
     if (!result.valid) {
       if (result.reason === 'Expired') {
-        throw new UnauthorizedError('JWT Access Token has been expired!');
+        throw new UnauthorizedError(
+          'JWT Access Token has been expired!',
+          'JWT_EXPIRED'
+        );
       } else {
         throw new BadRequestError('JWT has wrong format!');
       }
@@ -86,7 +89,10 @@ export const optionalVerifyToken = async (
 
     if (!result.valid) {
       if (result.reason === 'Expired') {
-        throw new UnauthorizedError('JWT Access Token has been expired!');
+        throw new UnauthorizedError(
+          'JWT Access Token has been expired!',
+          'JWT_EXPIRED'
+        );
       } else {
         throw new BadRequestError('JWT has wrong format!');
       }

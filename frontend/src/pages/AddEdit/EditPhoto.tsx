@@ -5,6 +5,7 @@ import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { photoService } from '../../api/photoService';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingModal } from '../../components/common/LoadingModal';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const EditPhoto = () => {
     const { photoId } = useParams();
@@ -39,7 +40,6 @@ const EditPhoto = () => {
         try {
             setIsUploading(true);
             await photoService.editPhoto(photoId, formData, isAdmin);
-            console.log("Thành công")
             toast.success("Cập nhật thành công!");
             setTimeout(() => navigate('/'), 2000);
         } catch (error) {
@@ -52,17 +52,25 @@ const EditPhoto = () => {
 
     const handleDelete = async () => {
         try {
+            setIsUploading(true);
             await photoService.deletePhoto(photoId, isAdmin);
-            console.log("Thành công")
             toast.success("Xóa ảnh thành công!");
             setTimeout(() => navigate('/'), 2000);
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
             toast.error(errorMessage);
+            throw error;
+        } finally {
+            setIsUploading(false);
         }
     }
     if (!photoId) return <Outlet />;
-    if (hasError || !photoData) {
+    if (loading) return (
+        <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">
+            <LoadingSpinner />
+        </div>);
+
+    if ((hasError || !photoData)) {
         return (
             <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">
                 <h3 style={{ color: 'red' }}>Không thể tải dữ liệu ảnh</h3>
