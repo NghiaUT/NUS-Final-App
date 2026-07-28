@@ -301,11 +301,11 @@ export class AuthService {
     }
 
     const newPayload = {
-      id: payload.id,
-      name: payload.name,
-      role: payload.role,
-      email: payload.email,
-      avatarUrl: payload.avatarUrl,
+      id: userId,
+      name: `${user.firstName || 'User'} ${user.lastName || ''}`.trim(),
+      role: user.role,
+      email: user.email,
+      avatarUrl: user.avatarUrl ?? 'avatar',
     };
 
     // 2. Tạo accessToken mới và trả về.

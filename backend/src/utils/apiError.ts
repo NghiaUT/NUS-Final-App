@@ -1,9 +1,11 @@
 export class ApiError extends Error {
   statusCode: number;
+  errCode: string;
 
-  constructor(statusCode: number, message: string) {
+  constructor(statusCode: number, message: string, errCode: string = '') {
     super(message);
     this.statusCode = statusCode;
+    this.errCode = errCode;
 
     Object.setPrototypeOf(this, new.target.prototype);
     Error.captureStackTrace(this);
@@ -17,8 +19,8 @@ export class BadRequestError extends ApiError {
 }
 
 export class UnauthorizedError extends ApiError {
-  constructor(message = 'UnauthorizedError') {
-    super(401, message);
+  constructor(message = 'UnauthorizedError', errCode = '') {
+    super(401, message, errCode);
   }
 }
 

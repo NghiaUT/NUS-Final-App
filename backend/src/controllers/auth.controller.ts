@@ -104,6 +104,7 @@ export const authController = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
+        path: '/', // nên set path tường minh
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -114,6 +115,12 @@ export const authController = {
         200
       );
     } catch (error) {
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/', // PHẢI khớp path lúc set, nếu không sẽ không xóa được
+      });
       next(error);
     }
   },

@@ -48,21 +48,27 @@ axiosInstance.interceptors.response.use(
     const isRefresHUrl = originalRequest.url?.includes('/auth/refresh-token');
 
     // Xử lý khi chính API Refresh Token bị lỗi: -> Refresh Token hết hạn theo chuẩn là 400 Bad Request.
+
     if (isRefresHUrl) {
       setAuthHeader(null);
       localStorage.removeItem('accessToken');
-      if (status === 400) {
-        window.location.href = '/login'; // Điều hướng người dùng sang trang login.
-      }
-      if (status === 403) {
-        toast.error(err.response?.data?.message);
-        window.location.href = '/login';
+
+      if ((status === 400 || status === 403) && window.location.pathname !== '/login') {
+        const message = 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại để tiếp tục';
+
+        toast.error(message, {
+          onClose: () => {
+            window.location.href = '/login';
+          },
+          toastId: 'session-expired', // tránh spam nhiều toast giống nhau
+          autoClose: false, // để user tự quyết định thời điểm, không tự biến mất
+        });
       }
       return Promise.reject(err);
     }
 
     // Access Token hết hạn -> thử chạy code refresh.
-    if (status === 401 && !originalRequest._retry) {
+    if (status === 401 && err.response?.data.errCode === 'JWT_EXPIRED' && !originalRequest._retry) {
       // Nếu API xin access token đang được chạy, đẩy các API sau vào trong hàng đợi xử lý.
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

@@ -18,7 +18,8 @@ export const sendErrorRes = (
   res: Response,
   message: string = 'Internal server error',
   statusCode: number = 500,
-  stack: any | null = null
+  stack: any | null = null,
+  errCode: string | null = null
 ) => {
   return res.status(statusCode).json({
     status: 'error',
@@ -26,5 +27,6 @@ export const sendErrorRes = (
     statusCode,
     stack,
     timeStamp: new Date(),
+    errCode,
   });
 };
