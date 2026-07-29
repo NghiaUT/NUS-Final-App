@@ -126,8 +126,7 @@ export class AuthService {
         email: user.email,
         avatarUrl: user.avatarUrl,
         role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: `${user.firstName || 'User'} ${user.lastName || ''}`.trim(),
       },
       tokens,
     };

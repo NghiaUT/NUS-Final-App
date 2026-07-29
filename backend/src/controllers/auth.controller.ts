@@ -4,7 +4,7 @@ import { ApiError, BadRequestError } from '../utils/apiError.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 
 export const authController = {
-  singup: async (req: Request, res: Response, next: NextFunction) => {
+  signup: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Gọi thẳng xuống Service
       const data = req.body;
@@ -26,6 +26,7 @@ export const authController = {
     try {
       // Gọi xuống service:
       const result = await AuthService.login(req.body);
+      const { tokens, ...userInfo } = result;
 
       // Set Refresh Token vào HttpOnly Cookie để bảo mật
       res.cookie('refreshToken', result.tokens.refreshToken, {
@@ -39,9 +40,8 @@ export const authController = {
         res,
         'Successfully login',
         {
-          ...result,
-          accessToken: result.tokens.accessToken,
-          tokens: undefined,
+          ...userInfo,
+          accessToken: tokens.accessToken,
         },
         200
       );
@@ -123,7 +123,7 @@ export const authController = {
     }
   },
 
-  getMe: async (req: any, res: Response, next: NextFunction) => {
+  getMe: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await AuthService.me(req.user.id);
       sendSuccessRes(res, 'Validate successfull', result, 200);

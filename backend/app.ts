@@ -14,6 +14,7 @@ const port = constant.PORT;
 const app = express();
 
 // Allow frontend domain:
+app.set('trust proxy', 1);
 app.use(
   cors({
     origin: `${constant.CLIENT_URL}`,
