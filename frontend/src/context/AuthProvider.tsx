@@ -11,6 +11,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Đang tải...');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingMessage('Máy chủ đang khởi động lại, vui lòng đợi trong giây lát...');
+    }, 5000); // sau 5s vẫn chưa xong -> đổi thông báo
+
+    return () => clearTimeout(timer);
+  }, []);
   const [isInitialized, setIsInitialized] = useState<boolean>(() => {
     return !localStorage.getItem('accessToken');
   });
@@ -74,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ isLoggingOut, isInitialized, isAuthenticated: !!user, isAdmin: user?.role === "ADMIN", user, logout, login }}>
-      {isInitialized ? children : <LoadingSpinner />}
+      {isInitialized ? children : <LoadingSpinner message={loadingMessage} />}
     </AuthContext.Provider>
   );
 };
