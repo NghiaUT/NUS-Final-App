@@ -3,24 +3,29 @@ import { toast } from 'react-toastify';
 import PhotoForm from '../../components/add-edit/PhotoForm';
 // import type { PhotoDataForm } from '../../types/forms.types';
 import { photoService } from '../../api/photoService';
-import { useNavigate } from 'react-router-dom';
 import { LoadingModal } from '../../components/common/LoadingModal';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
 
 const NewPhoto = () => {
-    const [photoData, setPhotoData] = useState(null);
+    const [photoData] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
-    const navigate = useNavigate();
 
-    const handleUpdate = async (formData: FormData) => {
-        console.log(formData)
+    const handleCreate = async (formData: FormData) => {
         try {
             setIsUploading(true);
             await photoService.addPhoto(formData);
-            console.log("Thành công")
-            toast.success("Tạo mới ảnh thành công! \n Chuyển hướng sang trang chủ sau 2s");
-            setTimeout(() => navigate('/'), 2000);
+            toast.success("Tạo mới ảnh thành công!");
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
         } finally {
             setIsUploading(false);
@@ -33,7 +38,7 @@ const NewPhoto = () => {
             <PhotoForm
                 isEditMode={false}
                 initialData={photoData}
-                onSubmit={handleUpdate}
+                onSubmit={handleCreate}
                 onDelete={() => { }}
                 loading={false} />
             <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />

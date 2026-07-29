@@ -1,6 +1,6 @@
 import React from 'react';
 import { twMerge } from 'tailwind-merge';
-import type { Image } from '../../types/media.types';
+import type { Image, MediaCardItem, MediaType } from '../../types/media.types';
 import { useNavigate } from 'react-router-dom';
 /* data = {
     title: "",
@@ -11,7 +11,13 @@ import { useNavigate } from 'react-router-dom';
     }
 }
 */
-const MediaCard = ({ data, type, editable }: { data: any; type: string, editable: boolean }) => {
+interface MediaCardProp {
+  data: MediaCardItem;
+  type: MediaType;
+  editable: boolean;
+}
+
+const MediaCard = ({ data, type, editable }: MediaCardProp) => {
   const navigate = useNavigate();
   const commonImgConfig =
     'w-32 sm:w-50 mx-auto aspect-square object-cover border-4 border-white shadow-md shrink-0';
@@ -41,7 +47,7 @@ const MediaCard = ({ data, type, editable }: { data: any; type: string, editable
         )}
 
         {type === 'album' ? (
-          data.media.image_stack.slice(0, 3).map((img: any) => {
+          data.media.image_stack.slice(0, 3).map((img: Image) => {
             // Thay vì dùng toán tử 3 ngôi lồng nhau, ta có thể tách điều kiện rõ ràng với twMerge
             const imgConfig = twMerge(
               commonImgConfig,

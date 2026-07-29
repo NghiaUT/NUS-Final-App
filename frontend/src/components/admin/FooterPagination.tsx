@@ -1,6 +1,12 @@
-import React from 'react'
+import React, { type Dispatch, type SetStateAction } from 'react'
 
-const FooterPagination = ({ currentPage, setCurrentPage, totalPages }) => {
+interface FooterPaginationProps {
+    currentPage: number;
+    setCurrentPage: Dispatch<SetStateAction<number>>;
+    totalPages: number;
+}
+
+const FooterPagination = ({ currentPage, setCurrentPage, totalPages }: FooterPaginationProps) => {
     const handlePrevious = () => {
         setCurrentPage((prev) => Math.max(1, prev - 1));
     };

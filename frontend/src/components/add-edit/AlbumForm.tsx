@@ -3,6 +3,7 @@ import { albumImageSchema, formInfoSchema } from '../../utils/validators';
 import { z } from 'zod';
 import LoadingSpinner from '../common/LoadingSpinner';
 import DeleteModal from '../common/DeleteModal';
+import type { AlbumData } from '../../types/media.types';
 
 type PhotoPreview = {
     id?: string;
@@ -10,7 +11,15 @@ type PhotoPreview = {
     previewUrl: string;
 };
 
-const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => {
+interface AlbumFormProps {
+    initialData: AlbumData | null;
+    isEditMode: boolean;
+    onSubmit: (data: FormData) => void;
+    onDelete: (id: string) => void;
+    loading: boolean;
+}
+
+const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: AlbumFormProps) => {
     const [formData, setFormData] = useState({
         title: initialData?.title || '',
         sharingMode: initialData?.sharingMode || 'PUBLIC',
@@ -29,12 +38,12 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     const [deletedPhotosId, setDeletedPhotosId] = useState<string[]>([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    const fileInputRef = useRef(null); // -> dùng để upload ảnh lên bằng ref
+    const fileInputRef = useRef<HTMLInputElement>(null); // -> dùng để upload ảnh lên bằng ref
 
     // Lưu trữ giá trị mới nhất của currPhotos
     const currPhotosRef = useRef(currPhotos);
 
-    const errorRef = useRef(null);
+    const errorRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (errors.length > 0 && errorRef.current) {
@@ -60,12 +69,13 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
         };
     }, [currPhotosRef]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
     // Xử lý cho cả trường hợp chọn nhiều file.
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
         const files = Array.from(e.target.files);
 
         // Chỉ tạo file mới khi người dùng thêm ảnh.
@@ -84,9 +94,10 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
         const removedPhoto = updatedPhotos[idx];
 
         /* Với trường hợp xóa file cần quan tâm đến 2 trường hợp: file cũ: có id, file mới có File. */
-        if (removedPhoto.id) {
+        const photoId = removedPhoto.id;
+        if (photoId) {
             // lưu trữ Id vào mảng.
-            setDeletedPhotosId(prev => [...prev, removedPhoto.id]);
+            setDeletedPhotosId(prev => [...prev, photoId]);
         }
 
         if (removedPhoto.file && removedPhoto.previewUrl.startsWith('blob:')) {
@@ -99,6 +110,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     }
 
     const handleBoxClick = () => {
+        if (!fileInputRef.current) return;
         fileInputRef.current.click();
     }
 
@@ -191,7 +203,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                                 </ul>
                             </div>
                         )}
-                        <form encType='multipart/form-data'>
+                        <form encType='multipart/form-data' onSubmit={handleSubmit}>
                             {/* Chia layout 2 cột */}
                             <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6'>
                                 {/* Cột trái */}
@@ -285,7 +297,6 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                                 <button
                                     type="submit"
                                     className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors cursor-pointer"
-                                    onClick={handleSubmit}
                                 >
                                     Save
                                 </button>

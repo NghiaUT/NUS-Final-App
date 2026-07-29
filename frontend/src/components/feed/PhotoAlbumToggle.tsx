@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { type Dispatch, type SetStateAction } from 'react';
+import type { MediaType } from '../../types/media.types';
 
-const PhotoAlbumToggle = ({ media, handleOnClick }: any) => {
+interface PhotoAlbumToggleProps {
+  media: MediaType,
+  handleOnClick: Dispatch<SetStateAction<MediaType>>;
+}
+
+const PhotoAlbumToggle = ({ media, handleOnClick }: PhotoAlbumToggleProps) => {
   return (
     <div className="relative mt-5 mb-5 border border-blue rounded-xl">
       {/* Thanh trượt bên dưới */}

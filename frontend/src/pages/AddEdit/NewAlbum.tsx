@@ -2,22 +2,31 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify';
 import AlbumForm from '../../components/add-edit/AlbumForm';
 import { albumService } from '../../api/albumService';
-import { useNavigate } from 'react-router-dom';
 import { LoadingModal } from '../../components/common/LoadingModal';
+import type { AlbumData } from '../../types/media.types';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
 
 const NewAlbum = () => {
-    const [albumData, setAlbumData] = useState(null);
+    const [albumData] = useState<AlbumData | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const navigate = useNavigate();
 
     const handleCreate = async (formData: FormData) => {
         try {
             setIsUploading(true);
             await albumService.addAlbum(formData);
             toast.success("Tạo mới album thành công!");
-            setTimeout(() => navigate('/'), 2000);
+
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
         } finally {
             setIsUploading(false);

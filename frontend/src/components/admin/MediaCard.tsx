@@ -17,8 +17,11 @@ type AlbumItem = {
 }
 
 type MediaCardProp = {
-    item: PhotoItem | AlbumItem;
-    type: string;
+    item: PhotoItem;
+    type: 'photo';
+} | {
+    item: AlbumItem;
+    type: 'album';
 }
 
 const MediaCard = ({ item, type }: MediaCardProp) => {

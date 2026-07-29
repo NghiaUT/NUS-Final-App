@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../../hooks/useAuth';
 import { useFollow } from '../../hooks/useFollow';
-import { twMerge } from 'tailwind-merge';
+import type { ReturnUserProfile } from '../../types/profile.types';
 
 /*
 {
@@ -16,16 +17,23 @@ import { twMerge } from 'tailwind-merge';
     ]
   },
 */
-const ProfileCard = ({ profile, onFollowChange }) => {
+interface ProfileCardProps {
+  profile: ReturnUserProfile;
+  onFollowChange: (isCurrentlyFollowing: boolean) => void;
+}
+
+const ProfileCard = ({ profile, onFollowChange }: ProfileCardProps) => {
   const [isFollowing, setIsFollowing] = useState(profile.isFollowing ?? false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toggleFollow } = useFollow();
   const isUserProfile = user?.id === profile.id;
+  // const [prevProfileFollowing, setPrevProfileFollowing] = useState(profile.isFollowing);
 
-  useEffect(() => {
-    setIsFollowing(profile.isFollowing);
-  }, [profile.isFollowing]);
+  // if (profile.isFollowing !== prevProfileFollowing) {
+  //   setPrevProfileFollowing(profile.isFollowing);
+  //   setIsFollowing(profile.isFollowing);
+  // }
 
   const handleFollowClick = async () => {
     const wasFollowing = isFollowing;
@@ -34,8 +42,9 @@ const ProfileCard = ({ profile, onFollowChange }) => {
 
     try {
       await toggleFollow(profile.id, wasFollowing);
-    } catch (error) {
+    } catch (error: unknown) {
       // Rollback nếu API thất bại: trả UI và số liệu về trạng thái cũ
+      console.error(error);
       setIsFollowing(wasFollowing);
       onFollowChange(!wasFollowing);
     }

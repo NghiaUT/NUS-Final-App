@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
 import { useFollow } from '../../hooks/useFollow';
 import { useAuth } from '../../hooks/useAuth';
+import type { User } from '../../types/user.types';
+import type { ActiveTab, ProfileStats } from '../../types/profile.types';
 
-const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }) => {
+interface ProfileHeaderProps {
+  user: User;
+  activeTab: ActiveTab;
+  setActiveTab: Dispatch<SetStateAction<ActiveTab>>;
+  stats: ProfileStats[];
+  isMyProfile: boolean;
+  isFollowing: boolean;
+}
+
+const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }: ProfileHeaderProps) => {
   const navigate = useNavigate();
   const [isFollow, setIsFollow] = useState(isFollowing);
   const { toggleFollow } = useFollow();
@@ -14,7 +25,8 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFo
     setIsFollow(!previous); // cập nhật UI lạc quan
     try {
       await toggleFollow(user.id, previous);
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error(error);
       setIsFollow(previous); // rollback nếu API lỗi
     }
   }
@@ -44,7 +56,7 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFo
         </h1>
 
         <div className="flex flex-wrap items-center text-sm divide-x divide-gray-300 w-full justify-center md:justify-start gap-y-2">
-          {stats.map((stat) => (
+          {stats.map((stat: ProfileStats) => (
             <button
               key={stat.id}
               onClick={() => setActiveTab(stat.id)}

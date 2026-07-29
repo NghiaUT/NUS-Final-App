@@ -33,9 +33,11 @@ export const useLike = () => {
       if (Math.floor(Math.random() * (10 - 1 + 1)) + 1 === 5) throw new Error('Bị gì đó');
       await likeServices[type][action](targetMediaId);
       return true;
-    } catch (error: any) {
-      setError(error?.message ?? 'Lỗi khi gửi yêu cầu Like');
-      toast.error('Không thể like ảnh. \n Vui lòng thử lại sau');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Không thể thực hiện like.\nVui lòng thử lại sau.';
+      setError(errorMessage);
+      toast.error(errorMessage);
       return false;
     } finally {
       setIsLoading(false);

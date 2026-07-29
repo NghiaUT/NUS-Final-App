@@ -31,7 +31,7 @@ export const authController = {
       res.cookie('refreshToken', result.tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -103,8 +103,7 @@ export const authController = {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/', // nên set path tường minh
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -118,8 +117,7 @@ export const authController = {
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/', // PHẢI khớp path lúc set, nếu không sẽ không xóa được
+        sameSite: 'none',
       });
       next(error);
     }

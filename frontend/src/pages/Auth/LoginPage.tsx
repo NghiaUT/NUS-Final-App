@@ -6,6 +6,14 @@ import { authService } from '../../api/authService';
 import { toast } from 'react-toastify';
 import { loginSchema } from '../../utils/validators';
 import { twMerge } from 'tailwind-merge';
+import z from 'zod';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
+
+type ErrorsValue = {
+  email?: string;
+  password?: string;
+}
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -16,7 +24,7 @@ const LoginPage = () => {
     email: '',
     password: '',
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<ErrorsValue>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -26,8 +34,9 @@ const LoginPage = () => {
     }
   }, [location, navigate]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (name !== 'email' && name !== 'password') return;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -43,18 +52,20 @@ const LoginPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // 1. Validate against the zod schema
     const result = loginSchema.safeParse(formData);
 
     if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors;
-      const nextErrors = {};
-      Object.keys(fieldErrors).forEach((key) => {
-        if (fieldErrors[key]?.[0]) {
-          nextErrors[key] = fieldErrors[key][0];
+      const fieldErrors = z.treeifyError(result.error);
+      const nextErrors: ErrorsValue = {};
+      Object.entries(fieldErrors.properties ?? {}).forEach(([key, value]) => {
+        const error = value.errors.flatMap((err) => err).join(',');
+        if (key === 'email') { nextErrors.email = error }
+        else {
+          nextErrors.password = error;
         }
       });
       setErrors(nextErrors);
@@ -68,16 +79,23 @@ const LoginPage = () => {
       const { data } = await authService.login(result.data);
       toast.success('Đăng nhập thành công!');
       login(data.data.accessToken, data.data.user);
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || error?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại!';
+    } catch (error: unknown) {
+      let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+      if (axios.isAxiosError<ApiResponse<string>>(error)) {
+        errorMessage = error.response?.data?.message || error.message;
+      }
+
+      else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const fieldClasses = (fieldName: string, position: string) => {
+  const fieldClasses = (fieldName: 'password' | 'email', position: string) => {
     return twMerge(
       'appearance-none relative block w-full px-3 py-3 border placeholder-gray-500 text-gray-900 focus:outline-none focus:z-10 sm:text-sm',
       position === 'top' ? 'rounded-t-md' : 'rounded-b-md',

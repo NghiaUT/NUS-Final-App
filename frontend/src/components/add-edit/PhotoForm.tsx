@@ -3,8 +3,17 @@ import { formInfoSchema, singleImageSchema } from '../../utils/validators';
 import { z } from 'zod';
 import LoadingSpinner from '../common/LoadingSpinner';
 import DeleteModal from '../common/DeleteModal';
+import type { PhotoData } from '../../types/media.types';
 
-const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => {
+interface PhotoFormProps {
+    initialData: PhotoData | null;
+    isEditMode: boolean;
+    onSubmit: (data: FormData) => void;
+    onDelete: (id: string) => void;
+    loading: boolean;
+}
+
+const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: PhotoFormProps) => {
     const [formData, setFormData] = useState({
         title: initialData?.title || '',
         sharingMode: initialData?.sharingMode || 'PUBLIC',
@@ -27,14 +36,16 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
         };
     }, [previewUrl]);
 
-    const fileInputRef = useRef(null); // -> dùng để upload ảnh lên bằng ref
+    const fileInputRef = useRef<HTMLInputElement>(null); // -> dùng để upload ảnh lên bằng ref
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
+
         const file = e.target.files[0];
         setFormData(prev => ({ ...prev, photo: file }));
 
@@ -43,10 +54,11 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
     }
 
     const handleBoxClick = () => {
+        if (!fileInputRef.current) return;
         fileInputRef.current.click();
     }
 
-    const handleRemove = (e) => {
+    const handleRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         if (previewUrl && previewUrl.startsWith('blob:')) {
             URL.revokeObjectURL(previewUrl);
@@ -59,7 +71,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
         }
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formResult = formInfoSchema.safeParse(formData);
         if (!formResult.success) {
@@ -123,7 +135,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                                 </ul>
                             </div>
                         )}
-                        <form encType='multipart/form-data'>
+                        <form encType='multipart/form-data' onSubmit={handleSubmit}>
                             {/* Chia layout 2 cột */}
                             <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6'>
                                 {/* Cột trái */}
@@ -211,7 +223,6 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }) => 
                                 <button
                                     type="submit"
                                     className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors cursor-pointer"
-                                    onClick={handleSubmit}
                                 >
                                     Save
                                 </button>

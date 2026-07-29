@@ -16,16 +16,24 @@ type AlbumItem = {
 }
 
 type MediaListProp = {
-    type: string,
-    data: PhotoItem[] | AlbumItem[],
+    type: 'photo';
+    data: PhotoItem[];
+} | {
+    type: 'album';
+    data: AlbumItem[];
 }
 
-const MediaList = ({ type, data }: MediaListProp) => {
+const MediaList = (props: MediaListProp) => {
     return (
         <div className="flex flex-wrap gap-4">
-            {data.map((item) => (
-                <MediaCard item={item} type={type} key={item.id} />
-            ))}
+            {props.type === 'album'
+                ? props.data.map((item) => (
+                    <MediaCard item={item} type="album" key={item.id} />
+                ))
+                : props.data.map((item) => (
+                    <MediaCard item={item} type="photo" key={item.id} />
+                ))
+            }
         </div>
     );
 };

@@ -21,7 +21,8 @@ const ManageUsers = () => {
                 const result = await adminService.getAllUsers(page, USER_PER_PAGES);
                 setUsersData(result.data.data.users);
                 setTotalUser(result.data.data.count);
-            } catch (error) {
+            } catch (error: unknown) {
+                console.error(error instanceof Error ? error.message : 'Có lỗi xảy ra khi lấy dữ liệu')
                 toast.error("Gặp lỗi khi lấy dữ liệu từ server, thử lại sau.");
             } finally {
                 setLoading(false);
@@ -35,7 +36,8 @@ const ManageUsers = () => {
             await adminService.deleteUser(id);
             toast.success("Xóa người dùng thành công");
             setRefreshTrigger(prev => prev + 1);
-        } catch (error) {
+        } catch (error: unknown) {
+            console.error(error instanceof Error ? error.message : 'Có lỗi xảy ra khi cố gắng xóa người dùng')
             toast.error("Gặp lỗi khi cố gắng xóa người dùng!");
         }
     }

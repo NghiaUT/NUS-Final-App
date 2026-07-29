@@ -6,9 +6,12 @@ import { albumService } from '../../api/albumService';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingModal } from '../../components/common/LoadingModal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import type { ApiResponse } from '../../types/api.types';
+import axios from 'axios';
+import type { AlbumData } from '../../types/media.types';
 
 const EditAlbum = () => {
-    const [albumData, setAlbumData] = useState(null);
+    const [albumData, setAlbumData] = useState<AlbumData | null>(null);
     const [loading, setLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -19,11 +22,20 @@ const EditAlbum = () => {
         const fetchAlbumData = async () => {
             try {
                 setLoading(true);
-
-                const result = await albumService.getAlbum(albumId ?? "1", isAdmin);
+                if (!albumId) return;
+                const result = await albumService.getAlbum(albumId, isAdmin);
                 setAlbumData(result.data.data);
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+            } catch (error: unknown) {
+                let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+                if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                    errorMessage = error.response?.data?.message || error.message;
+                }
+
+                else if (error instanceof Error) {
+                    errorMessage = error.message;
+                }
+
                 toast.error(errorMessage);
                 setHasError(true);
             } finally {
@@ -43,11 +55,19 @@ const EditAlbum = () => {
                 return;
             }
             await albumService.editAlbum(albumId, formData, isAdmin);
-            console.log("Thành công")
             toast.success("Cập nhật thành công!");
-            setTimeout(() => navigate('/'), 2000);
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+        } catch (error: unknown) {
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
             toast.error(errorMessage);
         } finally {
             setIsUploading(false);
@@ -62,11 +82,19 @@ const EditAlbum = () => {
                 return;
             }
             await albumService.deleteAlbum(albumId, isAdmin);
-            console.log("Thành công")
-            toast.success(`Xóa thành công album ${albumId} ! \n Chuyển hướng sau 2s`);
-            setTimeout(() => navigate('/'), 2000);
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+            toast.success(`Xóa thành công album ${albumId} !`);
+
+        } catch (error: unknown) {
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
             toast.error(errorMessage);
             throw error;
         } finally {

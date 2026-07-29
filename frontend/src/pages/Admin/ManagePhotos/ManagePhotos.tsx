@@ -26,7 +26,8 @@ const ManagePhotos = () => {
                 const result = await adminService.getAllPhotos(page, PHOTOS_PER_PAGE);
                 setPhotoData(result.data.data.photos);
                 setTotalPhotos(result.data.data.count);
-            } catch (error) {
+            } catch (error: unknown) {
+                console.error(error instanceof Error ? error.message : 'Có lỗi xảy ra khi lấy dữ liệu');
                 toast.error("Lỗi khi lấy danh sách albums");
             } finally {
                 setLoading(false);

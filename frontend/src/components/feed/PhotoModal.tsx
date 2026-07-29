@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import type { Image, MediaItem } from '../../types/media.types';
 
-const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
+interface PhotoModalProps {
+  data: MediaItem;
+  handleModalClose: () => void;
+  handleLike: () => void;
+}
+
+const PhotoModal = ({ data, handleModalClose, handleLike }: PhotoModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const image_stack = data.media.image_stack;
@@ -111,7 +118,7 @@ const PhotoModal = ({ data, handleModalClose, handleLike }: any) => {
 
           {image_type === 'album' && image_stack.length > 1 && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-              {image_stack.map((_: any, idx: number) => (
+              {image_stack.map((_: Image, idx: number) => (
                 <div
                   key={idx}
                   className={twMerge("h-2 rounded-full transition-all duration-300 cursor-pointer", currentIndex === idx ? 'w-7 bg-blue' : 'w-2 bg-blue/50'

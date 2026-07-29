@@ -33,7 +33,8 @@ const ManageAlbums = () => {
                 const result = await adminService.getAllAlbums(page, ALBUMS_PER_PAGE);
                 setAlbumData(result.data.data.albums);
                 setTotalAlbums(result.data.data.count);
-            } catch (error) {
+            } catch (error: unknown) {
+                console.error(error instanceof Error ? error.message : 'Có lỗi xảy ra khi lấy dữ liệu');
                 toast.error("Lỗi khi lấy danh sách albums");
             } finally {
                 setLoading(false);

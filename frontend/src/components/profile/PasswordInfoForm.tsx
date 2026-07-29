@@ -52,9 +52,12 @@ const PasswordInfoForm: React.FC<PasswordInfoFormProps> = ({ userId, email }) =>
             await userService.editProfile(userId, formData);
             toast.success('Đổi mật khẩu thành công');
             setPasswordInfo({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        } catch (error: any) {
-            const message = error?.message ?? 'Lỗi khi thực hiện';
-            toast.error(message + '\n Vui lòng thử lại sau.');
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Lỗi khi thực hiện cập nhật.';
+
+            toast.error(errorMessage);
         }
     };
 

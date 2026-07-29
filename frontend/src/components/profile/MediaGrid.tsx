@@ -3,14 +3,24 @@ import MediaCard from './MediaCard';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../common/LoadingSpinner';
+import type { MediaCardItem, MediaType } from '../../types/media.types';
+import type { ApiResponse } from '../../types/api.types';
+import type { AxiosResponse } from 'axios';
 
-const MediaGrid = ({ fetchData, type, isMyProfile }) => {
+interface MediaGridProps {
+  fetchData: (type: MediaType, page?: number, limit?: number) => Promise<AxiosResponse<ApiResponse<MediaCardItem[]>> | undefined>;
+  type: MediaType;
+  isMyProfile: boolean;
+}
+
+const MediaGrid = ({ fetchData, type, isMyProfile }: MediaGridProps) => {
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<MediaCardItem[] | null>(null);
   useEffect(() => {
     const fetchingData = async () => {
       try {
         const result = await fetchData(type, 1);
+        if (!result) return;
         setData(result.data.data);
       } catch (error) {
         console.error(error);

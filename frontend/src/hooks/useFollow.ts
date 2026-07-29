@@ -22,8 +22,11 @@ export const useFollow = () => {
         await userService.unfollow(targetUserId);
       }
       return true;
-    } catch (error: any) {
-      setError(error?.message ?? 'Lỗi khi gửi yêu cầu follow');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Lỗi khi gửi yêu cầu follow người dùng';
+      setError(errorMessage);
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);

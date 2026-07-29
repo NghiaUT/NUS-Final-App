@@ -24,7 +24,7 @@ const fetchDiscoverData = async ({ pageParam = 1, queryKey }: { pageParam: numbe
 };
 
 const Discover = () => {
-  return <AlbumsGridLayout fetchFn={fetchDiscoverData} queryKey="discover" />;
+  return <AlbumsGridLayout fetchFn={fetchDiscoverData} queryKey={["discover"]} />;
 };
 
 export default Discover;

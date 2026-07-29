@@ -8,8 +8,13 @@ import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-toastify';
 import { useFollow } from '../../hooks/useFollow';
 import { useLike } from '../../hooks/useLike';
+import type { MediaItem } from '../../types/media.types';
 
-const PhotoCard = ({ data }: any) => {
+interface PhotoCardProps {
+  data: MediaItem;
+}
+
+const PhotoCard = ({ data }: PhotoCardProps) => {
   const {
     id,
     author: { authorId, name, avatarUrl, isFollowing },

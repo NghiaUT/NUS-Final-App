@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ProfileHeader from '../../components/profile/ProfileHeader';
-import { MOCK_DATA, MOCK_FOLLOWING, MOCK_FOLLOWER } from '../../mocks/mock_data';
 import MediaGrid from '../../components/profile/MediaGrid';
 import ProfileGrid from '../../components/profile/ProfileGrid';
 import MobileTabar from '../../components/feed/MobileTabar';
@@ -9,16 +8,15 @@ import { useParams } from 'react-router-dom';
 import { userService } from '../../api/userService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-toastify';
+import type { ApiResponse, FetchDataType } from '../../types/api.types';
+import axios from 'axios';
+import type { User } from '../../types/user.types';
+import type { ActiveTab, ProfileStats } from '../../types/profile.types';
 
 const ProfilePage = () => {
-  const [activeTab, setActiveTab] = useState('photos');
-  const [stats, setStats] = useState([]);
-  const [user, setUser] = useState(() => ({
-    id: 2,
-    name: 'Hansford Nguyen',
-    avatar_url:
-      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-  }));
+  const [activeTab, setActiveTab] = useState<ActiveTab>('photos');
+  const [stats, setStats] = useState<ProfileStats[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
   const { id: targetUserId } = useParams();
@@ -31,13 +29,23 @@ const ProfilePage = () => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const result = await userService.getStats(targetUserId ?? '');
+        if (!targetUserId) return;
+        const result = await userService.getStats(targetUserId);
 
         setStats(result.data.data.stats);
         setUser(result.data.data.user);
         setIsFollowing(result.data.data.isFollowing);
-      } catch (error) {
-        const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+      } catch (error: unknown) {
+        let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+        if (axios.isAxiosError<ApiResponse<string>>(error)) {
+          errorMessage = error.response?.data?.message || error.message;
+        }
+
+        else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+
         toast.error(errorMessage);
       } finally {
         setLoading(false);
@@ -46,7 +54,8 @@ const ProfilePage = () => {
     fetchStats();
   }, [targetUserId]) // Hàm useEffect fetch API sau này.
 
-  const handleFetchData = useCallback(async (type: string, page: number = 1, limit: number = 10) => {
+  const handleFetchData = useCallback(async (type: FetchDataType, page: number = 1, limit: number = 10) => {
+    if (!targetUserId) return;
     switch (type) {
       case 'photo':
         return await userService.getUserPhotos(targetUserId, page, limit);
@@ -56,11 +65,14 @@ const ProfilePage = () => {
         return await userService.getFollowers(targetUserId, page, limit);
       case 'following':
         return await userService.getFollowings(targetUserId, page, limit);
+      default:
+        // Đảm bảo không bao giờ trả về undefined bằng cách ném lỗi hoặc trả về Promise bị reject
+        return Promise.reject(new Error("Loại dữ liệu không hợp lệ"));
     }
   }, [targetUserId]);
 
   const handleOptimisticCountUpdate = useCallback((isCurrentlyFollowing: boolean) => {
-    setStats((prevStats: any) =>
+    setStats((prevStats: ProfileStats[]) =>
       prevStats.map((stat) => {
         if (stat.id === 'followings') {
           return {
@@ -82,11 +94,13 @@ const ProfilePage = () => {
   return (
     <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0">
       {loading ? <LoadingSpinner /> :
-        <>
-          <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }} />
-          {tabContents[activeTab]}
-          <MobileTabar />
-        </>}
+        user ?
+          <>
+            <ProfileHeader {...{ user, activeTab, setActiveTab, stats, isMyProfile, isFollowing }} />
+            {tabContents[activeTab]}
+            <MobileTabar />
+          </> :
+          <h1>Không tồn tại User này</h1>}
     </div>
   );
 };

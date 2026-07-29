@@ -5,13 +5,24 @@ import PhotoCard from './PhotoCard';
 import PhotoAlbumToggle from './PhotoAlbumToggle';
 import LoadingSpinner from '../common/LoadingSpinner';
 import MobileTabar from './MobileTabar';
+import type { MediaItem, MediaType } from '../../types/media.types';
 
-const AlbumsGridLayout = ({ fetchFn, queryKey }) => {
+export type fetchProps = {
+  pageParam: number;
+  queryKey: string[];
+}
+
+interface AlbumsGridLayoutProps {
+  fetchFn: (data: fetchProps) => Promise<MediaItem[]>;
+  queryKey: string[];
+}
+
+const AlbumsGridLayout = ({ fetchFn, queryKey }: AlbumsGridLayoutProps) => {
   // State for page photo or album.
-  const [media, setMedia] = useState('photo');
+  const [media, setMedia] = useState<MediaType>('photo');
   const { ref: bottomRef, inView } = useInView();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-    queryKey: [queryKey, media],
+    queryKey: [...queryKey, media],
     queryFn: fetchFn,
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {

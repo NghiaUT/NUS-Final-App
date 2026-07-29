@@ -6,6 +6,8 @@ import { photoService } from '../../api/photoService';
 import { useAuth } from '../../hooks/useAuth';
 import { LoadingModal } from '../../components/common/LoadingModal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
 
 const EditPhoto = () => {
     const { photoId } = useParams();
@@ -24,7 +26,15 @@ const EditPhoto = () => {
                 const photoData = response.data.data;
                 setPhotoData(photoData);
             } catch (error) {
-                const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+                let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+                if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                    errorMessage = error.response?.data?.message || error.message;
+                }
+
+                else if (error instanceof Error) {
+                    errorMessage = error.message;
+                }
                 toast.error(errorMessage);
                 setHasError(true);
             } finally {
@@ -39,11 +49,20 @@ const EditPhoto = () => {
         console.log(formData)
         try {
             setIsUploading(true);
+            if (!photoId) return;
             await photoService.editPhoto(photoId, formData, isAdmin);
             toast.success("Cập nhật thành công!");
-            setTimeout(() => navigate('/'), 2000);
+
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
         } finally {
             setIsUploading(false);
@@ -53,11 +72,20 @@ const EditPhoto = () => {
     const handleDelete = async () => {
         try {
             setIsUploading(true);
+            if (!photoId) return;
             await photoService.deletePhoto(photoId, isAdmin);
-            toast.success("Xóa ảnh thành công!");
-            setTimeout(() => navigate('/'), 2000);
+            toast.success("Xóa ảnh thành công! ");
+
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
             throw error;
         } finally {

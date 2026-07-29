@@ -37,7 +37,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    initAuth();
+    const runAuth = async () => {
+      initAuth();
+    }
+
+    runAuth();
   }, []);
 
   const login = (token: string, userData: User) => {

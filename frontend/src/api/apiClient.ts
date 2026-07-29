@@ -1,5 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { toast } from 'react-toastify';
+import type { ApiResponse } from '../types/api.types';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -8,7 +9,7 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 // 2. Định nghĩa cấu trúc cho các item trong hàng đợi
 interface FailedQueueItem {
   resolve: (value: string | null) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: Error | null) => void;
 }
 
 const axiosInstance = axios.create({
@@ -41,7 +42,7 @@ const processQueue = (err: Error | null, token: string | null = null) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
 
-  async (err: AxiosError) => {
+  async (err: AxiosError<ApiResponse<string>>) => {
     // Lưu giữ các giá trị của request để phục vụ sau này
     const originalRequest = err.config as CustomAxiosRequestConfig;
     const status = err.response?.status;
@@ -97,8 +98,10 @@ axiosInstance.interceptors.response.use(
         // GẮn cho request gốc:
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
-      } catch (error: any) {
-        processQueue(error, null);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          processQueue(error, null);
+        }
         return Promise.reject(error);
       } finally {
         isRefreshing = false;

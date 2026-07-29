@@ -50,8 +50,12 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
                     isActive: user.isActive ?? true,
                 });
                 if (user.avatarUrl) setAvatarPreview(user.avatarUrl);
-            } catch (error: any) {
-                toast.error(error?.message ?? 'Lỗi khi lấy dữ liệu người dùng.');
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error
+                    ? error.message
+                    : 'Lỗi khi lấy dữ liệu người dùng.';
+
+                toast.error(errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -121,8 +125,12 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
             await adminService.updateUser(targetUserId, formData);
             toast.success('Cập nhật thông tin người dùng thành công');
             setForm((prev) => ({ ...prev, password: '' }));
-        } catch (error: any) {
-            toast.error('Gặp lỗi khi cập nhật thông tin' + (error?.message ?? ''));
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Lỗi khi cập nhật thông tin.';
+
+            toast.error(errorMessage);
         }
     };
 

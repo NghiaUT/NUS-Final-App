@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../api/authService';
 import { toast } from 'react-toastify';
 import { forgotPasswordSchema } from '../../utils/validators';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
 
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
@@ -11,12 +13,12 @@ const ForgotPasswordPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
         if (error) setError('');
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const result = forgotPasswordSchema.safeParse({ email });
@@ -35,9 +37,16 @@ const ForgotPasswordPage = () => {
             await authService.forgotPassword(result.data.email);
             setIsSubmitted(true);
             toast.success('Đã gửi liên kết đặt lại mật khẩu, vui lòng kiểm tra hộp thư!');
-        } catch (err) {
-            const errorMessage =
-                err.response?.data?.message || err.message || 'Đã có lỗi xảy ra. Vui lòng thử lại!';
+        } catch (error: unknown) {
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
