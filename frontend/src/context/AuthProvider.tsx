@@ -4,9 +4,12 @@ import { AuthContext } from './AuthContext';
 import { setAuthHeader } from '../api/apiClient';
 import { authService } from '../api/authService';
 import type { User } from '../types/user.types';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(() => {
     return !localStorage.getItem('accessToken');
   });
@@ -44,22 +47,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     runAuth();
   }, []);
 
+  useEffect(() => {
+    const setLoggingOut = () => {
+      if (isLoggingOut) {
+        setIsLoggingOut(false);
+      }
+    }
+    setLoggingOut();
+  }, [isLoggingOut]);
+
   const login = (token: string, userData: User) => {
     localStorage.setItem('accessToken', token);
     setAuthHeader(token);
     setUser(userData);
-    window.location.href = "/";
+    navigate('/', { replace: true });
   };
 
   const logout = () => {
+    setIsLoggingOut(true);       // bật cờ TRƯỚC
     localStorage.removeItem('accessToken');
     setUser(null);
     setAuthHeader(null);
-    window.location.href = "/";
+    navigate('/', { replace: true });
   };
 
   return (
-    <AuthContext.Provider value={{ isInitialized, isAuthenticated: !!user, isAdmin: user?.role === "ADMIN", user, logout, login }}>
+    <AuthContext.Provider value={{ isLoggingOut, isInitialized, isAuthenticated: !!user, isAdmin: user?.role === "ADMIN", user, logout, login }}>
       {isInitialized ? children : <LoadingSpinner />}
     </AuthContext.Provider>
   );

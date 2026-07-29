@@ -15,6 +15,7 @@ type Role = 'USER' | 'ADMIN';
 export interface AuthContextValueType {
   isInitialized: boolean;
   isAuthenticated: boolean;
+  isLoggingOut: boolean;
   isAdmin: boolean;
   user: User | null;
   login: (token: string, userData: User) => void;

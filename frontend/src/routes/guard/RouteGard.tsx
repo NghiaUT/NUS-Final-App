@@ -2,7 +2,11 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoggingOut } = useAuth();
+
+    if (isLoggingOut) {
+        return null;
+    }
 
     if (!isAuthenticated) {
         const error = { error: "Bạn cần đăng nhập trước khi thực hiện thao tác này!" };
@@ -13,7 +17,11 @@ export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, isLoggingOut, user } = useAuth();
+
+    if (isLoggingOut) {
+        return null;
+    }
 
     if (!isAuthenticated) {
         const error = { error: "Bạn cần đăng nhập trước khi thực hiện thao tác này!" };
@@ -26,7 +34,3 @@ export const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
 
     return <>{children}</>;
 };
-
-export const RouteNotFound = () => {
-    return <Navigate to="/404" replace />;
-}
