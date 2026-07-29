@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import z from 'zod';
 import { adminProfileSchema, avatarSchema } from '../../utils/validators.js';
 import { adminService } from '../../api/adminService';
+import { LoadingModal } from '../common/LoadingModal.js';
 
 export interface AdminProfileFormProps {
     /** id của user đang được admin chỉnh sửa (khác với admin đang đăng nhập) */
@@ -33,6 +34,7 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
         isActive: true,
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         if (!targetUserId) return;
@@ -121,6 +123,7 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
         if (avatarFile) formData.append('avatar', avatarFile);
 
         try {
+            setIsUploading(true);
             // Tái sử dụng userService.editProfile với id của user mục tiêu.
             await adminService.updateUser(targetUserId, formData);
             toast.success('Cập nhật thông tin người dùng thành công');
@@ -131,6 +134,8 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
                 : 'Lỗi khi cập nhật thông tin.';
 
             toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -139,120 +144,123 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
     }
 
     return (
-        <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-6" autoComplete='off'>
-            {/* Avatar */}
-            <div
-                onClick={handleAvatarBoxClick}
-                className="relative w-28 h-28 rounded overflow-hidden cursor-pointer group"
-            >
-                <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
-                <div className="absolute bottom-0 left-0 w-full bg-black/50 group-hover:bg-black/70 text-white text-xs font-semibold tracking-wide text-center py-1 transition-colors">
-                    CHANGE
-                </div>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleAvatarChange}
-                    accept="image/jpeg,image/png"
-                    className="hidden"
-                />
-            </div>
-
-            <div className="w-full flex flex-col gap-4">
-                <h2 className="text-blue-700 font-bold text-base">Basic Information</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] items-center gap-3">
-                    <label htmlFor="firstName" className="text-sm font-medium text-left md:text-right pr-2">
-                        First Name
-                    </label>
-                    <div>
-                        <input
-                            type="text"
-                            id="firstName"
-                            name="firstName"
-                            value={form.firstName}
-                            onChange={handleInputChange}
-                            placeholder="First Name"
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                        />
-                        {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
+        <>
+            <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-6" autoComplete='off'>
+                {/* Avatar */}
+                <div
+                    onClick={handleAvatarBoxClick}
+                    className="relative w-28 h-28 rounded overflow-hidden cursor-pointer group"
+                >
+                    <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
+                    <div className="absolute bottom-0 left-0 w-full bg-black/50 group-hover:bg-black/70 text-white text-xs font-semibold tracking-wide text-center py-1 transition-colors">
+                        CHANGE
                     </div>
-
-                    <label htmlFor="lastName" className="text-sm font-medium text-left md:text-right pr-2">
-                        Last Name
-                    </label>
-                    <div>
-                        <input
-                            type="text"
-                            id="lastName"
-                            name="lastName"
-                            value={form.lastName}
-                            onChange={handleInputChange}
-                            placeholder="Last Name"
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                        />
-                        {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
-                    </div>
-
-                    <label htmlFor="email" className="text-sm font-medium text-left md:text-right pr-2">
-                        Email
-                    </label>
-                    <div>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleInputChange}
-                            placeholder="someone@example.com"
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                        />
-                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                    </div>
-
-                    <label htmlFor="password" className="text-sm font-medium text-left md:text-right pr-2">
-                        Password
-                    </label>
-                    <div>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleInputChange}
-                            placeholder="Để trống nếu không đổi mật khẩu"
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                            autoComplete='new-password'
-                        />
-                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] items-center gap-3">
-                    <label htmlFor="isActive" className="text-sm font-medium text-left md:text-right pr-2">
-                        Active?
-                    </label>
                     <input
-                        type="checkbox"
-                        id="isActive"
-                        name="isActive"
-                        checked={form.isActive}
-                        onChange={handleActiveChange}
-                        className="w-4 h-4 justify-self-start"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleAvatarChange}
+                        accept="image/jpeg,image/png"
+                        className="hidden"
                     />
                 </div>
 
-                <div className="grid grid-cols-[140px_1fr] gap-3">
-                    <div className="hidden md:block"></div>
-                    <button
-                        type="submit"
-                        className="w-fit bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors cursor-pointer"
-                    >
-                        Save
-                    </button>
+                <div className="w-full flex flex-col gap-4">
+                    <h2 className="text-blue-700 font-bold text-base">Basic Information</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] items-center gap-3">
+                        <label htmlFor="firstName" className="text-sm font-medium text-left md:text-right pr-2">
+                            First Name
+                        </label>
+                        <div>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                value={form.firstName}
+                                onChange={handleInputChange}
+                                placeholder="First Name"
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                            />
+                            {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
+                        </div>
+
+                        <label htmlFor="lastName" className="text-sm font-medium text-left md:text-right pr-2">
+                            Last Name
+                        </label>
+                        <div>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                value={form.lastName}
+                                onChange={handleInputChange}
+                                placeholder="Last Name"
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                            />
+                            {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
+                        </div>
+
+                        <label htmlFor="email" className="text-sm font-medium text-left md:text-right pr-2">
+                            Email
+                        </label>
+                        <div>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={form.email}
+                                onChange={handleInputChange}
+                                placeholder="someone@example.com"
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                            />
+                            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                        </div>
+
+                        <label htmlFor="password" className="text-sm font-medium text-left md:text-right pr-2">
+                            Password
+                        </label>
+                        <div>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                value={form.password}
+                                onChange={handleInputChange}
+                                placeholder="Để trống nếu không đổi mật khẩu"
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                autoComplete='new-password'
+                            />
+                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] items-center gap-3">
+                        <label htmlFor="isActive" className="text-sm font-medium text-left md:text-right pr-2">
+                            Active?
+                        </label>
+                        <input
+                            type="checkbox"
+                            id="isActive"
+                            name="isActive"
+                            checked={form.isActive}
+                            onChange={handleActiveChange}
+                            className="w-4 h-4 justify-self-start"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-[140px_1fr] gap-3">
+                        <div className="hidden md:block"></div>
+                        <button
+                            type="submit"
+                            className="w-fit bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors cursor-pointer"
+                        >
+                            Save
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+            <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />
+        </>
     );
 };
 

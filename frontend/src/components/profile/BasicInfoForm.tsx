@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import z from 'zod';
 import { avatarSchema, basicInfoSchema } from '../../utils/validators';
 import { userService } from '../../api/userService';
+import { LoadingModal } from '../common/LoadingModal';
 
 export interface BasicInfoFormProps {
     userId: string;
@@ -38,6 +39,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         email: initialEmail,
     });
     const [basicErrors, setBasicErrors] = useState<Record<string, string>>({});
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleAvatarBoxClick = () => {
         fileInputRef.current?.click();
@@ -90,8 +92,10 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
         if (avatarFile) formData.append('avatar', avatarFile);
 
         try {
+            setIsUploading(true);
             await userService.editProfile(userId, formData);
             toast.success('Cập nhật thông tin cá nhân thành công');
+            setAvatarFile(null);
             onUpdated?.({ ...basicInfo, avatarUrl: avatarPreview });
         } catch (error: unknown) {
             const errorMessage = error instanceof Error
@@ -99,6 +103,8 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                 : 'Lỗi khi lấy dữ liệu người dùng.';
 
             toast.error(errorMessage);
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -192,6 +198,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({
                     </button>
                 </div>
             </form>
+            <LoadingModal isOpen={isUploading} message='Đang tải dữ liệu lên, chờ trong giây lát...' variant='premium' />
         </>
     );
 };
