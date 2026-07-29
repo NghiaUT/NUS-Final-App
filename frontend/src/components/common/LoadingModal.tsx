@@ -3,8 +3,10 @@ import React from 'react';
 interface LoadingModalProps {
     isOpen: boolean;
     message?: string;
-    variant?: 'classic' | 'dots' | 'premium';
+    variant?: LoadingModalVariant;
 }
+
+type LoadingModalVariant = 'classic' | 'dots' | 'premium';
 
 export const LoadingModal: React.FC<LoadingModalProps> = ({
     isOpen,

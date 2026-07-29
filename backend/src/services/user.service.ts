@@ -353,6 +353,7 @@ export class UserService {
         lastName: string;
         password?: string;
         avatarUrl?: string;
+        avatarPublicId?: string;
       };
 
       if (data.newPassword) {
@@ -380,6 +381,8 @@ export class UserService {
         if (avatarFile) {
           const newAvatarUrl = avatarFile.path;
           updatedData.avatarUrl = newAvatarUrl;
+          updatedData.avatarPublicId = avatarFile.filename;
+          removeFileCloudinary(user.avatarPublicId);
         }
 
         return await tx.user.update({
