@@ -7,6 +7,8 @@ type UserPayload = {
   email: string;
   role: string;
   avatarUrl: string;
+  firstName: string;
+  lastName: string;
 };
 
 export const generateToken = (payload: UserPayload) => {

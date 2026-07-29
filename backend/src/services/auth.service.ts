@@ -100,6 +100,8 @@ export class AuthService {
           user.firstName || 'User',
           user.lastName || `${user.id}`
         ),
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
 
     // Update last login:
@@ -127,6 +129,8 @@ export class AuthService {
         avatarUrl: user.avatarUrl,
         role: user.role,
         name: `${user.firstName || 'User'} ${user.lastName || ''}`.trim(),
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
       tokens,
     };
@@ -302,6 +306,8 @@ export class AuthService {
       role: user.role,
       email: user.email,
       avatarUrl: user.avatarUrl ?? 'avatar',
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
 
     // 2. Tạo accessToken mới và trả về.
