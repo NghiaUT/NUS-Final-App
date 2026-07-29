@@ -4,10 +4,11 @@ import { AuthContext } from './AuthContext';
 import { setAuthHeader } from '../api/apiClient';
 import { authService } from '../api/authService';
 import type { User } from '../types/user.types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(() => {
@@ -49,12 +50,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const setLoggingOut = () => {
-      if (isLoggingOut) {
+      if (isLoggingOut && location.pathname === '/') {
         setIsLoggingOut(false);
       }
     }
     setLoggingOut();
-  }, [isLoggingOut]);
+  }, [isLoggingOut, location.pathname]);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem('accessToken', token);

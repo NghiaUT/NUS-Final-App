@@ -41,6 +41,8 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Pho
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        setErrors([]);
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

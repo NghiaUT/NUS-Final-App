@@ -72,6 +72,8 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Alb
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        setErrors([]);
     }
     // Xử lý cho cả trường hợp chọn nhiều file.
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
