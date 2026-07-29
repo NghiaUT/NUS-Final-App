@@ -156,12 +156,8 @@ export class PhotoService {
         userId: {
           // Thuộc về following của người này
           in: followingsId,
+          ...(currentUserId && { not: currentUserId }),
         },
-        ...(currentUserId && {
-          userId: {
-            not: currentUserId,
-          },
-        }),
       },
       include: {
         author: {

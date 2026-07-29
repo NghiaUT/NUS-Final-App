@@ -170,12 +170,8 @@ export class AlbumService {
         sharingMode: 'PUBLIC',
         userId: {
           in: followingsId,
+          ...(currentUserId && { not: currentUserId }),
         },
-        ...(currentUserId && {
-          userId: {
-            not: currentUserId,
-          },
-        }),
       },
       include: {
         author: {

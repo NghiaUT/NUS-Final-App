@@ -61,7 +61,7 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }: AlbumsGridLayoutProps) => {
               Chưa có {media === 'photo' ? 'hình ảnh' : 'album'} nào.
             </h3>
             <p className="text-gray-500 mt-2">
-              Hiện tại không có dữ liệu để hiển thị. Hãy thử tải lên một vài tấm ảnh mới nhé!
+              Hiện tại không có dữ liệu để hiển thị. <br /> Hãy thử tải lên một vài tấm ảnh mới và follow một người bạn mới nhé!
             </p>
           </div>
         ) : (
