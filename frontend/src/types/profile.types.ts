@@ -1,5 +1,3 @@
-import type { ProfileStats } from '../pages/Profile/ProfilePage';
-
 export type ReturnUserProfile = {
   id: string;
   name: string;

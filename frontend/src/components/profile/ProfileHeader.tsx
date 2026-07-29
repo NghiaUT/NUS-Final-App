@@ -1,4 +1,4 @@
-import React, { useState, type Dispatch, type SetStateAction } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
 import { useFollow } from '../../hooks/useFollow';

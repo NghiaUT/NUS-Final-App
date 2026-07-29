@@ -3,6 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../api/authService';
 import { toast } from 'react-toastify';
 import { resetPasswordSchema } from '../../utils/validators';
+import z from 'zod';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
+
+type ErrorValues = {
+    password?: string;
+    confirmedPassword?: string;
+}
+type FiledValue = 'password' | 'confirmedPassword';
 
 const ResetPasswordPage = () => {
     const navigate = useNavigate();
@@ -13,12 +22,13 @@ const ResetPasswordPage = () => {
         password: '',
         confirmedPassword: '',
     });
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<ErrorValues>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDone, setIsDone] = useState(false);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        if (name !== 'password' && name !== 'confirmedPassword') return;
         setFormData((prev) => ({ ...prev, [name]: value }));
         if (errors[name]) {
             setErrors((prev) => {
@@ -29,15 +39,23 @@ const ResetPasswordPage = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const result = resetPasswordSchema.safeParse(formData);
         if (!result.success) {
-            const fieldErrors = result.error.flatten().fieldErrors;
-            const nextErrors = {};
-            Object.keys(fieldErrors).forEach((key) => {
-                if (fieldErrors[key]?.[0]) nextErrors[key] = fieldErrors[key][0];
+            const fieldErrors = z.treeifyError(result.error);
+            const nextErrors: ErrorValues = {};
+            Object.entries(fieldErrors.properties ?? {}).forEach(([key, value]) => {
+                const error = value.errors.flatMap((err) => err).join(',');
+                switch (key) {
+                    case 'password':
+                        nextErrors.password = error;
+                        break
+                    case 'confirmedPassword':
+                        nextErrors.confirmedPassword = error;
+                        break
+                }
             });
             setErrors(nextErrors);
             toast.error('Vui lòng kiểm tra lại thông tin đã nhập!');
@@ -54,20 +72,31 @@ const ResetPasswordPage = () => {
         setIsSubmitting(true);
         try {
             // Token được gửi lên qua query string, khớp với route backend nhận req.query.token
+            if (!token) {
+                toast.error('Lỗi: Không có token được gửi kèm');
+                return;
+            }
             await authService.resetPassword(token, result.data.password);
             setIsDone(true);
             toast.success('Đặt lại mật khẩu thành công!');
             setTimeout(() => navigate('/login'), 1500);
         } catch (error) {
-            const errorMessage =
-                error.response?.data?.message || error.message || 'Đã có lỗi xảy ra. Vui lòng thử lại!';
+            let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+            if (axios.isAxiosError<ApiResponse<string>>(error)) {
+                errorMessage = error.response?.data?.message || error.message;
+            }
+
+            else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const fieldClasses = (fieldName) =>
+    const fieldClasses = (fieldName: FiledValue) =>
         `appearance-none relative block w-full px-3 py-3 border rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:z-10 sm:text-sm ${errors[fieldName]
             ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
             : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'

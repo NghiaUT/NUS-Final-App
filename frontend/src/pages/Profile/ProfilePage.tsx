@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import MediaGrid from '../../components/profile/MediaGrid';
 import ProfileGrid from '../../components/profile/ProfileGrid';

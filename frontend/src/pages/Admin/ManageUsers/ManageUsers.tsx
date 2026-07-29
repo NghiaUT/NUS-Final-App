@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import UserList from '../../../components/admin/UserList'
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import { adminService } from '../../../api/adminService';

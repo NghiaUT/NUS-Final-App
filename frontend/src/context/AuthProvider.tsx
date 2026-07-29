@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { AuthContext } from './AuthContext';
 import { setAuthHeader } from '../api/apiClient';

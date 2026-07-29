@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 import PhotoForm from '../../components/add-edit/PhotoForm';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';

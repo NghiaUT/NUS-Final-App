@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ProfileCard from './ProfileCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 import type { ApiResponse, FetchDataType } from '../../types/api.types';

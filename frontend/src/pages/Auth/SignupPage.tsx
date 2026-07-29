@@ -4,6 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../api/authService';
 import { toast } from 'react-toastify';
 import { signupSchema } from '../../utils/validators';
+import z from 'zod';
+import axios from 'axios';
+import type { ApiResponse } from '../../types/api.types';
+
+type ErrorValues = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  confirmedPassword?: string;
+}
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -14,11 +25,12 @@ const SignupPage = () => {
     password: '',
     confirmedPassword: '',
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<ErrorValues>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (name !== 'firstName' && name !== 'lastName' && name !== 'password' && name !== 'email' && name !== 'confirmedPassword') return;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -34,18 +46,33 @@ const SignupPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // 1. Validate against the zod schema
     const result = signupSchema.safeParse(formData);
 
     if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors;
-      const nextErrors = {};
-      Object.keys(fieldErrors).forEach((key) => {
-        if (fieldErrors[key]?.[0]) {
-          nextErrors[key] = fieldErrors[key][0];
+      const fieldErrors = z.treeifyError(result.error);
+      const nextErrors: ErrorValues = {};
+      Object.entries(fieldErrors.properties ?? {}).forEach(([key, value]) => {
+        const error = value.errors.flatMap((err) => err).join(',');
+        switch (key) {
+          case 'email':
+            nextErrors.email = error;
+            break
+          case 'password':
+            nextErrors.password = error;
+            break
+          case 'firstName':
+            nextErrors.firstName = error;
+            break
+          case 'lastName':
+            nextErrors.lastName = error;
+            break
+          case 'confirmedPassword':
+            nextErrors.confirmedPassword = error;
+            break
         }
       });
       setErrors(nextErrors);
@@ -69,15 +96,22 @@ const SignupPage = () => {
       await authService.signup(result.data);
       toast.success('Đăng ký thành công, vui lòng kiểm tra hộp thư và xác nhận!');
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || error.message || 'Đã có lỗi xảy ra. Vui lòng thử lại!';
+      let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
+
+      if (axios.isAxiosError<ApiResponse<string>>(error)) {
+        errorMessage = error.response?.data?.message || error.message;
+      }
+
+      else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const fieldClasses = (fieldName) =>
+  const fieldClasses = (fieldName: 'email' | 'lastName' | 'firstName' | 'password' | 'confirmedPassword') =>
     `w-full px-3 py-2.5 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-1 sm:text-sm ${errors[fieldName]
       ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
       : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
