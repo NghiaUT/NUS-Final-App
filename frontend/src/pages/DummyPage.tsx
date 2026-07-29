@@ -1,6 +1,5 @@
-import React from 'react';
 
-const DummyPage = ({ name }: any) => {
+const DummyPage = ({ name }: { name: string }) => {
   return <div className="text-6xl">DummyPage: {name}</div>;
 };
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { Image, MediaCardItem, MediaType } from '../../types/media.types';
 import { useNavigate } from 'react-router-dom';

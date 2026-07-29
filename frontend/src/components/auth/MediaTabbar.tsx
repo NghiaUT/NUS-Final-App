@@ -1,4 +1,3 @@
-import React from 'react';
 import googleImg from '../../assets/icons8-google-48.png';
 import facebookImg from '../../assets/icons8-facebook-48.png';
 import twitterImg from '../../assets/icons8-twitter-bird-48.png';

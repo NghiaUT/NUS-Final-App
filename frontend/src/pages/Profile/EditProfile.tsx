@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Outlet, useParams } from 'react-router-dom';
 import BasicInfoForm from '../../components/profile/BasicInfoForm';

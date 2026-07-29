@@ -2,7 +2,6 @@
   "files": [],
   "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
-    "outDir": "./dist",
-    "noUnusedLocals": false /* Bỏ qua lỗi khai báo biến nhưng không dùng (TS6133) */
+    "outDir": "./dist"
   }
 }
