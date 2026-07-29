@@ -37,6 +37,11 @@ export class PhotoService {
       where: {
         sharingMode: 'PUBLIC',
         album: null, // Các photos đứng riêng lẻ.
+        ...(currentUserId && {
+          userId: {
+            not: currentUserId,
+          },
+        }),
       },
       include: {
         author: {
@@ -152,6 +157,11 @@ export class PhotoService {
           // Thuộc về following của người này
           in: followingsId,
         },
+        ...(currentUserId && {
+          userId: {
+            not: currentUserId,
+          },
+        }),
       },
       include: {
         author: {

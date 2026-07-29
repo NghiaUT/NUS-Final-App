@@ -38,6 +38,11 @@ export class AlbumService {
       },
       where: {
         sharingMode: 'PUBLIC',
+        ...(currentUserId && {
+          userId: {
+            not: currentUserId,
+          },
+        }),
       },
       include: {
         author: {
@@ -166,6 +171,11 @@ export class AlbumService {
         userId: {
           in: followingsId,
         },
+        ...(currentUserId && {
+          userId: {
+            not: currentUserId,
+          },
+        }),
       },
       include: {
         author: {
