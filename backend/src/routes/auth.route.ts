@@ -6,7 +6,7 @@ import googleRouter from './strategies/social_login/google.route.js';
 const authRouter = express.Router();
 
 // Social Login:
-authRouter.get('/google', googleRouter);
+authRouter.use('/google', googleRouter);
 
 // Common Login Route
 authRouter.post('/login', authController.login);
