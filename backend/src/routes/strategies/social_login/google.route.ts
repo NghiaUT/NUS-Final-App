@@ -15,7 +15,7 @@ googleRouter.get(
 googleRouter.get(
   '/callback',
   passport.authenticate('google', {
-    failureRedirect: `api/login-failed`,
+    failureRedirect: `/api/login-failed`,
     session: false,
   }),
   issueTokenAndRedirect

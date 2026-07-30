@@ -19,6 +19,6 @@ rootRouter.use('/admin', adminRouter);
 // Specific route for social login
 rootRouter.get('/login-failed', (req, res) => {
   const errorMessage = encodeURIComponent('Đăng nhập thất bại');
-  res.redirect(`${constant.CLIENT_URL}?error=${errorMessage}`);
+  res.redirect(`${constant.CLIENT_URL}/login?error=${errorMessage}`);
 });
 export default rootRouter;
