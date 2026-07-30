@@ -9,6 +9,7 @@ import { twMerge } from 'tailwind-merge';
 import z from 'zod';
 import axios from 'axios';
 import type { ApiResponse, OAuthProvider } from '../../types/api.types';
+import { useSearchParams } from 'react-router-dom';
 
 type ErrorsValue = {
   email?: string;
@@ -26,6 +27,7 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState<ErrorsValue>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (location?.state?.error) {
@@ -33,6 +35,17 @@ const LoginPage = () => {
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
+
+  useEffect(() => {
+    const errorMsg = searchParams.get('error');
+
+    if (errorMsg) {
+      toast.error(decodeURIComponent(errorMsg));
+
+      searchParams.delete('error');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

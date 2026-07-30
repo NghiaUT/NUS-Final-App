@@ -382,6 +382,15 @@ export class AuthService {
           },
         });
         returnUser = newUser;
+      } else {
+        await prisma.user.update({
+          where: {
+            id: returnUser.id,
+          },
+          data: {
+            googleId: profile.id,
+          },
+        });
       }
       return returnUser;
     } catch (error) {

@@ -5,6 +5,7 @@ import photoRouter from './photo.route.js';
 import albumRouter from './album.route.js';
 import userRouter from './user.route.js';
 import adminRouter from './admin.route.js';
+import { constant } from '../config/constant/constant.js';
 // Route to imports
 
 const rootRouter = express.Router();
@@ -17,6 +18,7 @@ rootRouter.use('/users', userRouter);
 rootRouter.use('/admin', adminRouter);
 // Specific route for social login
 rootRouter.get('/login-failed', (req, res) => {
-  res.status(401).json({ error: 'Đăng nhập thất bại' });
+  const errorMessage = encodeURIComponent('Đăng nhập thất bại');
+  res.redirect(`${constant.CLIENT_URL}?error=${errorMessage}`);
 });
 export default rootRouter;
