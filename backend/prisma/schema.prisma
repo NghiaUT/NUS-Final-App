@@ -25,6 +25,7 @@ model User {
   avatarUrl           String?
   password            String
   role                UserRole
+  googleId            String?
   avatarPublicId      String?
   verificationToken   String?
   verificationExpire  DateTime?
