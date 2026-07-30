@@ -2,6 +2,10 @@ import path from 'node:path';
 import fs from 'fs/promises';
 import { InternalServerError } from './apiError.js';
 import { cloudinary } from '../config/cloudinary/cloudinary.config.js';
+import { constant } from '../config/constant/constant.js';
+
+let STORAGE_PLACE: StoragePlace = 'cloud';
+type StoragePlace = 'cloud' | 'folder';
 
 function isLocalhost(url: string) {
   const localhostRegex =
@@ -10,7 +14,7 @@ function isLocalhost(url: string) {
 }
 
 // Remove file cho giai đoạn dev local
-export const removeFile = async (input: string) => {
+const removeFileOnFolder = async (input: string) => {
   try {
     if (!input)
       throw new InternalServerError('Wrong Remove Filename parameter');
@@ -34,7 +38,7 @@ export const removeFile = async (input: string) => {
   }
 };
 
-export const removeFileCloudinary = async (id: string | null) => {
+const removeFileOnCloudinary = async (id: string | null) => {
   // Xóa file đã tải lên Cloudinary
   try {
     if (!id) {
@@ -52,3 +56,6 @@ export const removeFileCloudinary = async (id: string | null) => {
     console.error('[FileCleaner] CẢNH BÁO: Rollback xóa file thất bại!', error);
   }
 };
+
+export const removeFileCloudinary =
+  STORAGE_PLACE === 'cloud' ? removeFileOnCloudinary : removeFileOnFolder;

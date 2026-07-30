@@ -15,4 +15,8 @@ rootRouter.use('/photos', photoRouter);
 rootRouter.use('/albums', albumRouter);
 rootRouter.use('/users', userRouter);
 rootRouter.use('/admin', adminRouter);
+// Specific route for social login
+rootRouter.get('/login-failed', (req, res) => {
+  res.status(401).json({ error: 'Đăng nhập thất bại' });
+});
 export default rootRouter;

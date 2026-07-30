@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import { constant } from './src/config/constant/constant.js';
 import './src/config/redis/redis.config.js';
 import './src/config/queue/email.queue.js';
+import passport from './src/config/passport/passport.config.js';
 import path from 'path';
 
 const port = constant.PORT;
@@ -24,6 +25,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
+
+app.use(passport.initialize());
 
 app.get('/', (req: Request, res: Response) => {
   res.send('App is running smoothly!');

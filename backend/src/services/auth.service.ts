@@ -15,6 +15,8 @@ import { generateToken, verifyAndCheckExpiration } from '../utils/jwt.util.js';
 import { generateDefaultAvatar } from '../utils/avatar.util.js';
 import { generateHashedToken, hashToken } from '../utils/token.util.js';
 import { constant } from '../config/constant/constant.js';
+import type { Profile } from 'passport';
+import type { OAuthProvider } from '../types/user.types.js';
 
 export const SALT = 10;
 
@@ -337,5 +339,53 @@ export class AuthService {
       email: user.email,
     };
     return returnUser;
+  }
+
+  static async socicalLogin(type: OAuthProvider, profile: Profile) {
+    try {
+      const email = profile.emails?.[0]?.value || 'example@exmaple.com';
+      const firstName = profile.name?.givenName || 'User';
+      const lastName = profile.name?.familyName || 'New';
+      const avatarUrl =
+        profile.photos?.[0]?.value || generateDefaultAvatar('New', 'User');
+
+      const user = await prisma.user.findFirst({
+        where: {
+          email: email,
+        },
+      });
+      let returnUser = user;
+      if (!returnUser) {
+        // Create new User
+        const hashedPassword = await bcrypt.hash(crypto.randomUUID(), SALT);
+
+        let newUserData = {
+          email: email,
+          firstName,
+          lastName,
+          avatarUrl,
+          password: hashedPassword,
+          googleId: profile.id,
+          isActive: true,
+          isVerified: true,
+        };
+
+        switch (type) {
+          case 'google':
+            newUserData = { ...newUserData, googleId: profile.id };
+        }
+
+        const newUser = await prisma.user.create({
+          data: {
+            ...newUserData,
+            role: 'USER',
+          },
+        });
+        returnUser = newUser;
+      }
+      return returnUser;
+    } catch (error) {
+      throw error;
+    }
   }
 }

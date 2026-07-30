@@ -8,7 +8,7 @@ import { loginSchema } from '../../utils/validators';
 import { twMerge } from 'tailwind-merge';
 import z from 'zod';
 import axios from 'axios';
-import type { ApiResponse } from '../../types/api.types';
+import type { ApiResponse, OAuthProvider } from '../../types/api.types';
 
 type ErrorsValue = {
   email?: string;
@@ -105,10 +105,17 @@ const LoginPage = () => {
     );
   };
 
+  const handleSocialClick = (provider: OAuthProvider) => {
+    toast.success('Đang chuyển hướng sang trang đăng nhập...');
+    setTimeout(() => {
+      authService.socialLogin(provider);
+    }, 2000)
+  }
+
   return (
     <div className="relative sm:top-10 md:top-12 mx-auto w-full sm:w-[400px] flex items-center flex-col flex-start">
       <h1 className="text-blue text-5xl text-center font-semibold m-10">Fotobook Login</h1>
-      <MediaTabbar></MediaTabbar>
+      <MediaTabbar onClick={handleSocialClick} />
       <div className="flex w-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full px-4 sm:px-0 space-y-8">
           <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">

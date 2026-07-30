@@ -8,13 +8,12 @@ import {
 } from '../utils/apiError.js';
 import { verifyAndCheckExpiration } from '../utils/jwt.util.js';
 import prisma from '../config/prisma/prisma.init.js';
+import type { AuthUser } from '../types/user.types.js';
 
 // Định nghĩa thêm type cho Request Express.
 declare global {
   namespace Express {
-    interface Request {
-      user?: any;
-    }
+    interface User extends AuthUser {}
   }
 }
 
@@ -75,14 +74,14 @@ export const optionalVerifyToken = async (
     const authHeader = req.headers.authorization as string;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      req.user = null; // Gán null để controller biết đây là guest
+      req.user = null as any; // Gán null để controller biết đây là guest
       return next();
     }
 
     const token = authHeader.split(' ')[1];
 
     if (!token) {
-      req.user = null; // Gán null để controller biết đây là guest
+      req.user = null as any; // Gán null để controller biết đây là guest
       return next();
     }
     const result = verifyAndCheckExpiration(token, 'accessToken');
