@@ -11,5 +11,6 @@ export const authService = {
   me: () => axiosInstance.get<{ data: User }>('/auth/me'),
   resetPassword: (token: string, newPassword: string) =>
     axiosInstance.post(`/auth/reset-password?token=${encodeURIComponent(token)}`, { newPassword }),
-  socialLogin: (provider: OAuthProvider) => axiosInstance.get(`/auth/${provider}`),
+  socialLogin: (provider: OAuthProvider) =>
+    (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/${provider}`),
 };
