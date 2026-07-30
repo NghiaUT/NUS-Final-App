@@ -20,4 +20,5 @@ export const constant = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ?? 'cloud_api_key',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ?? 'cloud_secret',
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? 'resend_api_key',
+  STORAGE_PLACE: process.env.STORAGE_PLACE ?? 'cloud',
 };

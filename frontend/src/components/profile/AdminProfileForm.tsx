@@ -211,7 +211,8 @@ const AdminProfileForm: React.FC<AdminProfileFormProps> = ({ targetUserId }) => 
                                 value={form.email}
                                 onChange={handleInputChange}
                                 placeholder="someone@example.com"
-                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                readOnly
+                                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500 read-only:bg-gray-200 read-only:text-gray-500 read-only:focus:ring-0 cursor-not-allowed"
                             />
                             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                         </div>
