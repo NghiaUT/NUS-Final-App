@@ -382,7 +382,7 @@ export class UserService {
           const newAvatarUrl = avatarFile.path;
           updatedData.avatarUrl = newAvatarUrl;
           updatedData.avatarPublicId = avatarFile.filename;
-          removeFileCloudinary(user.avatarPublicId);
+          if (user.avatarPublicId) removeFileCloudinary(user.avatarPublicId);
         }
 
         return await tx.user.update({

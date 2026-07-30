@@ -144,6 +144,11 @@ export const userController = {
       if (!userId || Array.isArray(userId)) {
         throw new BadRequestError('Invalid Request');
       }
+
+      if (!req.user) {
+        throw new UnauthorizedError('You have no rights');
+      }
+
       if (userId !== req.user.id && req.user.role !== 'ADMIN') {
         throw new UnauthorizedError('You do not have right to do this.');
       }
@@ -162,6 +167,11 @@ export const userController = {
       if (!userId || Array.isArray(userId)) {
         throw new BadRequestError('Invalid request');
       }
+
+      if (!req.user) {
+        throw new UnauthorizedError('You have no rights');
+      }
+
       const currentUserId = req.user.id;
       if (userId === currentUserId) {
         throw new BadRequestError('Can not follow yourself!');
@@ -179,6 +189,13 @@ export const userController = {
       if (!userId || Array.isArray(userId)) {
         throw new BadRequestError('Invalid request');
       }
+      if (!req.user) {
+        throw new UnauthorizedError('You have no rights');
+      }
+      if (!req.user) {
+        throw new UnauthorizedError('You have no rights');
+      }
+
       const currentUserId = req.user.id;
       if (userId === currentUserId) {
         throw new BadRequestError('Can not follow yourself!');

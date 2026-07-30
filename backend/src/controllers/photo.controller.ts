@@ -39,7 +39,7 @@ export const photoController = {
       const result = await PhotoService.getAllPhotoFeed(
         page,
         limit,
-        req.user.id
+        req.user?.id ?? '1'
       );
       sendSuccessRes(res, 'Get Photo succesfully', result, 200);
     } catch (error) {
@@ -51,7 +51,7 @@ export const photoController = {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const { id: photoId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? '1';
 
       if (!photoId || Array.isArray(photoId)) {
         throw new BadRequestError('Invalid Request!');
@@ -71,7 +71,7 @@ export const photoController = {
       }
 
       const data = { ...req.body, photo: req.file } satisfies FormData;
-      const result = await PhotoService.newPhoto(data, req.user?.id);
+      const result = await PhotoService.newPhoto(data, req.user?.id ?? '1');
       sendSuccessRes(res, 'Adding new Photo succesfully', result, 201);
     } catch (error) {
       next(error);
@@ -88,7 +88,11 @@ export const photoController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      const result = await PhotoService.editPhoto(data, req.user?.id, photoId);
+      const result = await PhotoService.editPhoto(
+        data,
+        req.user?.id ?? '1',
+        photoId
+      );
       sendSuccessRes(res, 'Edit photo successfully', result, 200);
     } catch (error) {
       next(error);
@@ -104,7 +108,10 @@ export const photoController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      const result = await PhotoService.deletePhoto(req.user?.id, photoId);
+      const result = await PhotoService.deletePhoto(
+        req.user?.id ?? '1',
+        photoId
+      );
       sendSuccessRes(res, 'Delete Photo Sucessfully', result, 200);
     } catch (error) {
       next(error);
@@ -119,7 +126,7 @@ export const photoController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      await PhotoService.toggleLike(req.user.id, photoId, 'post');
+      await PhotoService.toggleLike(req.user?.id ?? '1', photoId, 'post');
       sendSuccessRes(res, 'Like photo successfull', null, 200);
     } catch (error) {
       next(error);
@@ -134,7 +141,7 @@ export const photoController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      await PhotoService.toggleLike(req.user.id, photoId, 'delete');
+      await PhotoService.toggleLike(req.user?.id ?? '1', photoId, 'delete');
       sendSuccessRes(res, 'Unlike photo successfull', null, 200);
     } catch (error) {
       next(error);

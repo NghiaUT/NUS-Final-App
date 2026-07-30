@@ -62,7 +62,7 @@ export const albumController = {
       const result = await AlbumService.getAllAlbumFeed(
         page,
         limit,
-        req.user.id
+        req.user?.id ?? '1'
       );
       sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
     } catch (error) {
@@ -74,7 +74,7 @@ export const albumController = {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const { id: albumId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? '1';
 
       if (!albumId || Array.isArray(albumId)) {
         throw new BadRequestError('Invalid Request!');
@@ -94,7 +94,7 @@ export const albumController = {
       }
       const data = { ...req.body, photo: req.files } satisfies FormData;
 
-      const result = await AlbumService.newAlbum(data, req?.user.id);
+      const result = await AlbumService.newAlbum(data, req.user?.id ?? '1');
       sendSuccessRes(res, 'Create new Album Successfully', result, 200);
     } catch (error) {
       next(error);
@@ -110,7 +110,11 @@ export const albumController = {
       if (!albumId || Array.isArray(albumId)) {
         throw new BadRequestError('Invalid Request!');
       }
-      const result = await AlbumService.editAlbum(data, req?.user.id, albumId);
+      const result = await AlbumService.editAlbum(
+        data,
+        req.user?.id ?? '1',
+        albumId
+      );
       sendSuccessRes(res, 'Edit the album successfully!', result, 200);
     } catch (error) {
       next(error);
@@ -125,7 +129,10 @@ export const albumController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      const result = await AlbumService.deleteAlbum(req.user?.id, albumId);
+      const result = await AlbumService.deleteAlbum(
+        req.user?.id ?? '1',
+        albumId
+      );
       sendSuccessRes(res, 'Delete Album Sucessfully', result, 200);
     } catch (error) {
       next(error);
@@ -140,7 +147,7 @@ export const albumController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      await AlbumService.toggleLike(req.user.id, albumId, 'post');
+      await AlbumService.toggleLike(req.user?.id ?? '1', albumId, 'post');
       sendSuccessRes(res, 'Like album successfull', null, 200);
     } catch (error) {
       next(error);
@@ -155,7 +162,7 @@ export const albumController = {
         throw new BadRequestError('Invalid Request!');
       }
 
-      await AlbumService.toggleLike(req.user.id, albumId, 'delete');
+      await AlbumService.toggleLike(req.user?.id ?? '1', albumId, 'delete');
       sendSuccessRes(res, 'Unlike album successfull', null, 200);
     } catch (error) {
       next(error);
