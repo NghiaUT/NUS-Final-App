@@ -378,7 +378,7 @@ export class UserService {
 
       const userData = await prisma.$transaction(async (tx) => {
         // Không lưu avatar xuống photos database.
-        if (avatarFile) {
+        if (avatarFile?.path && avatarFile.filename) {
           const newAvatarUrl = avatarFile.path;
           updatedData.avatarUrl = newAvatarUrl;
           updatedData.avatarPublicId = avatarFile.filename;
@@ -403,7 +403,6 @@ export class UserService {
       return userData;
     } catch (error) {
       console.log('Có lỗi prisma rollback xóa file đã tải lên.');
-      if (avatarFile) await removeFileCloudinary(avatarFile.filename);
       throw error;
     }
   }

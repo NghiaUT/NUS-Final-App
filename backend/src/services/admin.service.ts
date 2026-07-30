@@ -140,8 +140,6 @@ export class AdminService {
 
       return userData;
     } catch (error) {
-      console.log('[FileCleaner] Có lỗi prisma rollback xóa file đã tải lên.');
-      if (avatarFile) await removeFileCloudinary(avatarFile?.filename);
       throw error;
     }
   }

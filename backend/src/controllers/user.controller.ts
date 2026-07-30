@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { UserService } from '../services/user.service.js';
 import { BadRequestError, UnauthorizedError } from '../utils/apiError.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
+import { basicInfoSchema, validateData } from '../utils/validator.util.js';
 
 export type UserDataProfile = {
   firstName?: string;
@@ -152,9 +153,14 @@ export const userController = {
       if (userId !== req.user.id && req.user.role !== 'ADMIN') {
         throw new UnauthorizedError('You do not have right to do this.');
       }
-      const data = req.body as UserDataProfile;
-      const avatar = req.file;
-      const result = await UserService.updateUserProfile(userId, data, avatar);
+      const validatedProfileData = validateData(basicInfoSchema, req.body);
+      const avatar = req.file ?? null;
+
+      const result = await UserService.updateUserProfile(
+        userId,
+        validatedProfileData,
+        avatar
+      );
       sendSuccessRes(res, 'Updated User profile successfully', result, 201);
     } catch (error) {
       next(error);

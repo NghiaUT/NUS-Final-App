@@ -1,9 +1,23 @@
+import type { SharingMode } from '../../generated/prisma/enums.js';
 import { constant } from '../config/constant/constant.js';
 import prisma from '../config/prisma/prisma.init.js';
 import { redisClient } from '../config/redis/redis.config.js';
 import { type FormData } from '../controllers/album.controller.js';
-import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
+import type { UploadPhoto } from '../types/form.types.js';
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+} from '../utils/apiError.js';
 import { removeFileCloudinary } from '../utils/removeFile.util.js';
+
+type UploadData = {
+  title: string;
+  description: string;
+  sharingMode: SharingMode;
+  deletedPhotosId?: string[];
+  photo: UploadPhoto[] | null;
+};
 
 export class AlbumService {
   static async getAllAlbumDiscover(
@@ -281,7 +295,7 @@ export class AlbumService {
     return album;
   }
 
-  static async newAlbum(data: FormData, userId: string) {
+  static async newAlbum(data: UploadData, userId: string) {
     console.log('[Service] This service create new album.!');
     // Có thực hiện rollback để xóa file.
 
@@ -307,14 +321,18 @@ export class AlbumService {
           },
         });
 
-        const photoData = data.photo.map((photo) => ({
-          imageUrl: photo.path,
-          mimeType: photo.mimetype,
-          sharingMode: newAlbum.sharingMode,
-          albumId: newAlbum.id,
-          publicId: photo.filename, // Lưu id của nó trên cloudinary
-          userId: userId,
-        }));
+        const photoData = data.photo.map((photo) => {
+          if (!photo.path)
+            throw new InternalServerError('Error when Uploading Photos...');
+          return {
+            imageUrl: photo?.path ?? null,
+            mimeType: photo.mimetype,
+            sharingMode: newAlbum.sharingMode,
+            albumId: newAlbum.id,
+            publicId: photo?.filename ?? null, // Lưu id của nó trên cloudinary
+            userId: userId,
+          };
+        });
 
         await tx.photo.createMany({
           data: photoData,
@@ -329,18 +347,12 @@ export class AlbumService {
       console.error(
         '[Service] Lỗi khi thực hiện! Bắt đầu rollback xóa file rác...'
       );
-
-      if (Array.isArray(data.photo) && data.photo.length !== 0) {
-        await Promise.all(
-          data.photo.map((photo) => removeFileCloudinary(photo.filename))
-        );
-      }
       throw error;
     }
   }
 
   static async editAlbum(
-    data: FormData,
+    data: UploadData,
     userId: string,
     albumId: string,
     isAdmin: boolean = false
@@ -403,13 +415,17 @@ export class AlbumService {
         // Thêm ảnh mới nếu có
         if (Array.isArray(data.photo) && data.photo.length !== 0) {
           // Thêm ảnh mới vào
-          const newPhotos = data.photo.map((photo) => ({
-            imageUrl: photo.path,
-            mimeType: photo.mimetype,
-            sharingMode: album.sharingMode,
-            albumId: album.id,
-            userId: userId,
-          }));
+          const newPhotos = data.photo.map((photo) => {
+            if (!photo.path)
+              throw new InternalServerError('Error when uploading Photos...');
+            return {
+              imageUrl: photo?.path ?? null,
+              mimeType: photo.mimetype,
+              sharingMode: album.sharingMode,
+              albumId: album.id,
+              userId: userId,
+            };
+          });
 
           await tx.photo.createMany({
             data: newPhotos,
@@ -440,11 +456,6 @@ export class AlbumService {
       return newAlbum;
     } catch (error) {
       console.error('[Service] Lỗi Prisma! Bắt đầu rollback xóa file rác...');
-      if (Array.isArray(data.photo) && data.photo.length !== 0) {
-        await Promise.all(
-          data.photo.map((photo) => removeFileCloudinary(photo.filename))
-        );
-      }
       throw error;
     }
   }

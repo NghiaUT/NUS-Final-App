@@ -1,9 +1,21 @@
 import prisma from '../config/prisma/prisma.init.js';
 import type { FormData, UploadPhoto } from '../types/form.types.js';
-import { BadRequestError, ForbiddenError } from '../utils/apiError.js';
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+} from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
 import { redisClient } from '../config/redis/redis.config.js';
 import { removeFileCloudinary } from '../utils/removeFile.util.js';
+import type { SharingMode } from '../../generated/prisma/enums.js';
+
+type UploadData = {
+  title: string;
+  description: string;
+  sharingMode: SharingMode;
+  photo: UploadPhoto | null;
+};
 
 export class PhotoService {
   static async getAllPhotoDiscover(
@@ -250,7 +262,7 @@ export class PhotoService {
     return photo;
   }
 
-  static async newPhoto(data: FormData, userId: string) {
+  static async newPhoto(data: UploadData, userId: string) {
     console.log('[Service] This service create new Photo.!');
 
     // 1. Tạo photo mới với những thông tin trên
@@ -264,6 +276,9 @@ export class PhotoService {
         throw new BadRequestError('Invalid Form Data!');
       }
 
+      if (!data.photo.filename || !data.photo.path) {
+        throw new InternalServerError('Error when upload Photo!');
+      }
       const imageUrl = data.photo.path;
 
       const newPhoto = await prisma.photo.create({
@@ -277,19 +292,17 @@ export class PhotoService {
           userId: userId,
         },
       });
-
       return newPhoto;
     } catch (error) {
       console.error(
         '[Service] Lỗi khi thực hiện! Bắt đầu rollback xóa file rác...'
       );
-      if (data.photo) await removeFileCloudinary(data.photo.filename);
       throw error;
     }
   }
 
   static async editPhoto(
-    data: FormData,
+    data: UploadData,
     userId: string,
     photoId: string,
     isAdmin: boolean = false
@@ -319,6 +332,9 @@ export class PhotoService {
       let imageUrl = photo.imageUrl;
       let mimeType = photo.mimeType;
       if (data.photo) {
+        if (!data.photo?.filename || !data.photo.path) {
+          throw new InternalServerError('Error when upload Photo!');
+        }
         oldImgFileName = photo.publicId;
         imageUrl = data.photo.path;
         mimeType = data.photo.mimetype;
@@ -347,10 +363,6 @@ export class PhotoService {
     } catch (error) {
       console.error('[Service] Lỗi Prisma! Bắt đầu rollback xóa file rác...');
       // Rollback: Khi prisma bị lỗi thì đã có file ảnh trong uploads
-      if (data.photo) {
-        console.log('FileName: ', data.photo.filename);
-        await removeFileCloudinary(data.photo.filename);
-      }
       throw error;
     }
   }

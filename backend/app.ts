@@ -10,6 +10,7 @@ import './src/config/redis/redis.config.js';
 import './src/config/queue/email.queue.js';
 import passport from './src/config/passport/passport.config.js';
 import path from 'path';
+import { cleanupHandler } from './src/middlewares/cleanup.middleware.js';
 
 const port = constant.PORT;
 const app = express();
@@ -37,6 +38,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 app.use('/api', rootRouter);
 
+app.use(cleanupHandler);
 app.use(errorHandler);
 
 app.listen(port, () => {

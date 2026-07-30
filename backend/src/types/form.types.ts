@@ -15,9 +15,9 @@ export type UploadPhoto = {
   originalname: string;
   encoding: string;
   mimetype: string;
-  path: string;
-  destination: string;
-  filename: string;
+  path?: string | undefined;
+  destination?: string | undefined;
+  filename?: string | undefined;
   size: number;
 };
 

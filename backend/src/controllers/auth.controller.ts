@@ -2,12 +2,20 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { AuthService } from '../services/auth.service.js';
 import { ApiError, BadRequestError } from '../utils/apiError.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  signupSchema,
+  validateData,
+} from '../utils/validator.util.js';
 
 export const authController = {
   signup: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Gọi thẳng xuống Service
-      const data = req.body;
+      const data = validateData(signupSchema, req.body);
+
       if (data.password !== data.confirmedPassword) {
         throw new BadRequestError(
           'Confirmed Password different from Password!'
@@ -25,7 +33,8 @@ export const authController = {
   login: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Gọi xuống service:
-      const result = await AuthService.login(req.body);
+      const data = validateData(loginSchema, req.body);
+      const result = await AuthService.login(data);
       const { tokens, ...userInfo } = result;
 
       // Set Refresh Token vào HttpOnly Cookie để bảo mật
@@ -66,7 +75,8 @@ export const authController = {
 
   forgotPassword: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email } = req.body;
+      const data = validateData(forgotPasswordSchema, req.body);
+      const { email } = data;
       await AuthService.forgotPassword(email);
       sendSuccessRes(res, 'Send directlink suscessfully', null, 200);
     } catch (error) {
@@ -81,7 +91,8 @@ export const authController = {
         throw new BadRequestError('Invalid or missing token!');
       }
 
-      const { newPassword } = req.body;
+      const data = validateData(resetPasswordSchema, req.body);
+      const { password: newPassword } = data;
       await AuthService.resetPassword(token, newPassword);
 
       sendSuccessRes(res, 'Update Password successfully', null, 201);

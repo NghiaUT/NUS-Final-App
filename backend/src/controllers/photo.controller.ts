@@ -2,6 +2,11 @@ import type { NextFunction, Request, Response } from 'express';
 import { PhotoService } from '../services/photo.service.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { BadRequestError } from '../utils/apiError.js';
+import {
+  formInfoSchema,
+  singleImageSchema,
+  validateData,
+} from '../utils/validator.util.js';
 
 export const photoController = {
   getAllPhotoDiscover: async (
@@ -70,7 +75,12 @@ export const photoController = {
         throw new BadRequestError('No image found!');
       }
 
-      const data = { ...req.body, photo: req.file } satisfies FormData;
+      const validatedBody = validateData(formInfoSchema, req.body);
+      const validatedPhoto = req.file
+        ? validateData(singleImageSchema, req.file)
+        : null;
+      const data = { ...validatedBody, photo: validatedPhoto };
+
       const result = await PhotoService.newPhoto(data, req.user?.id ?? '1');
       sendSuccessRes(res, 'Adding new Photo succesfully', result, 201);
     } catch (error) {
@@ -82,11 +92,16 @@ export const photoController = {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const { id: photoId } = req.params;
-      const data = { ...req.body, photo: req.file } satisfies FormData;
 
       if (!photoId || Array.isArray(photoId)) {
         throw new BadRequestError('Invalid Request!');
       }
+
+      const validatedBody = validateData(formInfoSchema, req.body);
+      const validatedPhoto = req.file
+        ? validateData(singleImageSchema, req.file)
+        : null;
+      const data = { ...validatedBody, photo: validatedPhoto };
 
       const result = await PhotoService.editPhoto(
         data,

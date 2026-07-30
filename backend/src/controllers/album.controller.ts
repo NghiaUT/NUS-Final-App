@@ -2,6 +2,11 @@ import type { NextFunction, Request, Response } from 'express';
 import { AlbumService } from '../services/album.service.js';
 import { sendSuccessRes } from '../utils/sendRespone.util.js';
 import { BadRequestError } from '../utils/apiError.js';
+import {
+  albumImageSchema,
+  formInfoSchema,
+  validateData,
+} from '../utils/validator.util.js';
 
 type UploadPhoto = {
   fieldname: string;
@@ -90,9 +95,11 @@ export const albumController = {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       if (!req.files) {
-        throw new BadRequestError('No image found!');
+        throw new BadRequestError('No images found!');
       }
-      const data = { ...req.body, photo: req.files } satisfies FormData;
+      const validatedBody = validateData(formInfoSchema, req.body);
+      const validatedAlbum = validateData(albumImageSchema, req.files);
+      const data = { ...validatedBody, photo: validatedAlbum };
 
       const result = await AlbumService.newAlbum(data, req.user?.id ?? '1');
       sendSuccessRes(res, 'Create new Album Successfully', result, 200);
@@ -105,11 +112,22 @@ export const albumController = {
     console.log('[Controller] This Controller handle data and pass to service');
     try {
       const { id: albumId } = req.params;
-      const data = { ...req.body, photo: req.files } satisfies FormData;
-
       if (!albumId || Array.isArray(albumId)) {
         throw new BadRequestError('Invalid Request!');
       }
+
+      const { deletedPhotosId, ...body } = req.body;
+
+      const validatedBody = validateData(formInfoSchema, body);
+      const validatedAlbum = req.files
+        ? validateData(albumImageSchema, req.files)
+        : null;
+
+      const data = {
+        ...{ deletedPhotosId, ...validatedBody },
+        photo: validatedAlbum,
+      };
+
       const result = await AlbumService.editAlbum(
         data,
         req.user?.id ?? '1',

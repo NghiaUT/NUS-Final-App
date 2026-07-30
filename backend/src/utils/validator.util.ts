@@ -1,4 +1,5 @@
-import { z } from 'zod';
+import { z, ZodType } from 'zod';
+import { BadRequestError } from './apiError.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = [
@@ -6,84 +7,86 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/jpg',
   'image/png',
   'image/gif',
+  'image/webp',
 ];
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
 
+export function validateData<TSchema extends ZodType>(
+  schema: TSchema,
+  data: unknown
+): z.infer<TSchema> {
+  const result = schema.safeParse(data);
+
+  if (!result.success) {
+    const errorMessage = Object.values(z.flattenError(result.error).fieldErrors)
+      .flat()
+      .filter(Boolean)
+      .join(', ');
+
+    console.error('[Validation] Gặp lỗi khi validate dữ liệu: ', errorMessage);
+    throw new BadRequestError('Invalid Data Format, Please try again!');
+  }
+
+  return result.data;
+}
 // Schema validate cho 1 file ảnh
-const singleImageSchema = z
-  .any()
-  .refine((file) => !!file, 'Vui lòng tải lên một hình ảnh')
-  .superRefine((file, ctx) => {
-    if (!file) return;
 
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Chỉ chấp nhận các định dạng .jpeg, .png, .gif',
-      });
-      return; // Dừng lại nếu sai định dạng
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Kích thước mỗi ảnh không được vượt quá 5MB',
-      });
-    }
-  });
-
-export const albumSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, 'Title không được để trống')
-    .max(140, 'Title tối đa 140 ký tự'),
-
-  description: z
-    .string()
-    .trim()
-    .min(1, 'Description không được để trống')
-    .max(300, 'Description tối đa 300 ký tự'),
-
-  sharingMode: z.enum(['public', 'private'], {
-    error: () => ({ message: 'Vui lòng chọn chế độ chia sẻ hợp lệ' }),
-  }),
-
-  photos: z
-    .array(singleImageSchema)
-    .min(1, 'Vui lòng đính kèm ít nhất 1 hình ảnh')
-    .max(25, 'Tối đa được tải lên 25 hình ảnh'),
+const multerFileSchema = z.looseObject({
+  fieldname: z.string(),
+  originalname: z.string(),
+  encoding: z.string(),
+  mimetype: z.string(),
+  size: z.number(),
+  destination: z.string().optional(),
+  filename: z.string().optional(),
+  path: z.string().optional(),
 });
 
-export const photoSchema = z.object({
+export const singleImageSchema = multerFileSchema.superRefine((file, ctx) => {
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.mimetype)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Chỉ chấp nhận các định dạng .jpeg, .png, .gif, .webp',
+    });
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Kích thước mỗi ảnh không được vượt quá 5MB',
+    });
+  }
+});
+
+export const albumImageSchema = z.array(singleImageSchema);
+
+export const formInfoSchema = z.object({
   title: z
     .string()
     .min(1, 'Title không được để trống')
     .max(140, 'Title tối đa 140 ký tự.'),
 
-  description: z.string().max(300, 'Tối đa 300 ký tự').optional(),
+  description: z
+    .string()
+    .min(1, 'Description không được để trống')
+    .max(300, 'Tối đa 300 ký tự'),
 
-  sharingMode: z.enum(['public', 'private'], {
+  sharingMode: z.enum(['PUBLIC', 'PRIVATE'], {
     error: () => ({ message: 'Chọn chế độ chia sẻ hợp lệ' }),
   }),
-
-  // Dùng lại đúng schema file cho ảnh duy nhất đã định nghĩa ở trên
-  photo: singleImageSchema,
 });
 
-export const avatarSchema = z
-  .any()
-  .optional()
+export const avatarSchema = multerFileSchema
   .nullable()
+  .optional()
   .superRefine((file, ctx) => {
-    if (!file) return; // Không chọn avatar -> hợp lệ vì avatar là optional.
+    if (!file) return;
 
-    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.mimetype)) {
       ctx.addIssue({
         code: 'custom',
         message: 'Chỉ chấp nhận định dạng .jpeg, .png',
       });
-      return;
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
@@ -99,13 +102,7 @@ export const basicInfoSchema = z.object({
 
   lastName: z.string().trim().min(1, 'Last Name không được để trống'),
 
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Email không được để trống')
-    .email('Email không hợp lệ'),
-
-  avatar: avatarSchema,
+  email: z.email('Email không hợp lệ'),
 });
 
 export const passwordSchema = z
@@ -133,3 +130,66 @@ export const passwordSchema = z
       });
     }
   });
+
+export const adminProfileSchema = z.object({
+  firstName: z.string().min(1, 'Vui lòng nhập First Name'),
+  lastName: z.string().min(1, 'Vui lòng nhập Last Name'),
+  email: z.email('Email không hợp lệ'),
+  password: z.union([
+    z.string().length(0),
+    z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+  ]),
+  isActive: z.boolean(),
+});
+
+export const signupSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, 'First name không thể để trống')
+    .max(25, 'First name không được dài quá 25 ký tự'),
+
+  lastName: z
+    .string()
+    .min(1, 'Last name không thể để trống')
+    .max(25, 'Last name không được dài quá 25 ký tự'),
+
+  email: z
+    .email('Email không hợp lệ!')
+    .min(1, 'Email không được để trống')
+    .max(255, 'Email phải nhỏ hơn 255 ký tự'),
+
+  password: z
+    .string()
+    .min(1, 'Password cannot be empty')
+    .max(64, 'Password must be a maximum of 64 characters long'),
+
+  confirmedPassword: z
+    .string()
+    .min(1, 'Confirmed password cannot be empty')
+    .max(64, 'Confirmed password must be a maximum of 64 characters long'),
+});
+
+export const loginSchema = z.object({
+  email: z.email('Email không hợp lệ'),
+  password: z
+    .string()
+    .min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
+    .max(64, 'Mật khẩu phải nhỏ hơn 64 ký tự'),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .email('Email không hợp lệ!')
+    .max(255, 'Email phải nhỏ hơn 255 ký tự'),
+});
+
+export const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(1, 'Password cannot be empty')
+    .max(64, 'Password must be a maximum of 64 characters long'),
+  confirmedPassword: z
+    .string()
+    .min(1, 'Confirmed password cannot be empty')
+    .max(64, 'Confirmed password must be a maximum of 64 characters long'),
+});
