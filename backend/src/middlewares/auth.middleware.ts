@@ -11,11 +11,6 @@ import prisma from '../config/prisma/prisma.init.js';
 import type { AuthUser } from '../types/user.types.js';
 
 // Định nghĩa thêm type cho Request Express.
-declare global {
-  namespace Express {
-    interface User extends AuthUser {}
-  }
-}
 
 export const verifyToken = async (
   req: Request,

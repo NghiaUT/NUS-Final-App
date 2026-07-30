@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { signupSchema } from '../../utils/validators';
 import z from 'zod';
 import axios from 'axios';
-import type { ApiResponse } from '../../types/api.types';
+import type { ApiResponse, OAuthProvider } from '../../types/api.types';
 
 type ErrorValues = {
   firstName?: string;
@@ -116,11 +116,17 @@ const SignupPage = () => {
       ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
       : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
     }`;
+  const handleSocialClick = (provider: OAuthProvider) => {
+    toast.success('Đang chuyển hướng sang trang đăng nhập...');
+    setTimeout(() => {
+      authService.socialLogin(provider);
+    }, 2000)
+  }
 
   return (
     <div className="relative sm:top-10 md:top-12 mx-auto w-full sm:w-[400px] flex items-center flex-col flex-start">
       <h1 className="text-blue text-5xl text-center font-semibold m-5">Fotobook Signup</h1>
-      <MediaTabbar></MediaTabbar>
+      <MediaTabbar onClick={handleSocialClick} />
       <div className="flex w-full flex-col items-center justify-center py-8">
         {/* Container Card */}
         <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">

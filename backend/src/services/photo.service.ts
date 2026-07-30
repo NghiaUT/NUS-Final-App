@@ -385,7 +385,8 @@ export class PhotoService {
       });
 
       // Xóa file trong cloudinary
-      await removeFileCloudinary(deletePhoto.publicId);
+      if (deletePhoto.publicId)
+        await removeFileCloudinary(deletePhoto.publicId);
       return result;
     } catch (error) {
       throw error;

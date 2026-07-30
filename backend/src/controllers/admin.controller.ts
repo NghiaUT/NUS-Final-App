@@ -101,7 +101,7 @@ export const adminController = {
       const data = { ...req.body, photo: req.file } satisfies FormData;
       const result = await PhotoService.editPhoto(
         data,
-        req?.user.id,
+        req.user?.id ?? '1',
         photoId,
         true
       );
@@ -114,7 +114,7 @@ export const adminController = {
   getPhoto: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id: photoId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? '1';
 
       if (!photoId || Array.isArray(photoId)) {
         throw new BadRequestError('Invalid Request!');
@@ -135,7 +135,7 @@ export const adminController = {
       }
 
       const result = await PhotoService.deletePhoto(
-        req.user?.id,
+        req.user?.id ?? '1',
         photoId,
         true
       );
@@ -155,7 +155,7 @@ export const adminController = {
       }
       const result = await AlbumService.editAlbum(
         data,
-        req?.user.id,
+        req.user?.id ?? '1',
         albumId,
         true
       );
@@ -174,7 +174,7 @@ export const adminController = {
       }
 
       const result = await AlbumService.deleteAlbum(
-        req.user?.id,
+        req.user?.id ?? '1',
         albumId,
         true
       );
@@ -187,7 +187,7 @@ export const adminController = {
   getAlbum: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id: albumId } = req.params;
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? '1';
 
       if (!albumId || Array.isArray(albumId)) {
         throw new BadRequestError('Invalid Request!');

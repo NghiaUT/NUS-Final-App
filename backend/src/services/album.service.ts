@@ -496,7 +496,9 @@ export class AlbumService {
     });
 
     await Promise.all(
-      deleteAlbum.photos.map((photo) => removeFileCloudinary(photo.publicId))
+      deleteAlbum.photos.map((photo) => {
+        if (photo.publicId) removeFileCloudinary(photo.publicId);
+      })
     );
 
     return result;

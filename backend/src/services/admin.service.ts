@@ -116,7 +116,8 @@ export class AdminService {
       const userData = await prisma.$transaction(async (tx) => {
         // Không lưu avatar xuống photos database.
         if (avatarFile) {
-          await removeFileCloudinary(user.avatarPublicId);
+          if (user.avatarPublicId)
+            await removeFileCloudinary(user.avatarPublicId);
 
           const newAvatarUrl = `${constant.SERVER_URL}/uploads/${avatarFile?.filename}`;
           updatedData.avatarUrl = newAvatarUrl;
