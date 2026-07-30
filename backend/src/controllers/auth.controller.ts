@@ -125,7 +125,7 @@ export const authController = {
 
   getMe: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await AuthService.me(req.user.id);
+      const result = await AuthService.me(req.user?.id ?? 'none');
       sendSuccessRes(res, 'Validate successfull', result, 200);
     } catch (error) {
       next(error);

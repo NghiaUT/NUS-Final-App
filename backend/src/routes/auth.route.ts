@@ -1,9 +1,14 @@
 import express from 'express';
 import { authController } from '../controllers/auth.controller.js';
 import { verifyToken } from '../middlewares/auth.middleware.js';
+import googleRouter from './strategies/social_login/google.route.js';
 
 const authRouter = express.Router();
 
+// Social Login:
+authRouter.get('/google', googleRouter);
+
+// Common Login Route
 authRouter.post('/login', authController.login);
 authRouter.post('/signup', authController.signup);
 authRouter.post('/refresh-token', authController.getRefreshToken);

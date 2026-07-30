@@ -1,3 +1,4 @@
+import type { OAuthProvider } from '../types/api.types';
 import type { LoginForm, RegisterForm } from '../types/forms.types';
 import type { User } from '../types/user.types';
 import axiosInstance from './apiClient';
@@ -10,4 +11,5 @@ export const authService = {
   me: () => axiosInstance.get<{ data: User }>('/auth/me'),
   resetPassword: (token: string, newPassword: string) =>
     axiosInstance.post(`/auth/reset-password?token=${encodeURIComponent(token)}`, { newPassword }),
+  socialLogin: (provider: OAuthProvider) => axiosInstance.get(`/auth/${provider}`),
 };

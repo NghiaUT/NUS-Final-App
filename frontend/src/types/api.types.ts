@@ -8,3 +8,4 @@ export interface ApiResponse<T> {
 }
 
 export type FetchDataType = 'photo' | 'album' | 'follower' | 'following';
+export type OAuthProvider = 'google';

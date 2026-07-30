@@ -38,7 +38,7 @@ const removeFileOnFolder = async (input: string) => {
   }
 };
 
-const removeFileCloudinary = async (id: string | null) => {
+const removeFileOnCloudinary = async (id: string | null) => {
   // Xóa file đã tải lên Cloudinary
   try {
     if (!id) {
@@ -57,5 +57,5 @@ const removeFileCloudinary = async (id: string | null) => {
   }
 };
 
-export const removeFile =
-  STORAGE_PLACE === 'cloud' ? removeFileCloudinary : removeFileOnFolder;
+export const removeFileCloudinary =
+  STORAGE_PLACE === 'cloud' ? removeFileOnCloudinary : removeFileOnFolder;
