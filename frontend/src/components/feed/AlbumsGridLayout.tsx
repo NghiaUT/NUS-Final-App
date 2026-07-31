@@ -6,10 +6,12 @@ import PhotoAlbumToggle from './PhotoAlbumToggle';
 import LoadingSpinner from '../common/LoadingSpinner';
 import MobileTabar from './MobileTabar';
 import type { MediaItem, MediaType } from '../../types/media.types';
+import { useSearchParams } from 'react-router-dom';
 
 export type fetchProps = {
   pageParam: number;
   queryKey: string[];
+  searchQuery?: string; // Thêm keyword tìm kiếm (nếu có)
 }
 
 interface AlbumsGridLayoutProps {
@@ -21,9 +23,17 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }: AlbumsGridLayoutProps) => {
   // State for page photo or album.
   const [media, setMedia] = useState<MediaType>('photo');
   const { ref: bottomRef, inView } = useInView();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get('q') ?? '';
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-    queryKey: [...queryKey, media],
-    queryFn: fetchFn,
+    queryKey: [...queryKey, media, searchQuery],
+    queryFn: (context) =>
+      fetchFn({
+        pageParam: context.pageParam as number,
+        queryKey: context.queryKey as string[],
+        searchQuery,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === 10 ? allPages.length + 1 : null;
