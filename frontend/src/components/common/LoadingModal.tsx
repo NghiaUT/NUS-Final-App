@@ -38,9 +38,9 @@ export const LoadingModal: React.FC<LoadingModalProps> = ({
                 <div className="bg-white py-8 px-10 rounded-2xl shadow-xl flex flex-col items-center gap-5 animate-fade-in-up">
                     {/* 3 dấu chấm nhảy */}
                     <div className="flex gap-2.5">
-                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce [animation-delay:0ms]"></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce [animation-delay:150ms]"></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce [animation-delay:300ms]"></div>
                     </div>
                     <p className="text-blue-800 font-semibold tracking-wide">{message}</p>
                 </div>

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import FooterPagination from '../../../components/admin/FooterPagination';
 import type { User } from '../../../types/user.types';
 
-const USER_PER_PAGES = 10;
+const USER_PER_PAGES = 40;
 
 const ManageUsers = () => {
     const [usersData, setUsersData] = useState<User[]>([]);

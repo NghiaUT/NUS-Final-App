@@ -111,11 +111,11 @@ const EditAlbum = () => {
     if (hasError || !albumData) {
         return (
             <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 text-center">
-                <h3 style={{ color: 'red' }}>Không thể tải dữ liệu ảnh</h3>
+                <h3 className='text-red-500'>Không thể tải dữ liệu ảnh</h3>
                 <p>Album có thể đã bị xóa hoặc không tồn tại.</p>
                 <button
                     onClick={() => navigate('/')}
-                    style={{ marginTop: '16px', padding: '8px 16px', cursor: 'pointer' }}
+                    className='mt-4 px-4 py-2 cursor-pointer'
                 >
                     Quay lại trang cá nhân
                 </button>

@@ -13,7 +13,7 @@ export const adminController = {
         throw new BadRequestError('Invalid query!');
       }
       const page = parseInt((query.page as string) || '1');
-      const limit = parseInt((query.limit as string) || '10');
+      const limit = parseInt((query.limit as string) || '40');
       const result = await AdminService.getUsers(page, limit);
       sendSuccessRes(res, 'Get User List successfull', result, 200);
     } catch (error) {
