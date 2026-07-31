@@ -4,6 +4,8 @@ import { z } from 'zod';
 import LoadingSpinner from '../common/LoadingSpinner';
 import DeleteModal from '../common/DeleteModal';
 import type { AlbumData } from '../../types/media.types';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 type PhotoPreview = {
     id?: string;
@@ -37,6 +39,9 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Alb
     const [errors, setErrors] = useState<string[]>([]);
     const [deletedPhotosId, setDeletedPhotosId] = useState<string[]>([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [uploadDisabled, setUploadDisabled] = useState(false);
+    const { user, isAdmin } = useAuth();
+    const navigate = useNavigate();
 
     const fileInputRef = useRef<HTMLInputElement>(null); // -> dùng để upload ảnh lên bằng ref
 
@@ -116,7 +121,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Alb
         fileInputRef.current.click();
     }
 
-    const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrors([]);
 
@@ -179,18 +184,24 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Alb
         })
 
         try {
-            onSubmit(submitData);
+            await onSubmit(submitData);
+            setUploadDisabled(true);
 
-            if (isEditMode) {
-                const newPhotos = currPhotos.map((photo) => ({
-                    ...photo,
-                    file: undefined,
-                }));
-                setCurrPhotos(newPhotos);
-            }
+            const newPhotos = currPhotos.map((photo) => ({
+                ...photo,
+                file: undefined,
+            }));
+            setCurrPhotos(newPhotos);
 
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
+            }
+
+            if (!isEditMode) {
+                setTimeout(() => {
+                    if (isAdmin) navigate(`admin/manage-photos`);
+                    navigate(`/profile/${user?.id}`);
+                }, 2000);
             }
         } catch (error) {
             console.error("Submit failed:", error);
@@ -314,6 +325,7 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Alb
                             <div className='flex gap-8 lg:w-60'>
                                 <button
                                     type="submit"
+                                    disabled={uploadDisabled}
                                     className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors cursor-pointer"
                                 >
                                     Save

@@ -15,7 +15,7 @@ const NewPhoto = () => {
         try {
             setIsUploading(true);
             await photoService.addPhoto(formData);
-            toast.success("Tạo mới ảnh thành công!");
+            toast.success("Tạo mới ảnh thành công! \n Chuyển hướng về trang thông tin trong chốc lát...");
         } catch (error) {
             let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
 

@@ -4,6 +4,8 @@ import { z } from 'zod';
 import LoadingSpinner from '../common/LoadingSpinner';
 import DeleteModal from '../common/DeleteModal';
 import type { PhotoData } from '../../types/media.types';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 interface PhotoFormProps {
     initialData: PhotoData | null;
@@ -26,6 +28,9 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Pho
         initialData?.imageUrl ? initialData.imageUrl : null
     );
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [uploadDisabled, setUploadDisabled] = useState(false);
+    const { user, isAdmin } = useAuth();
+    const navigate = useNavigate();
 
     // Cleanup blob for review image
     useEffect(() => {
@@ -112,19 +117,24 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Pho
             submitData.append('photo', formData.photo);
         }
 
-        onSubmit(submitData);
-
         try {
             await onSubmit(submitData);
 
             // NẾU THÀNH CÔNG VÀ ĐANG Ở CHẾ ĐỘ EDIT -> CLEAR FILE MỚI TẢI LÊN
-            if (isEditMode) {
-                setFormData((prev) => ({ ...prev, photo: null }));
+            setUploadDisabled(true); // Tránh user spam khi tải
+            setFormData((prev) => ({ ...prev, photo: null }));
 
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
             }
+
+            if (!isEditMode) {
+                setTimeout(() => {
+                    if (isAdmin) navigate(`admin/manage-photos`);
+                    navigate(`/profile/${user?.id}`);
+                }, 2000);
+            }
+
         } catch (error) {
             console.error("Submit failed:", error);
         }
@@ -239,6 +249,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Pho
                             <div className='flex gap-8 lg:w-60'>
                                 <button
                                     type="submit"
+                                    disabled={uploadDisabled}
                                     className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition-colors cursor-pointer"
                                 >
                                     Save

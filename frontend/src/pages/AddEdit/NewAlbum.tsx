@@ -15,8 +15,7 @@ const NewAlbum = () => {
         try {
             setIsUploading(true);
             await albumService.addAlbum(formData);
-            toast.success("Tạo mới album thành công!");
-
+            toast.success("Tạo mới album thành công!\n Chuyển hướng về trang thông tin trong chốc lát...");
         } catch (error) {
             let errorMessage = "Đã có lỗi xảy ra. Vui lòng thử lại!";
 
