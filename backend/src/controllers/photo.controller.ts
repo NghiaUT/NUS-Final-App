@@ -21,11 +21,15 @@ export const photoController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
+      const searchQuery =
+        typeof query.q === 'string' ? query.q.trim() : undefined;
+
       const currentUserId = req?.user?.id ?? null;
       const result = await PhotoService.getAllPhotoDiscover(
         page,
         limit,
-        currentUserId
+        currentUserId,
+        searchQuery
       );
       sendSuccessRes(res, 'Get Photo succesfully', result, 200);
     } catch (error) {
@@ -41,10 +45,14 @@ export const photoController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
+      const searchQuery =
+        typeof query.q === 'string' ? query.q.trim() : undefined;
+
       const result = await PhotoService.getAllPhotoFeed(
         page,
         limit,
-        req.user?.id ?? '1'
+        req.user?.id ?? '1',
+        searchQuery
       );
       sendSuccessRes(res, 'Get Photo succesfully', result, 200);
     } catch (error) {

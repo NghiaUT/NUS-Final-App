@@ -43,11 +43,15 @@ export const albumController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
+      const searchQuery =
+        typeof query.q === 'string' ? query.q.trim() : undefined;
+
       const currentUserId = req?.user?.id ?? null;
       const result = await AlbumService.getAllAlbumDiscover(
         page,
         limit,
-        currentUserId
+        currentUserId,
+        searchQuery
       );
       sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
     } catch (error) {
@@ -64,10 +68,15 @@ export const albumController = {
       }
       const page = parseInt((query.page as string) || '1');
       const limit = parseInt((query.limit as string) || '10');
+
+      const searchQuery =
+        typeof query.q === 'string' ? query.q.trim() : undefined;
+
       const result = await AlbumService.getAllAlbumFeed(
         page,
         limit,
-        req.user?.id ?? '1'
+        req.user?.id ?? '1',
+        searchQuery
       );
       sendSuccessRes(res, 'Get All Albums Successfully', result, 200);
     } catch (error) {

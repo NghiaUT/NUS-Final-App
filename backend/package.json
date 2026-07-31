@@ -10,7 +10,9 @@
     "build": "tsc",
     "prisma": "npx prisma db push && npx prisma generate",
     "seed": "npx prisma db seed",
-    "start": "node dist/app.js"
+    "start": "node dist/app.js",
+    "backfill:album": "tsx scripts/backfillAlbumNoAccent.ts",
+    "backfill:photo": "tsx scripts/backfillPhotoNoAccent.ts"
   },
   "keywords": [
     "Nodejs",

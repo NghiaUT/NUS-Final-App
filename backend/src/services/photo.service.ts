@@ -9,6 +9,7 @@ import { constant } from '../config/constant/constant.js';
 import { redisClient } from '../config/redis/redis.config.js';
 import { removeFileCloudinary } from '../utils/removeFile.util.js';
 import type { SharingMode } from '../../generated/prisma/enums.js';
+import { removeVietnameseAccent } from '../utils/removeVietnameseAccent.util.js';
 
 type UploadData = {
   title: string;
@@ -21,21 +22,24 @@ export class PhotoService {
   static async getAllPhotoDiscover(
     page: number,
     limit: number,
-    currentUserId: string | null = null
+    currentUserId: string | null = null,
+    searchQuery?: string
   ) {
-    const cachedKey = `photos:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
+    const hasSearch = !!searchQuery;
+    const searchNoAccent = hasSearch ? removeVietnameseAccent(searchQuery) : '';
 
-    const cachedPhotos = await redisClient.get(cachedKey);
+    // const cachedKey = `photos:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
-    // if (cachedPhotos) {
-    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
-
-    //   return JSON.parse(cachedPhotos);
+    // if (!hasSearch) {
+    //   const cachedPhotos = await redisClient.get(cachedKey);
+    //   if (cachedPhotos) {
+    //     console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    //     return JSON.parse(cachedPhotos);
+    //   }
+    //   console.log(
+    //     `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    //   );
     // }
-
-    console.log(
-      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
-    );
 
     const skip = (page - 1) * limit;
 
@@ -53,6 +57,12 @@ export class PhotoService {
           userId: {
             not: currentUserId,
           },
+        }),
+        ...(hasSearch && {
+          OR: [
+            { titleNoAccent: { contains: searchNoAccent } },
+            { descriptionNoAccent: { contains: searchNoAccent } },
+          ],
         }),
       },
       include: {
@@ -116,7 +126,9 @@ export class PhotoService {
       };
     });
 
-    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+    // if (!hasSearch) {
+    //   await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+    // }
 
     return returnPhotos;
   }
@@ -124,21 +136,24 @@ export class PhotoService {
   static async getAllPhotoFeed(
     page: number,
     limit: number,
-    currentUserId: string
+    currentUserId: string,
+    searchQuery?: string
   ) {
-    const cachedKey = `photos:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
+    const hasSearch = !!searchQuery;
+    const searchNoAccent = hasSearch ? removeVietnameseAccent(searchQuery) : '';
 
-    const cachedPhotos = await redisClient.get(cachedKey);
+    // const cachedKey = `photos:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
-    // if (cachedPhotos) {
-    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
-
-    //   return JSON.parse(cachedPhotos);
+    // if (!hasSearch) {
+    //   const cachedPhotos = await redisClient.get(cachedKey);
+    //   if (cachedPhotos) {
+    //     console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    //     return JSON.parse(cachedPhotos);
+    //   }
+    //   console.log(
+    //     `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    //   );
     // }
-
-    console.log(
-      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
-    );
 
     const skip = (page - 1) * limit;
 
@@ -170,6 +185,12 @@ export class PhotoService {
           in: followingsId,
           ...(currentUserId && { not: currentUserId }),
         },
+        ...(hasSearch && {
+          OR: [
+            { titleNoAccent: { contains: searchNoAccent } },
+            { descriptionNoAccent: { contains: searchNoAccent } },
+          ],
+        }),
       },
       include: {
         author: {
@@ -225,7 +246,9 @@ export class PhotoService {
       };
     });
 
-    await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+    // if (!hasSearch) {
+    //   await redisClient.setex(cachedKey, 600, JSON.stringify(returnPhotos));
+    // }
 
     return returnPhotos;
   }
@@ -286,6 +309,10 @@ export class PhotoService {
           imageUrl: imageUrl,
           title: data.title,
           description: data.description,
+          titleNoAccent: removeVietnameseAccent(data.title),
+          descriptionNoAccent: data.description
+            ? removeVietnameseAccent(data.description)
+            : null,
           sharingMode: data.sharingMode,
           mimeType: data.photo.mimetype,
           publicId: data.photo.filename,
@@ -350,6 +377,10 @@ export class PhotoService {
           title: data.title || photo.title,
           sharingMode: data.sharingMode || photo.sharingMode,
           description: data.description || photo.description,
+          titleNoAccent: removeVietnameseAccent(data.title),
+          descriptionNoAccent: data.description
+            ? removeVietnameseAccent(data.description)
+            : null,
           imageUrl: imageUrl,
           mimeType: mimeType,
           userId: userId,

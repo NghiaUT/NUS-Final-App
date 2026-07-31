@@ -10,6 +10,7 @@ import {
   InternalServerError,
 } from '../utils/apiError.js';
 import { removeFileCloudinary } from '../utils/removeFile.util.js';
+import { removeVietnameseAccent } from '../utils/removeVietnameseAccent.util.js';
 
 type UploadData = {
   title: string;
@@ -23,24 +24,25 @@ export class AlbumService {
   static async getAllAlbumDiscover(
     page: number,
     limit: number,
-    currentUserId: string | null = null
+    currentUserId: string | null = null,
+    searchQuery?: string
   ) {
     console.log('[Service] This service get all album.!');
-    const cachedKey = `albums:public:discover:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
+    const hasSearch = !!searchQuery;
+    const searchNoAccent = hasSearch ? removeVietnameseAccent(searchQuery) : '';
 
-    const cachedAlbums = await redisClient.get(cachedKey);
+    // const cachedKey = `albums:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
-    // if (cachedAlbums) {
-    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
-
-    //   // Parse lại thành json.
-    //   return JSON.parse(cachedAlbums);
+    // if (!hasSearch) {
+    //   const cachedAlbums = await redisClient.get(cachedKey);
+    //   if (cachedAlbums) {
+    //     console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    //     return JSON.parse(cachedAlbums);
+    //   }
+    //   console.log(
+    //     `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    //   );
     // }
-
-    console.log(
-      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
-    );
-
     // Gọi DB như thông thường
     const skip = (page - 1) * limit;
 
@@ -56,6 +58,12 @@ export class AlbumService {
           userId: {
             not: currentUserId,
           },
+          ...(hasSearch && {
+            OR: [
+              { titleNoAccent: { contains: searchNoAccent } },
+              { descriptionNoAccent: { contains: searchNoAccent } },
+            ],
+          }),
         }),
       },
       include: {
@@ -132,7 +140,9 @@ export class AlbumService {
     });
 
     // Lưu dữ liệu trên vào Redis để dùng cache cho lần sau (TTL: 10 phút)
-    await redisClient.setex(cachedKey, 600, JSON.stringify(returnAlbums));
+    // if (!hasSearch) {
+    //   await redisClient.setex(cachedKey, 600, JSON.stringify(returnAlbums));
+    // }
 
     return returnAlbums;
   }
@@ -140,23 +150,30 @@ export class AlbumService {
   static async getAllAlbumFeed(
     page: number,
     limit: number,
-    currentUserId: string
+    currentUserId: string,
+    searchQuery?: string
   ) {
     console.log('[Service] This service get all album.!');
-    const cachedKey = `albums:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
-    const cachedAlbums = await redisClient.get(cachedKey);
+    const hasSearch = !!searchQuery;
+    const searchNoAccent = hasSearch ? removeVietnameseAccent(searchQuery) : '';
 
-    // if (cachedAlbums) {
-    //   console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    // const cachedKey = `albums:public:feed:page:${page}:limit:${limit}${currentUserId ? `:user:${currentUserId}` : ''}`;
 
-    //   // Parse lại thành json.
-    //   return JSON.parse(cachedAlbums);
+    // if (!hasSearch) {
+    //   const cachedAlbums = await redisClient.get(cachedKey);
+    //   if (cachedAlbums) {
+    //     console.log(`[Redis] Cache hit for key: ${cachedKey}`);
+    //     return JSON.parse(cachedAlbums);
+    //   }
+    //   console.log(
+    //     `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    //   );
     // }
 
-    console.log(
-      `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
-    );
+    // console.log(
+    //   `[Redis] Cache Miss for key: ${cachedKey}. Start to call DB...`
+    // );
 
     // Gọi DB như thông thường
     const skip = (page - 1) * limit;
@@ -186,6 +203,12 @@ export class AlbumService {
           in: followingsId,
           ...(currentUserId && { not: currentUserId }),
         },
+        ...(hasSearch && {
+          OR: [
+            { titleNoAccent: { contains: searchNoAccent } },
+            { descriptionNoAccent: { contains: searchNoAccent } },
+          ],
+        }),
       },
       include: {
         author: {
@@ -254,7 +277,9 @@ export class AlbumService {
     });
 
     // Lưu dữ liệu trên vào Redis để dùng cache cho lần sau (TTL: 10 phút)
-    await redisClient.setex(cachedKey, 600, JSON.stringify(returnAlbums));
+    // if (!hasSearch) {
+    //   await redisClient.setex(cachedKey, 600, JSON.stringify(returnAlbums));
+    // }
 
     return returnAlbums;
   }
@@ -316,6 +341,10 @@ export class AlbumService {
           data: {
             title: data.title,
             description: data.description,
+            titleNoAccent: removeVietnameseAccent(data.title),
+            descriptionNoAccent: data.description
+              ? removeVietnameseAccent(data.description)
+              : null,
             sharingMode: data.sharingMode,
             userId: userId,
           },
@@ -440,6 +469,10 @@ export class AlbumService {
           data: {
             title: data.title || album.title,
             sharingMode: data.sharingMode || album.sharingMode,
+            titleNoAccent: removeVietnameseAccent(data.title || album.title),
+            descriptionNoAccent: data.description
+              ? removeVietnameseAccent(data.description || album.description)
+              : album.descriptionNoAccent,
             description: data.description || album.description,
           },
           include: {

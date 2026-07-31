@@ -56,9 +56,13 @@ model Follow {
 }
 
 model Photo {
-  id          String      @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String?
   description String?
+
+  titleNoAccent       String?
+  descriptionNoAccent String?
+
   alt_text    String?
   sharingMode SharingMode @default(PUBLIC)
 
@@ -79,9 +83,13 @@ model Photo {
 }
 
 model Album {
-  id          String      @id @default(uuid())
+  id          String @id @default(uuid())
   title       String
   description String
+
+  titleNoAccent       String?
+  descriptionNoAccent String?
+
   sharingMode SharingMode @default(PUBLIC)
   publicId    String?
   createdAt   DateTime    @default(now())
