@@ -92,7 +92,7 @@ const ProfilePage = () => {
   }), [handleFetchData, handleOptimisticCountUpdate, isMyProfile]);
 
   return (
-    <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0">
+    <div className="flex-1 w-full bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen min-w-0 px-3 sm:px-4 md:px-0">
       {loading ? <LoadingSpinner /> :
         user ?
           <>

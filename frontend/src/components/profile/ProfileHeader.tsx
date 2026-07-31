@@ -31,8 +31,8 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFo
     }
   }
   return (
-    <div className="w-full min-w-0 flex flex-col xl:flex-row items-center xl:items-start mt-8 gap-6 md:gap-8 lg:gap-12 mb-16 p-3 md:p-5">
-      <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 xl:w-42 xl:h-42 rounded-full overflow-hidden border-2 border-white shadow-lg">
+    <div className="w-full min-w-0 flex flex-col xl:flex-row items-center xl:items-start mt-4 sm:mt-6 md:mt-8 gap-4 sm:gap-6 md:gap-8 lg:gap-12 mb-8 sm:mb-12 md:mb-16 p-3 md:p-5">
+      <div className="shrink-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 xl:w-42 xl:h-42 rounded-full overflow-hidden border-2 border-white shadow-lg">
         <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
       </div>
 
@@ -51,16 +51,16 @@ const ProfileHeader = ({ user, activeTab, setActiveTab, stats, isMyProfile, isFo
           ) : <div className="px-4 py-1 md:px-6 md:py-2 mb-3 md:mb-4 text-xs md:text-sm lg:text-base font-semibold text-[#f26522] border border-[#f26522] rounded-full hover:bg-orange-50 transition-colors cursor-pointer invisible">
             Hello
           </div>)}
-        <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 w-full text-center md:text-left">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6 w-full text-center md:text-left">
           {user.name}
         </h1>
 
-        <div className="flex flex-wrap items-center text-sm divide-x divide-gray-300 w-full justify-center md:justify-start gap-y-2">
+        <div className="flex flex-wrap items-center text-sm sm:divide-x divide-gray-300 w-full justify-center md:justify-start gap-x-3 gap-y-2">
           {stats.map((stat: ProfileStats) => (
             <button
               key={stat.id}
               onClick={() => setActiveTab(stat.id)}
-              className="px-4 md:px-6 lg:px-8 first:pl-0 last:pr-0 flex flex-col  xl:flex-row items-center md:items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
+              className="px-0 sm:px-4 md:px-6 lg:px-8 sm:first:pl-0 sm:last:pr-0 flex flex-col xl:flex-row items-center md:items-baseline gap-1 md:gap-2 hover:opacity-75 transition-opacity focus:outline-none cursor-pointer"
             >
               <span
                 className={twMerge('text-lg sm:text-xl lg:text-2xl font-bold transition-colors', activeTab === stat.id ? 'text-[#3b5998]' : 'text-gray-500')

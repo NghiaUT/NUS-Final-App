@@ -52,10 +52,9 @@ const ProfileCard = ({ profile, onFollowChange }: ProfileCardProps) => {
 
   return (
     // Card Container: Đổ bóng nhẹ, bo góc, flex cột và căn giữa nội dung
-    <div className={twMerge("bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-6 flex flex-col items-center w-full max-w-[260px] mx-auto", isUserProfile ? "pb-15" : '')}>
-      {/* Avatar & Name Group */}
-      <div className="flex flex-col items-center mb-6">
-        <div className="w-24 h-24 rounded-full overflow-hidden mb-3">
+    <div className={twMerge("bg-graywhite rounded-xl shadow-[0_2px_10px_rgb(0,0,0,0.05)] border border-gray-100 p-4 sm:p-6 flex flex-col items-center w-full max-w-[220px] sm:max-w-[260px] mx-auto", isUserProfile ? "pb-10 sm:pb-15" : '')}>
+      <div className="flex flex-col items-center mb-4 sm:mb-6">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-3">
           <img
             src={profile.avatarUrl}
             alt={profile.name}
@@ -67,7 +66,7 @@ const ProfileCard = ({ profile, onFollowChange }: ProfileCardProps) => {
       </div>
 
       {/* Stats Group */}
-      <div className="flex gap-8 mb-6">
+      <div className="flex gap-6 sm:gap-8 mb-4 sm:mb-6">
         <div className="flex flex-col items-center">
           <h3 className="text-2xl font-bold text-[#2a5a9a] leading-none">
             {profile.stats[0].value}

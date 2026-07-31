@@ -43,7 +43,7 @@ const ProfileGrid = ({ fetchData, type, onFollowChange }: ProfileGridProps) => {
         <p className="text-lg font-medium text-slate-600">Chưa có người dùng nào</p>
         <p className="text-sm mt-1 text-center">Không có dữ liệu hồ sơ để hiển thị lúc này.</p>
       </div>
-        : <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 items-start gap-x-8 gap-y-12 mb-16">
+        : <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 items-start gap-x-4 sm:gap-x-8 gap-y-8 sm:gap-y-12 mb-10 sm:mb-16">
           {data.map((item) => (
             <ProfileCard key={item.id} profile={item} onFollowChange={onFollowChange} />
           ))}
