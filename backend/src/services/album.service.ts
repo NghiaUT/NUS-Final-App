@@ -416,7 +416,7 @@ export class AlbumService {
         if (Array.isArray(data.photo) && data.photo.length !== 0) {
           // Thêm ảnh mới vào
           const newPhotos = data.photo.map((photo) => {
-            if (!photo.path)
+            if (!photo.path || !photo.filename)
               throw new InternalServerError('Error when uploading Photos...');
             return {
               imageUrl: photo?.path ?? null,
@@ -424,6 +424,7 @@ export class AlbumService {
               sharingMode: album.sharingMode,
               albumId: album.id,
               userId: userId,
+              publicId: photo.filename,
             };
           });
 

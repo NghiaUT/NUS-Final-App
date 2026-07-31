@@ -331,13 +331,15 @@ export class PhotoService {
       // 2.Update the photo.
       let imageUrl = photo.imageUrl;
       let mimeType = photo.mimeType;
+      let publicId = photo.publicId;
       if (data.photo) {
-        if (!data.photo?.filename || !data.photo.path) {
+        if (!data.photo?.filename || !data.photo.path || !data.photo.filename) {
           throw new InternalServerError('Error when upload Photo!');
         }
         oldImgFileName = photo.publicId;
         imageUrl = data.photo.path;
         mimeType = data.photo.mimetype;
+        publicId = data.photo.filename;
       }
 
       const newPhoto = await prisma.photo.update({
@@ -351,6 +353,7 @@ export class PhotoService {
           imageUrl: imageUrl,
           mimeType: mimeType,
           userId: userId,
+          publicId: publicId,
         },
       });
 

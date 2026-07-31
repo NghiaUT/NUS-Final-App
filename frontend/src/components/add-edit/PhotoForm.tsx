@@ -8,7 +8,7 @@ import type { PhotoData } from '../../types/media.types';
 interface PhotoFormProps {
     initialData: PhotoData | null;
     isEditMode: boolean;
-    onSubmit: (data: FormData) => void;
+    onSubmit: (data: FormData) => Promise<void> | void;
     onDelete: (id: string) => void;
     loading: boolean;
 }
@@ -73,7 +73,7 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Pho
         }
     }
 
-    const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formResult = formInfoSchema.safeParse(formData);
         if (!formResult.success) {
@@ -113,6 +113,21 @@ const PhotoForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Pho
         }
 
         onSubmit(submitData);
+
+        try {
+            await onSubmit(submitData);
+
+            // NẾU THÀNH CÔNG VÀ ĐANG Ở CHẾ ĐỘ EDIT -> CLEAR FILE MỚI TẢI LÊN
+            if (isEditMode) {
+                setFormData((prev) => ({ ...prev, photo: null }));
+
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            }
+        } catch (error) {
+            console.error("Submit failed:", error);
+        }
     }
 
     const handleDeleteClick = () => {

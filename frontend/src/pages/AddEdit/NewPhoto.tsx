@@ -27,6 +27,7 @@ const NewPhoto = () => {
                 errorMessage = error.message;
             }
             toast.error(errorMessage);
+            throw error; //Throw lỗi cho component con xài chung
         } finally {
             setIsUploading(false);
         }

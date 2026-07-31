@@ -15,7 +15,7 @@ interface AlbumFormProps {
     initialData: AlbumData | null;
     isEditMode: boolean;
     onSubmit: (data: FormData) => void;
-    onDelete: (id: string) => void;
+    onDelete: (id: string) => Promise<void> | void;
     loading: boolean;
 }
 
@@ -178,7 +178,23 @@ const AlbumForm = ({ initialData, isEditMode, onSubmit, onDelete, loading }: Alb
             submitData.append('album', photo.file);
         })
 
-        onSubmit(submitData);
+        try {
+            onSubmit(submitData);
+
+            if (isEditMode) {
+                const newPhotos = currPhotos.map((photo) => ({
+                    ...photo,
+                    file: undefined,
+                }));
+                setCurrPhotos(newPhotos);
+            }
+
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        } catch (error) {
+            console.error("Submit failed:", error);
+        }
     }
 
     const handleDeleteClick = () => {
