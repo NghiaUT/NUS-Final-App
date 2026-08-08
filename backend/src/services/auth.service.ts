@@ -368,6 +368,7 @@ export class AuthService {
           googleId: profile.id,
           isActive: true,
           isVerified: true,
+          lastLogin: new Date(),
         };
 
         switch (type) {
@@ -389,6 +390,7 @@ export class AuthService {
           },
           data: {
             googleId: profile.id,
+            lastLogin: new Date(),
           },
         });
       }

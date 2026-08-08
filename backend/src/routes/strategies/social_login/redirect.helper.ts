@@ -6,7 +6,7 @@ import { constant } from '../../../config/constant/constant.js';
 const issueTokenAndRedirect = (req: Request, res: Response) => {
   const user = req.user;
   if (!user) {
-    return res.redirect('/login-failed');
+    return res.redirect('/api/login-failed');
   }
   const tokens = generateToken({
     id: user.id,

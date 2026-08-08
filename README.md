@@ -33,7 +33,7 @@ Trước khi bắt đầu, hãy đảm bảo máy của bạn đã cài sẵn:
 - PostgreSQL
 - JWT cho xác thực
 - Redis + BullMQ cho hàng đợi và cache
-- Nodemailer cho gửi email xác thực
+- Nodemailer cho gửi email xác thực (Resend cho môi trường production)
 - Multer cho upload file
 
 ## 3. Cài đặt và chạy ở môi trường local
@@ -151,6 +151,10 @@ Ví dụ đơn giản:
 - Chọn chức năng “Upload Photo”
 - Điền thông tin ảnh và tải file lên
 - Xem ảnh vừa đăng trên trang chủ hoặc trong album của bạn
+
+## Sample Demo:
+
+[Watch Project Demo](https://youtu.be/VR6SAapPzCo)
 
 ## Ghi chú
 
