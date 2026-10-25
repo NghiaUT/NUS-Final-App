@@ -3,6 +3,7 @@ import { ApiError } from '../utils/apiError.js';
 import { constant } from '../config/constant/constant.js';
 import { sendErrorRes } from '../utils/sendRespone.util.js';
 import { MulterError } from 'multer';
+import { classifyPrismaError, PrismaError } from '../utils/prismaError.js';
 
 export const errorHandler = (
   err: Error,
@@ -11,6 +12,9 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   console.log('Error found in app: \n', '='.repeat(50), '\n', err);
+
+  const prismaError = classifyPrismaError(err);
+
   let statusCode = 500;
   let message = 'Internal Server Error';
   let errCode = '';
@@ -24,6 +28,12 @@ export const errorHandler = (
   if (err instanceof MulterError) {
     statusCode = 400;
     message = '[Multer]' + err.message;
+  }
+
+  if (prismaError) {
+    statusCode = prismaError.statusCode;
+    message = prismaError.message;
+    errCode = prismaError.errCode;
   }
 
   //   Formatting

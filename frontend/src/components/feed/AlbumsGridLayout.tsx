@@ -12,6 +12,7 @@ export type fetchProps = {
   pageParam: number;
   queryKey: string[];
   searchQuery?: string; // Thêm keyword tìm kiếm (nếu có)
+  signal?: AbortSignal;
 }
 
 interface AlbumsGridLayoutProps {
@@ -38,6 +39,7 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }: AlbumsGridLayoutProps) => {
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === 10 ? allPages.length + 1 : null;
     },
+    retry: 3
   });
 
   useEffect(() => {
@@ -51,65 +53,128 @@ const AlbumsGridLayout = ({ fetchFn, queryKey }: AlbumsGridLayoutProps) => {
   const isEmpty = filteredData.length === 0;
 
   // if (status === 'error') return <div className="p-4 text-red-500">Đã xảy ra lỗi khi tải dữ liệu.</div>;
-
   return (
     <div className="flex-1 bg-white md:max-w-[1200px] flex flex-col items-center min-h-screen">
-      {status === "error" ? <div className="p-4 text-red-500">Đã xảy ra lỗi khi tải dữ liệu.</div> : <>
-        <PhotoAlbumToggle media={media} handleOnClick={setMedia} />
-        {status === 'pending' ? (
-          <LoadingSpinner />
-        ) : isEmpty ? (
-          // Giao diện hiển thị khi không có data.
-          <div className="flex flex-col items-center justify-center flex-1 w-full pb-20 px-4 text-center">
-            <div className="bg-gray-100 rounded-full p-6 mb-4">
-              {/* Bạn có thể thay thế bằng một icon SVG hoặc hình ảnh minh họa đẹp hơn */}
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-700">
-              Chưa có {media === 'photo' ? 'hình ảnh' : 'album'} nào.
-            </h3>
-            <p className="text-gray-500 mt-2">
-              Hiện tại không có dữ liệu để hiển thị. <br /> Hãy thử tải lên một vài tấm ảnh mới và follow một người bạn mới nhé!
-            </p>
+      <PhotoAlbumToggle media={media} handleOnClick={setMedia} />
+      {status === "error" ?
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
+          <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
+            <svg
+              className="h-10 w-10 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M18 10a6 6 0 00-11.7-1.5A4.5 4.5 0 006 17h12a4 4 0 000-8h-1"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 10v4m0 3h.01"
+              />
+            </svg>
           </div>
-        ) : (
-          <>
-            <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-1.5 sm:gap-2.5 p-2.5">
-              {// Thực hiện render từng photocard pages trong Tanstack Query theo kiểu media của page hiện tại.
-                filteredData
-                  .map((data) => {
-                    return <PhotoCard data={data} key={data.id} />;
-                  })}
-            </div>
-            {/* Attach the ref to this invisible div at the bottom */}
-            <div ref={bottomRef} className='p-20 h-12.5'></div>
-            {isFetchingNextPage && <LoadingSpinner />}
-            {!hasNextPage && (
-              <div className="flex items-center justify-center py-10 w-full opacity-70">
-                <div className="flex-grow h-px bg-gray-300"></div>
-                <span className="px-4 text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <div className="flex flex-col items-center justify-center py-10 space-y-3">
-                    <p className="text-gray-500 text-xs md:text-sm xl:text-base">Tận cùng của nỗi nhơơơơớ, bạn đã lướt hết ảnh rồi?</p>
-                    <button
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                      className="px-4 py-2  text-xs md:text-sm xl:text-base font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors cursor-pointer"
-                    >
-                      Cuộn lên đầu trang
-                    </button>
-                  </div>
-                </span>
 
-                <div className="flex-grow h-px bg-gray-300"></div>
+          <h2 className="text-xl font-semibold text-gray-800">
+            Không thể tải dữ liệu
+          </h2>
+
+          <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">
+            Đã xảy ra sự cố khi kết nối đến máy chủ.
+            Vui lòng kiểm tra kết nối và thử lại.
+          </p>
+
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl
+          bg-blue-600 px-5 py-3 text-sm font-medium text-white
+          shadow-sm transition hover:bg-blue-700
+          active:scale-95"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M20 7v5h-5M4 17v-5h5"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5.5 9a7 7 0 0112-2L20 12M4 12l2.5 4a7 7 0 0012-2"
+              />
+            </svg>
+            Thử tải lại
+          </button>
+
+          <p className="mt-4 text-xs text-gray-400">
+            Nếu sự cố tiếp tục, vui lòng thử lại sau.
+          </p>
+        </div>
+        : <>
+          {status === 'pending' ? (
+            <LoadingSpinner />
+          ) : isEmpty ? (
+            // Giao diện hiển thị khi không có data.
+            <div className="flex flex-col items-center justify-center flex-1 w-full pb-20 px-4 text-center">
+              <div className="bg-gray-100 rounded-full p-6 mb-4">
+                {/* Bạn có thể thay thế bằng một icon SVG hoặc hình ảnh minh họa đẹp hơn */}
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
               </div>
-            )}
-          </>
-        )}
-        {/* Thêm padding để main content không bị che lấp bởi tab bar */}
-        {/* Tab Bar dưới đáy cho giao diện mobile (Khi screen dưới 640px)*/}
-        <MobileTabar />
-      </>}
+              <h3 className="text-lg font-semibold text-gray-700">
+                Chưa có {media === 'photo' ? 'hình ảnh' : 'album'} nào.
+              </h3>
+              <p className="text-gray-500 mt-2">
+                Hiện tại không có dữ liệu để hiển thị. <br /> Hãy thử tải lên một vài tấm ảnh mới và follow một người bạn mới nhé!
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 w-full grid grid-cols-1 xl:grid-cols-2 gap-1.5 sm:gap-2.5 p-2.5">
+                {// Thực hiện render từng photocard pages trong Tanstack Query theo kiểu media của page hiện tại.
+                  filteredData
+                    .map((data) => {
+                      return <PhotoCard data={data} key={data.id} />;
+                    })}
+              </div>
+              {/* Attach the ref to this invisible div at the bottom */}
+              <div ref={bottomRef} className='p-20 h-12.5'></div>
+              {isFetchingNextPage && <LoadingSpinner />}
+              {!hasNextPage && (
+                <div className="flex items-center justify-center py-10 w-full opacity-70">
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                  <span className="px-4 text-sm font-medium text-gray-500 flex items-center gap-2">
+                    <div className="flex flex-col items-center justify-center py-10 space-y-3">
+                      <p className="text-gray-500 text-xs md:text-sm xl:text-base">Tận cùng của nỗi nhơơơơớ, bạn đã lướt hết ảnh rồi?</p>
+                      <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="px-4 py-2  text-xs md:text-sm xl:text-base font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors cursor-pointer"
+                      >
+                        Cuộn lên đầu trang
+                      </button>
+                    </div>
+                  </span>
+
+                  <div className="flex-grow h-px bg-gray-300"></div>
+                </div>
+              )}
+            </>
+          )}
+          {/* Thêm padding để main content không bị che lấp bởi tab bar */}
+          {/* Tab Bar dưới đáy cho giao diện mobile (Khi screen dưới 640px)*/}
+          <MobileTabar />
+        </>}
     </div>
   );
 };
